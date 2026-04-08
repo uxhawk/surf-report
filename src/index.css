@@ -1,0 +1,168 @@
+@import "tailwindcss";
+
+@theme {
+  /* Retro 80s color palette */
+  --color-neon-pink: #FF2D78;
+  --color-neon-yellow: #FFE600;
+  --color-neon-cyan: #00CFFF;
+  --color-neon-purple: #BF00FF;
+  --color-retro-bg: #0A001A;
+  --color-retro-surface: #130028;
+  --color-retro-surface2: #1E0040;
+  --color-retro-border: #2D1060;
+  --color-retro-muted: #A78BFA;
+
+  /* Typography */
+  --font-display: 'Press Start 2P', monospace;
+  --font-body: 'Inter', sans-serif;
+
+  /* Neon glow shadows */
+  --shadow-neon-pink: 0 0 8px #FF2D78, 0 0 16px rgba(255, 45, 120, 0.4);
+  --shadow-neon-cyan: 0 0 8px #00CFFF, 0 0 16px rgba(0, 207, 255, 0.4);
+  --shadow-neon-yellow: 0 0 8px #FFE600, 0 0 16px rgba(255, 230, 0, 0.4);
+}
+
+/* Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background-color: #0A001A;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Subtle scanline overlay for retro effect */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.025) 3px,
+    rgba(0, 0, 0, 0.025) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ============================================================
+   NATIVE INPUT OVERRIDES
+   Keep native platform picker behavior (iOS wheel, etc.)
+   but style the containers to match the retro theme.
+   ============================================================ */
+
+input,
+select,
+textarea {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  background-color: #130028;
+  color: #fff;
+  border: 1px solid #2D1060;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-appearance: auto;
+  appearance: auto;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #00CFFF;
+  box-shadow: 0 0 0 2px rgba(0, 207, 255, 0.2);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #6B46A0;
+}
+
+select option {
+  background-color: #130028;
+  color: #fff;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* iOS date input color fix */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(0.8) sepia(1) saturate(3) hue-rotate(200deg);
+}
+
+/* Checkbox styling */
+input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  min-width: 1.25rem;
+  padding: 0;
+  border: 2px solid #2D1060;
+  border-radius: 0.25rem;
+  background-color: #130028;
+  cursor: pointer;
+  accent-color: #FF2D78;
+}
+
+input[type="checkbox"]:focus {
+  box-shadow: 0 0 0 2px rgba(255, 45, 120, 0.3);
+}
+
+/* ============================================================
+   GRADIENT BORDER CARD EFFECT
+   ============================================================ */
+
+.gradient-border {
+  background:
+    linear-gradient(#130028, #130028) padding-box,
+    linear-gradient(135deg, rgba(255, 45, 120, 0.5), rgba(0, 207, 255, 0.5)) border-box;
+  border: 1px solid transparent;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #0A001A;
+}
+::-webkit-scrollbar-thumb {
+  background: #2D1060;
+  border-radius: 2px;
+}
+
+/* ============================================================
+   RECHARTS CUSTOM TOOLTIP
+   ============================================================ */
+
+.recharts-tooltip-wrapper {
+  outline: none !important;
+}
+
+/* ============================================================
+   SAFE AREA INSETS (iOS notch/home bar)
+   ============================================================ */
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
