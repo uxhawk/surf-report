@@ -97,7 +97,7 @@ export default function LogSurf() {
         <FormField label="Location" required error={errors.location_id}>
           {locations.length === 0 ? (
             <p className="text-neon-pink text-xs py-2">
-              No locations yet — add them in Gear → Locations bro!
+              No locations yet — add them in Gear → Locations bro
             </p>
           ) : (
             <select value={form.location_id} onChange={e => set('location_id', e.target.value)}>
