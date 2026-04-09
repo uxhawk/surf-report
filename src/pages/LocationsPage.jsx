@@ -6,6 +6,7 @@ import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
 import { EmptyState } from '../components/ui/EmptyState'
 import { Spinner } from '../components/ui/Spinner'
+import { useToast } from '../components/ui/Toast'
 
 const EMPTY_FORM = { name: '', description: '', archived: false }
 
@@ -17,6 +18,7 @@ function validate(form) {
 
 export default function LocationsPage() {
   const navigate = useNavigate()
+  const showToast = useToast()
   const { locations, loading, createLocation, updateLocation, deleteLocation } = useLocations()
 
   const [showForm, setShowForm] = useState(false)
@@ -72,6 +74,7 @@ export default function LocationsPage() {
 
     setSaving(false)
     if (error) { setSaveError(error.message); return }
+    showToast(editingId ? 'Location updated!' : 'Location added!')
     closeForm()
   }
 

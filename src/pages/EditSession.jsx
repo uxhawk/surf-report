@@ -9,6 +9,7 @@ import { todayStr } from '../lib/utils'
 import { FormField } from '../components/ui/FormField'
 import { Button } from '../components/ui/Button'
 import { Spinner } from '../components/ui/Spinner'
+import { useToast } from '../components/ui/Toast'
 
 function validate(form) {
   const errors = {}
@@ -24,6 +25,7 @@ function validate(form) {
 export default function EditSession() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const showToast = useToast()
   const { getSession, updateSession } = useSessions()
   const { locations } = useLocations()
   const { boards } = useBoards()
@@ -98,6 +100,7 @@ export default function EditSession() {
       return
     }
 
+    showToast('Session updated!')
     navigate('/')
   }
 

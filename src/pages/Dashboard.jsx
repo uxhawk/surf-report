@@ -39,9 +39,14 @@ export default function Dashboard() {
     })
   }, [sessions, filters])
 
+  const yearFiltered = useMemo(() => {
+    if (!filters.year) return sessions
+    return sessions.filter(s => parseLocalDate(s.date).getFullYear() === Number(filters.year))
+  }, [sessions, filters.year])
+
   const stats = useMemo(() => computeDashboardStats(filtered), [filtered])
   const streak = useMemo(() => calculateStreak(sessions), [sessions])
-  const longestStreak = useMemo(() => calculateLongestStreak(sessions), [sessions])
+  const longestStreak = useMemo(() => calculateLongestStreak(yearFiltered), [yearFiltered])
 
   const lastSurf = sessions[0]?.date
 

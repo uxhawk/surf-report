@@ -8,6 +8,7 @@ import { Modal } from '../components/ui/Modal'
 import { EmptyState } from '../components/ui/EmptyState'
 import { Spinner } from '../components/ui/Spinner'
 import { PhotoUpload } from '../components/ui/PhotoUpload'
+import { useToast } from '../components/ui/Toast'
 
 const EMPTY_FORM = { brand: '', model: '', setup: '', picture_url: '', archived: false }
 
@@ -28,6 +29,7 @@ const SETUP_COLORS = {
 
 export default function FinsPage() {
   const navigate = useNavigate()
+  const showToast = useToast()
   const { fins, loading, createFin, updateFin, deleteFin } = useFins()
 
   const [showForm, setShowForm] = useState(false)
@@ -96,6 +98,7 @@ export default function FinsPage() {
 
     setSaving(false)
     if (error) { setSaveError(error.message); return }
+    showToast(editingId ? 'Fins updated!' : 'Fins added!')
     closeForm()
   }
 

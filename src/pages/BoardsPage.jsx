@@ -8,6 +8,7 @@ import { Modal } from '../components/ui/Modal'
 import { EmptyState } from '../components/ui/EmptyState'
 import { Spinner } from '../components/ui/Spinner'
 import { PhotoUpload } from '../components/ui/PhotoUpload'
+import { useToast } from '../components/ui/Toast'
 
 const EMPTY_FORM = {
   brand: '', model: '', length_inches: '', volume: '',
@@ -78,6 +79,7 @@ function BoardCard({ board, onEdit, onDelete, onMetrics }) {
 
 export default function BoardsPage() {
   const navigate = useNavigate()
+  const showToast = useToast()
   const { boards, loading, createBoard, updateBoard, deleteBoard } = useBoards()
 
   const [showForm, setShowForm] = useState(false)
@@ -162,6 +164,7 @@ export default function BoardsPage() {
 
     setSaving(false)
     if (error) { setSaveError(error.message); return }
+    showToast(editingId ? 'Board updated!' : 'Board added!')
     closeForm()
   }
 

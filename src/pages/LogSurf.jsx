@@ -9,6 +9,7 @@ import { todayStr } from '../lib/utils'
 import { FormField } from '../components/ui/FormField'
 import { Button } from '../components/ui/Button'
 import { Spinner } from '../components/ui/Spinner'
+import { useToast } from '../components/ui/Toast'
 
 function validate(form) {
   const errors = {}
@@ -23,6 +24,7 @@ function validate(form) {
 
 export default function LogSurf() {
   const navigate = useNavigate()
+  const showToast = useToast()
   const { createSession } = useSessions()
   const { locations, loading: locLoading } = useLocations()
   const { boards, loading: boardLoading } = useBoards()
@@ -90,6 +92,7 @@ export default function LogSurf() {
       return
     }
 
+    showToast('Session logged!')
     navigate('/')
   }
 

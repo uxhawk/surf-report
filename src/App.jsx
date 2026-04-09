@@ -1,4 +1,5 @@
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { ToastProvider } from './components/ui/Toast'
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import LogSurf from './pages/LogSurf'
@@ -12,6 +13,7 @@ import GearMetrics from './pages/GearMetrics'
 export default function App() {
   return (
     <Router>
+      <ToastProvider>
       <Layout>
         <Routes>
           <Route path="/" element={<Dashboard />} />
@@ -28,6 +30,7 @@ export default function App() {
           </Route>
         </Routes>
       </Layout>
+      </ToastProvider>
     </Router>
   )
 }
