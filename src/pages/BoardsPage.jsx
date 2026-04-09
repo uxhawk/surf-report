@@ -10,6 +10,12 @@ import { Spinner } from '../components/ui/Spinner'
 import { PhotoUpload } from '../components/ui/PhotoUpload'
 import { useToast } from '../components/ui/Toast'
 
+function formatBoardLength(inches) {
+  const feet = Math.floor(inches / 12)
+  const remainingInches = inches % 12
+  return `${feet}'${remainingInches}"`
+}
+
 const EMPTY_FORM = {
   brand: '', model: '', length_inches: '', volume: '',
   description: '', fin_configurations: [], picture_url: '', archived: false,
@@ -35,43 +41,41 @@ function BoardCard({ board, onEdit, onDelete, onMetrics }) {
           className="w-full h-40 object-cover"
         />
       )}
-      <div className="p-4 flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <p className="text-white font-semibold text-sm">
+      <div className="p-4 flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <p className="text-white font-semibold text-sm truncate">
               {board.brand} {board.model}
             </p>
             {board.archived && (
-              <span className="text-[9px] font-display text-retro-muted border border-retro-border rounded px-1.5 py-0.5">
+              <span className="text-[9px] font-display text-retro-muted border border-retro-border rounded px-1.5 py-0.5 shrink-0">
                 ARCHIVED
               </span>
             )}
           </div>
-          <p className="text-retro-muted text-xs mt-0.5">
-            {board.length_inches}"
+          <div className="flex gap-2 shrink-0">
+            <Button size="sm" variant="ghost" onClick={() => onMetrics(board)}>Metrics</Button>
+            <Button size="sm" variant="ghost" onClick={() => onEdit(board)}>Edit</Button>
+            <Button size="sm" variant="danger" onClick={() => onDelete(board.id)}>Delete</Button>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-retro-muted text-xs">
+            {formatBoardLength(board.length_inches)}
             {board.volume ? ` · ${board.volume}L` : ''}
-          </p>
-          {board.fin_configurations?.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2">
-              {board.fin_configurations.map(c => (
-                <span
-                  key={c}
-                  className="text-[9px] font-display text-neon-cyan border border-neon-cyan/40 rounded px-1.5 py-0.5"
-                >
-                  {c}
-                </span>
-              ))}
-            </div>
-          )}
-          {board.description && (
-            <p className="text-retro-muted text-xs mt-2">{board.description}</p>
-          )}
+          </span>
+          {board.fin_configurations?.map(c => (
+            <span
+              key={c}
+              className="text-[9px] font-display text-neon-cyan border border-neon-cyan/40 rounded px-1.5 py-0.5"
+            >
+              {c}
+            </span>
+          ))}
         </div>
-        <div className="flex gap-2 shrink-0">
-          <Button size="sm" variant="ghost" onClick={() => onMetrics(board)}>Metrics</Button>
-          <Button size="sm" variant="ghost" onClick={() => onEdit(board)}>Edit</Button>
-          <Button size="sm" variant="danger" onClick={() => onDelete(board.id)}>Delete</Button>
-        </div>
+        {board.description && (
+          <p className="text-retro-muted text-xs">{board.description}</p>
+        )}
       </div>
     </div>
   )

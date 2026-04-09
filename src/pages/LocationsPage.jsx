@@ -172,25 +172,25 @@ export default function LocationsPage() {
       ) : (
         <div className="flex flex-col gap-3">
           {locations.map(location => (
-            <div key={location.id} className={`gradient-border rounded-xl p-4 bg-retro-surface flex items-start justify-between gap-3${location.archived ? ' opacity-50' : ''}`}>
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="text-white font-semibold text-sm">{location.name}</p>
+            <div key={location.id} className={`gradient-border rounded-xl p-4 bg-retro-surface flex flex-col gap-2${location.archived ? ' opacity-50' : ''}`}>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <p className="text-white font-semibold text-sm truncate">{location.name}</p>
                   {location.archived && (
-                    <span className="text-[9px] font-display text-retro-muted border border-retro-border rounded px-1.5 py-0.5">
+                    <span className="text-[9px] font-display text-retro-muted border border-retro-border rounded px-1.5 py-0.5 shrink-0">
                       ARCHIVED
                     </span>
                   )}
                 </div>
-                {location.description && (
-                  <p className="text-retro-muted text-xs mt-1">{location.description}</p>
-                )}
+                <div className="flex gap-2 shrink-0">
+                  <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/locations/${location.id}/metrics`, { state: { name: location.name } })}>Metrics</Button>
+                  <Button size="sm" variant="ghost" onClick={() => openEdit(location)}>Edit</Button>
+                  <Button size="sm" variant="danger" onClick={() => { setDeletingId(location.id); setDeleteError(null) }}>Delete</Button>
+                </div>
               </div>
-              <div className="flex gap-2 shrink-0">
-                <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/locations/${location.id}/metrics`, { state: { name: location.name } })}>Metrics</Button>
-                <Button size="sm" variant="ghost" onClick={() => openEdit(location)}>Edit</Button>
-                <Button size="sm" variant="danger" onClick={() => { setDeletingId(location.id); setDeleteError(null) }}>Delete</Button>
-              </div>
+              {location.description && (
+                <p className="text-retro-muted text-xs">{location.description}</p>
+              )}
             </div>
           ))}
         </div>

@@ -204,20 +204,18 @@ export default function FinsPage() {
                 />
               )}
               <div className="p-4 flex items-center justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="text-white font-semibold text-sm">
-                      {fin.brand} {fin.model}
-                    </p>
-                    {fin.archived && (
-                      <span className="text-[9px] font-display text-retro-muted border border-retro-border rounded px-1.5 py-0.5">
-                        ARCHIVED
-                      </span>
-                    )}
-                  </div>
-                  <span className={`text-[9px] font-display border rounded px-1.5 py-0.5 mt-1 inline-block ${SETUP_COLORS[fin.setup] ?? 'text-retro-muted border-retro-border'}`}>
+                <div className="flex items-center gap-2 min-w-0">
+                  <p className="text-white font-semibold text-sm truncate">
+                    {fin.brand} {fin.model}
+                  </p>
+                  <span className={`text-[9px] font-display border rounded px-1.5 py-0.5 shrink-0 ${SETUP_COLORS[fin.setup] ?? 'text-retro-muted border-retro-border'}`}>
                     {fin.setup}
                   </span>
+                  {fin.archived && (
+                    <span className="text-[9px] font-display text-retro-muted border border-retro-border rounded px-1.5 py-0.5 shrink-0">
+                      ARCHIVED
+                    </span>
+                  )}
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/fins/${fin.id}/metrics`, { state: { name: `${fin.brand} ${fin.model}` } })}>Metrics</Button>
