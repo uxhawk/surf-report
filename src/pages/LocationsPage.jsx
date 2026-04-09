@@ -7,6 +7,7 @@ import { Modal } from '../components/ui/Modal'
 import { EmptyState } from '../components/ui/EmptyState'
 import { Spinner } from '../components/ui/Spinner'
 import { useToast } from '../components/ui/Toast'
+import { SegmentedControl } from '../components/ui/SegmentedControl'
 
 const EMPTY_FORM = { name: '', description: '', archived: false }
 
@@ -29,6 +30,7 @@ export default function LocationsPage() {
   const [saveError, setSaveError] = useState(null)
   const [deletingId, setDeletingId] = useState(null)
   const [deleteError, setDeleteError] = useState(null)
+  const [view, setView] = useState('active')
 
   function openAdd() {
     setEditingId(null)
@@ -89,14 +91,16 @@ export default function LocationsPage() {
   if (loading) return <Spinner />
 
   const deletingLocation = locations.find(l => l.id === deletingId)
+  const visible = locations.filter(l => view === 'archived' ? l.archived : !l.archived)
 
   return (
     <div className="p-4 flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <span className="text-retro-muted text-xs">
-          {locations.filter(l => !l.archived).length} location{locations.filter(l => !l.archived).length !== 1 ? 's' : ''}
-          {locations.some(l => l.archived) && <span className="ml-1 opacity-50">· {locations.filter(l => l.archived).length} archived</span>}
-        </span>
+      <div className="flex items-center justify-between gap-3">
+        <SegmentedControl
+          options={[{ label: 'Active', value: 'active' }, { label: 'Archived', value: 'archived' }]}
+          value={view}
+          onChange={setView}
+        />
         <Button size="sm" onClick={openAdd}>+ Add Location</Button>
       </div>
 
@@ -163,24 +167,19 @@ export default function LocationsPage() {
       )}
 
       {/* List */}
-      {locations.length === 0 && !showForm ? (
+      {visible.length === 0 && !showForm ? (
         <EmptyState
           icon="📍"
-          title="No locations yet"
-          message="Add your go-to surf spots so you can select them when logging sessions."
+          title={view === 'archived' ? 'No archived locations' : 'No locations yet'}
+          message={view === 'archived' ? 'Archived locations will appear here.' : 'Add your go-to surf spots so you can select them when logging sessions.'}
         />
       ) : (
         <div className="flex flex-col gap-3">
-          {locations.map(location => (
-            <div key={location.id} className={`gradient-border rounded-xl p-4 bg-retro-surface flex flex-col gap-2${location.archived ? ' opacity-50' : ''}`}>
+          {visible.map(location => (
+            <div key={location.id} className="gradient-border rounded-xl p-4 bg-retro-surface flex flex-col gap-2">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 min-w-0">
                   <p className="text-white font-semibold text-sm truncate">{location.name}</p>
-                  {location.archived && (
-                    <span className="text-[9px] font-display text-retro-muted border border-retro-border rounded px-1.5 py-0.5 shrink-0">
-                      ARCHIVED
-                    </span>
-                  )}
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/locations/${location.id}/metrics`, { state: { name: location.name } })}>Metrics</Button>

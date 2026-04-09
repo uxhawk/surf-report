@@ -9,8 +9,9 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { Spinner } from '../components/ui/Spinner'
 import { PhotoUpload } from '../components/ui/PhotoUpload'
 import { useToast } from '../components/ui/Toast'
+import { SegmentedControl } from '../components/ui/SegmentedControl'
 
-const EMPTY_FORM = { brand: '', model: '', setup: '', picture_url: '', archived: false }
+const EMPTY_FORM = { brand: '', model: '', setup: '', description: '', picture_url: '', archived: false }
 
 function validate(form) {
   const errors = {}
@@ -40,6 +41,7 @@ export default function FinsPage() {
   const [saveError, setSaveError] = useState(null)
   const [deletingId, setDeletingId] = useState(null)
   const [deleteError, setDeleteError] = useState(null)
+  const [view, setView] = useState('active')
 
   function openAdd() {
     setEditingId(null)
@@ -55,6 +57,7 @@ export default function FinsPage() {
       brand: fin.brand,
       model: fin.model,
       setup: fin.setup,
+      description: fin.description ?? '',
       picture_url: fin.picture_url ?? '',
       archived: fin.archived ?? false,
     })
@@ -88,6 +91,7 @@ export default function FinsPage() {
       brand: form.brand.trim(),
       model: form.model.trim(),
       setup: form.setup,
+      description: form.description.trim() || null,
       picture_url: form.picture_url || null,
       archived: form.archived,
     }
@@ -113,14 +117,16 @@ export default function FinsPage() {
   if (loading) return <Spinner />
 
   const deletingFin = fins.find(f => f.id === deletingId)
+  const visible = fins.filter(f => view === 'archived' ? f.archived : !f.archived)
 
   return (
     <div className="p-4 flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <span className="text-retro-muted text-xs">
-          {fins.filter(f => !f.archived).length} fin set{fins.filter(f => !f.archived).length !== 1 ? 's' : ''}
-          {fins.some(f => f.archived) && <span className="ml-1 opacity-50">· {fins.filter(f => f.archived).length} archived</span>}
-        </span>
+      <div className="flex items-center justify-between gap-3">
+        <SegmentedControl
+          options={[{ label: 'Active', value: 'active' }, { label: 'Archived', value: 'archived' }]}
+          value={view}
+          onChange={setView}
+        />
         <Button size="sm" onClick={openAdd}>+ Add Fins</Button>
       </div>
 
@@ -158,6 +164,15 @@ export default function FinsPage() {
             </select>
           </FormField>
 
+          <FormField label="Description">
+            <textarea
+              value={form.description}
+              onChange={e => set('description', e.target.value)}
+              placeholder="Any notes about these fins…"
+              rows={2}
+            />
+          </FormField>
+
           <FormField label="Photo">
             <PhotoUpload value={form.picture_url} onChange={url => set('picture_url', url)} label="fins photo" />
           </FormField>
@@ -186,16 +201,16 @@ export default function FinsPage() {
         </form>
       )}
 
-      {fins.length === 0 && !showForm ? (
+      {visible.length === 0 && !showForm ? (
         <EmptyState
           icon="🔱"
-          title="No fins yet"
-          message="Add your fin sets so you can track which setup you rode each session."
+          title={view === 'archived' ? 'No archived fins' : 'No fins yet'}
+          message={view === 'archived' ? 'Archived fins will appear here.' : 'Add your fin sets so you can track which setup you rode each session.'}
         />
       ) : (
         <div className="flex flex-col gap-3">
-          {fins.map(fin => (
-            <div key={fin.id} className={`gradient-border rounded-xl bg-retro-surface overflow-hidden${fin.archived ? ' opacity-50' : ''}`}>
+          {visible.map(fin => (
+            <div key={fin.id} className="gradient-border rounded-xl bg-retro-surface overflow-hidden">
               {fin.picture_url && (
                 <img
                   src={fin.picture_url}
@@ -203,25 +218,25 @@ export default function FinsPage() {
                   className="w-full h-36 object-cover"
                 />
               )}
-              <div className="p-4 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 min-w-0">
-                  <p className="text-white font-semibold text-sm truncate">
-                    {fin.brand} {fin.model}
-                  </p>
-                  <span className={`text-[9px] font-display border rounded px-1.5 py-0.5 shrink-0 ${SETUP_COLORS[fin.setup] ?? 'text-retro-muted border-retro-border'}`}>
-                    {fin.setup}
-                  </span>
-                  {fin.archived && (
-                    <span className="text-[9px] font-display text-retro-muted border border-retro-border rounded px-1.5 py-0.5 shrink-0">
-                      ARCHIVED
+              <div className="p-4 flex flex-col gap-2">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <p className="text-white font-semibold text-sm truncate">
+                      {fin.brand} {fin.model}
+                    </p>
+                    <span className={`text-[9px] font-display border rounded px-1.5 py-0.5 shrink-0 ${SETUP_COLORS[fin.setup] ?? 'text-retro-muted border-retro-border'}`}>
+                      {fin.setup}
                     </span>
-                  )}
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/fins/${fin.id}/metrics`, { state: { name: `${fin.brand} ${fin.model}` } })}>Metrics</Button>
+                    <Button size="sm" variant="ghost" onClick={() => openEdit(fin)}>Edit</Button>
+                    <Button size="sm" variant="danger" onClick={() => { setDeletingId(fin.id); setDeleteError(null) }}>Delete</Button>
+                  </div>
                 </div>
-                <div className="flex gap-2 shrink-0">
-                  <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/fins/${fin.id}/metrics`, { state: { name: `${fin.brand} ${fin.model}` } })}>Metrics</Button>
-                  <Button size="sm" variant="ghost" onClick={() => openEdit(fin)}>Edit</Button>
-                  <Button size="sm" variant="danger" onClick={() => { setDeletingId(fin.id); setDeleteError(null) }}>Delete</Button>
-                </div>
+                {fin.description && (
+                  <p className="text-retro-muted text-xs">{fin.description}</p>
+                )}
               </div>
             </div>
           ))}

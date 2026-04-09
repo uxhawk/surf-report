@@ -9,6 +9,7 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { Spinner } from '../components/ui/Spinner'
 import { PhotoUpload } from '../components/ui/PhotoUpload'
 import { useToast } from '../components/ui/Toast'
+import { SegmentedControl } from '../components/ui/SegmentedControl'
 
 function formatBoardLength(inches) {
   const feet = Math.floor(inches / 12)
@@ -33,7 +34,7 @@ function validate(form) {
 
 function BoardCard({ board, onEdit, onDelete, onMetrics }) {
   return (
-    <div className={`gradient-border rounded-xl bg-retro-surface overflow-hidden${board.archived ? ' opacity-50' : ''}`}>
+    <div className="gradient-border rounded-xl bg-retro-surface overflow-hidden">
       {board.picture_url && (
         <img
           src={board.picture_url}
@@ -47,11 +48,6 @@ function BoardCard({ board, onEdit, onDelete, onMetrics }) {
             <p className="text-white font-semibold text-sm truncate">
               {board.brand} {board.model}
             </p>
-            {board.archived && (
-              <span className="text-[9px] font-display text-retro-muted border border-retro-border rounded px-1.5 py-0.5 shrink-0">
-                ARCHIVED
-              </span>
-            )}
           </div>
           <div className="flex gap-2 shrink-0">
             <Button size="sm" variant="ghost" onClick={() => onMetrics(board)}>Metrics</Button>
@@ -94,6 +90,7 @@ export default function BoardsPage() {
   const [saveError, setSaveError] = useState(null)
   const [deletingId, setDeletingId] = useState(null)
   const [deleteError, setDeleteError] = useState(null)
+  const [view, setView] = useState('active')
 
   function openAdd() {
     setEditingId(null)
@@ -183,14 +180,16 @@ export default function BoardsPage() {
   if (loading) return <Spinner />
 
   const deletingBoard = boards.find(b => b.id === deletingId)
+  const visible = boards.filter(b => view === 'archived' ? b.archived : !b.archived)
 
   return (
     <div className="p-4 flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <span className="text-retro-muted text-xs">
-          {boards.filter(b => !b.archived).length} board{boards.filter(b => !b.archived).length !== 1 ? 's' : ''}
-          {boards.some(b => b.archived) && <span className="ml-1 opacity-50">· {boards.filter(b => b.archived).length} archived</span>}
-        </span>
+      <div className="flex items-center justify-between gap-3">
+        <SegmentedControl
+          options={[{ label: 'Active', value: 'active' }, { label: 'Archived', value: 'archived' }]}
+          value={view}
+          onChange={setView}
+        />
         <Button size="sm" onClick={openAdd}>+ Add Board</Button>
       </div>
 
@@ -275,15 +274,15 @@ export default function BoardsPage() {
         </form>
       )}
 
-      {boards.length === 0 && !showForm ? (
+      {visible.length === 0 && !showForm ? (
         <EmptyState
           icon="🏄"
-          title="No boards yet"
-          message="Add your boards so you can track which one you ride each session."
+          title={view === 'archived' ? 'No archived boards' : 'No boards yet'}
+          message={view === 'archived' ? 'Archived boards will appear here.' : 'Add your boards so you can track which one you ride each session.'}
         />
       ) : (
         <div className="flex flex-col gap-3">
-          {boards.map(board => (
+          {visible.map(board => (
             <BoardCard
               key={board.id}
               board={board}
