@@ -54,8 +54,13 @@ export default function LogSurf() {
   function set(field, value) {
     setForm(prev => {
       const next = { ...prev, [field]: value }
-      // Clear fins selection if board changes (fins may no longer be compatible)
-      if (field === 'board_id') next.fins_id = ''
+      if (field === 'board_id') {
+        const board = activeBoards.find(b => b.id === value)
+        const matching = board?.fin_configurations?.length
+          ? activeFins.filter(f => board.fin_configurations.includes(f.setup))
+          : activeFins
+        next.fins_id = matching.length === 1 ? matching[0].id : ''
+      }
       return next
     })
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }))

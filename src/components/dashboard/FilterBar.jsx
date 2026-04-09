@@ -1,8 +1,7 @@
 import { MONTHS } from '../../lib/constants'
 
 export function FilterBar({ filters, onChange, locations, boards, fins }) {
-  const currentYear = new Date().getFullYear()
-  const years = Array.from({ length: 10 }, (_, i) => currentYear - i)
+  const years = [2026, 2025]
 
   function set(key, value) {
     onChange({ ...filters, [key]: value })
