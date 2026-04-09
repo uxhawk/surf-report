@@ -11,6 +11,7 @@ import { PhotoUpload } from '../components/ui/PhotoUpload'
 import { useToast } from '../components/ui/Toast'
 import { SegmentedControl } from '../components/ui/SegmentedControl'
 import { KebabMenu } from '../components/ui/KebabMenu'
+import { PlusBox } from 'pixelarticons/react/PlusBox.js'
 
 function formatBoardLength(inches) {
   const feet = Math.floor(inches / 12)
@@ -188,7 +189,7 @@ export default function BoardsPage() {
           value={view}
           onChange={setView}
         />
-        <Button size="sm" onClick={openAdd}>+ Add Board</Button>
+        <Button size="sm" onClick={openAdd}><PlusBox className="w-4 h-4" /> Add Board</Button>
       </div>
 
       {deleteError && (

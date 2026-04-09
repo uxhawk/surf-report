@@ -72,13 +72,6 @@ export default function GearMetrics({ type }) {
 
   return (
     <div className="p-4 flex flex-col gap-6">
-      <div>
-        <p className="text-white font-semibold text-sm">{name}</p>
-        <p className="text-retro-muted text-xs mt-0.5">
-          {filtered.length} surf{filtered.length !== 1 ? 's' : ''}
-        </p>
-      </div>
-
       <div className="grid grid-cols-2 gap-3">
         <StatCard label="Total Surfs" value={filtered.length} color="neon-pink" icon="🌊" />
         {type !== 'location' && (

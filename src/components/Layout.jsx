@@ -1,5 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import BottomNav from './BottomNav'
+import { Button } from './ui/Button'
+import { ArrowLeft } from 'pixelarticons/react/ArrowLeft.js'
 
 const PAGE_TITLES = {
   '/': '🏄 Surf Tracker',
@@ -9,9 +11,10 @@ const PAGE_TITLES = {
   '/gear/fins': 'Gear',
 }
 
-function getTitle(pathname) {
+function getTitle(pathname, state) {
   if (pathname.startsWith('/sessions/')) return 'Edit Session'
   if (pathname.includes('/metrics')) {
+    if (state?.name) return `${state.name} Metrics`
     if (pathname.startsWith('/gear/boards/')) return 'Board Metrics'
     if (pathname.startsWith('/gear/fins/')) return 'Fin Metrics'
     if (pathname.startsWith('/gear/locations/')) return 'Location Metrics'
@@ -23,11 +26,16 @@ function showsBackButton(pathname) {
   return pathname.startsWith('/sessions/') || pathname.includes('/metrics')
 }
 
+function isMetricsPage(pathname) {
+  return pathname.includes('/metrics')
+}
+
 export default function Layout({ children }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const title = getTitle(location.pathname)
+  const title = getTitle(location.pathname, location.state)
   const hasBack = showsBackButton(location.pathname)
+  const hideNav = isMetricsPage(location.pathname)
 
   return (
     <div className="min-h-dvh bg-retro-bg flex flex-col max-w-2xl mx-auto">
@@ -35,19 +43,13 @@ export default function Layout({ children }) {
       <div className="sticky top-0 z-40">
         <header className="bg-retro-bg border-b border-retro-border px-4 py-3 flex items-center gap-3">
           {hasBack && (
-            <button
-              onClick={() => navigate(-1)}
-              className="text-neon-cyan text-sm p-1 -ml-1"
-              aria-label="Go back"
-            >
-              ← Back
-            </button>
+            <Button size="sm" variant="ghost" onClick={() => navigate(-1)}><ArrowLeft className="w-4 h-4" /> Back</Button>
           )}
           <h1 className="font-display text-neon-yellow text-[10px] leading-none flex-1 truncate">
             {title}
           </h1>
         </header>
-        <BottomNav />
+        {!hideNav && <BottomNav />}
       </div>
 
       {/* Page content */}

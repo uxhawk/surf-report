@@ -10,6 +10,7 @@ import { useToast } from '../components/ui/Toast'
 import { SegmentedControl } from '../components/ui/SegmentedControl'
 import { PhotoUpload } from '../components/ui/PhotoUpload'
 import { KebabMenu } from '../components/ui/KebabMenu'
+import { PlusBox } from 'pixelarticons/react/PlusBox.js'
 import { LOCATION_TYPES, LOCATION_TYPE_COLORS } from '../lib/constants'
 
 const EMPTY_FORM = { name: '', description: '', types: [], picture_url: '', archived: false }
@@ -113,7 +114,7 @@ export default function LocationsPage() {
           value={view}
           onChange={setView}
         />
-        <Button size="sm" onClick={openAdd}>+ Add Location</Button>
+        <Button size="sm" onClick={openAdd}><PlusBox className="w-4 h-4" /> Add Location</Button>
       </div>
 
       {deleteError && (

@@ -11,6 +11,7 @@ import { PhotoUpload } from '../components/ui/PhotoUpload'
 import { useToast } from '../components/ui/Toast'
 import { SegmentedControl } from '../components/ui/SegmentedControl'
 import { KebabMenu } from '../components/ui/KebabMenu'
+import { PlusBox } from 'pixelarticons/react/PlusBox.js'
 
 const EMPTY_FORM = { brand: '', model: '', setup: '', description: '', picture_url: '', archived: false }
 
@@ -128,7 +129,7 @@ export default function FinsPage() {
           value={view}
           onChange={setView}
         />
-        <Button size="sm" onClick={openAdd}>+ Add Fins</Button>
+        <Button size="sm" onClick={openAdd}><PlusBox className="w-4 h-4" /> Add Fins</Button>
       </div>
 
       {deleteError && (
@@ -224,7 +225,7 @@ export default function FinsPage() {
                   <p className="text-white font-semibold text-sm">
                     {fin.brand} {fin.model}
                   </p>
-                  <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/fins/${fin.id}/metrics`, { state: { name: `${fin.brand} ${fin.model}` } })}>View Metrics</Button>
+                  <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/fins/${fin.id}/metrics`, { state: { name: `${fin.brand} ${fin.model} · ${fin.setup}` } })}>View Metrics</Button>
                 </div>
                 <div className="flex items-center justify-between gap-2">
                   <span className={`text-[9px] font-display border rounded px-1.5 py-0.5 ${SETUP_COLORS[fin.setup] ?? 'text-retro-muted border-retro-border'}`}>
