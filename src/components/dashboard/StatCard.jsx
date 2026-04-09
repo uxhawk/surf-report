@@ -1,4 +1,4 @@
-export function StatCard({ label, value, color = 'neon-yellow', icon, className = '' }) {
+export function StatCard({ label, value, color = 'neon-yellow', icon, className = '', subtitle = '' }) {
   const colorMap = {
     'neon-yellow': 'text-neon-yellow',
     'neon-pink': 'text-neon-pink',
@@ -12,6 +12,7 @@ export function StatCard({ label, value, color = 'neon-yellow', icon, className 
       <span className={`font-display text-2xl leading-none ${colorMap[color] ?? 'text-neon-yellow'}`}>
         {value}
       </span>
+      {subtitle && <span className="text-retro-muted/70 text-xs">{subtitle}</span>}
       <span className="text-retro-muted text-xs font-medium uppercase tracking-wider">
         {label}
       </span>

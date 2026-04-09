@@ -15,33 +15,80 @@ export function formatDate(dateStr) {
 }
 
 export function todayStr() {
-  return new Date().toISOString().split('T')[0]
+  const d = new Date()
+  return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-')
+}
+
+function offsetDayStr(days) {
+  const d = new Date()
+  d.setDate(d.getDate() + days)
+  return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-')
+}
+
+export function formatShortDate(dateStr) {
+  if (!dateStr) return ''
+  return parseLocalDate(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+function streakRange(dates, count) {
+  const end = dates[0]
+  const start = dates[count - 1]
+  return start === end ? formatShortDate(start) : `${formatShortDate(start)} – ${formatShortDate(end)}`
 }
 
 // Calculate the current active streak (consecutive days with at least one surf)
+// Returns { count, range }
 export function calculateStreak(sessions) {
-  if (!sessions?.length) return 0
+  if (!sessions?.length) return { count: 0, range: null }
 
   const dates = [...new Set(sessions.map(s => s.date))].sort().reverse()
-  if (!dates.length) return 0
+  if (!dates.length) return { count: 0, range: null }
 
   const today = todayStr()
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+  const yesterday = offsetDayStr(-1)
 
-  if (dates[0] !== today && dates[0] !== yesterday) return 0
+  if (dates[0] !== today && dates[0] !== yesterday) return { count: 0, range: null }
 
   let streak = 1
   for (let i = 0; i < dates.length - 1; i++) {
     const curr = parseLocalDate(dates[i])
     const prev = parseLocalDate(dates[i + 1])
     const diffDays = Math.round((curr - prev) / (1000 * 60 * 60 * 24))
+    if (diffDays === 1) streak++
+    else break
+  }
+  return { count: streak, range: streakRange(dates, streak) }
+}
+
+// Calculate the longest streak ever
+// Returns { count, range }
+export function calculateLongestStreak(sessions) {
+  if (!sessions?.length) return { count: 0, range: null }
+
+  const dates = [...new Set(sessions.map(s => s.date))].sort() // ascending
+  if (!dates.length) return { count: 0, range: null }
+
+  let best = { count: 1, start: dates[0], end: dates[0] }
+  let curStart = dates[0]
+  let curCount = 1
+
+  for (let i = 1; i < dates.length; i++) {
+    const prev = parseLocalDate(dates[i - 1])
+    const curr = parseLocalDate(dates[i])
+    const diffDays = Math.round((curr - prev) / (1000 * 60 * 60 * 24))
     if (diffDays === 1) {
-      streak++
+      curCount++
+      if (curCount > best.count) best = { count: curCount, start: curStart, end: dates[i] }
     } else {
-      break
+      curStart = dates[i]
+      curCount = 1
     }
   }
-  return streak
+
+  const range = best.start === best.end
+    ? formatShortDate(best.start)
+    : `${formatShortDate(best.start)} – ${formatShortDate(best.end)}`
+  return { count: best.count, range }
 }
 
 export function computeDashboardStats(sessions) {

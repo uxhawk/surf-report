@@ -3,7 +3,7 @@ import { useSessions } from '../hooks/useSessions'
 import { useLocations } from '../hooks/useLocations'
 import { useBoards } from '../hooks/useBoards'
 import { useFins } from '../hooks/useFins'
-import { computeDashboardStats, calculateStreak, formatDate, parseLocalDate } from '../lib/utils'
+import { computeDashboardStats, calculateStreak, calculateLongestStreak, formatDate, parseLocalDate } from '../lib/utils'
 import { StatCard } from '../components/dashboard/StatCard'
 import { SurfChart } from '../components/dashboard/SurfChart'
 import { FilterBar } from '../components/dashboard/FilterBar'
@@ -41,6 +41,7 @@ export default function Dashboard() {
 
   const stats = useMemo(() => computeDashboardStats(filtered), [filtered])
   const streak = useMemo(() => calculateStreak(sessions), [sessions])
+  const longestStreak = useMemo(() => calculateLongestStreak(sessions), [sessions])
 
   const lastSurf = sessions[0]?.date
 
@@ -77,16 +78,23 @@ export default function Dashboard() {
           />
           <StatCard
             label="Active Streak"
-            value={`${streak}d`}
+            value={streak.count ? `${streak.count}d` : '—'}
+            subtitle={streak.range}
             color="neon-yellow"
             icon="🔥"
+          />
+          <StatCard
+            label="Longest Streak"
+            value={longestStreak.count ? `${longestStreak.count}d` : '—'}
+            subtitle={longestStreak.range}
+            color="neon-cyan"
+            icon="🏆"
           />
           <StatCard
             label="Last Surf"
             value={lastSurf ? formatDate(lastSurf) : '—'}
             color="neon-purple"
             icon="📍"
-            className="col-span-2"
           />
         </div>
 
