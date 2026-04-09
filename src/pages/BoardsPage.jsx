@@ -10,6 +10,7 @@ import { Spinner } from '../components/ui/Spinner'
 import { PhotoUpload } from '../components/ui/PhotoUpload'
 import { useToast } from '../components/ui/Toast'
 import { SegmentedControl } from '../components/ui/SegmentedControl'
+import { KebabMenu } from '../components/ui/KebabMenu'
 
 function formatBoardLength(inches) {
   const feet = Math.floor(inches / 12)
@@ -43,9 +44,12 @@ function BoardCard({ board, onEdit, onDelete, onMetrics }) {
         />
       )}
       <div className="p-4 flex flex-col gap-2">
-        <p className="text-white font-semibold text-sm">
-          {board.brand} {board.model}
-        </p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-white font-semibold text-sm">
+            {board.brand} {board.model}
+          </p>
+          <Button size="sm" variant="ghost" onClick={() => onMetrics(board)}>View Metrics</Button>
+        </div>
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-retro-muted text-xs">
@@ -61,11 +65,7 @@ function BoardCard({ board, onEdit, onDelete, onMetrics }) {
               </span>
             ))}
           </div>
-          <div className="flex gap-2 shrink-0">
-            <Button size="sm" variant="ghost" onClick={() => onMetrics(board)}>Metrics</Button>
-            <Button size="sm" variant="ghost" onClick={() => onEdit(board)}>Edit</Button>
-            <Button size="sm" variant="danger" onClick={() => onDelete(board.id)}>Delete</Button>
-          </div>
+          <KebabMenu onEdit={() => onEdit(board)} onDelete={() => onDelete(board.id)} />
         </div>
         {board.description && (
           <p className="text-retro-muted text-xs">{board.description}</p>

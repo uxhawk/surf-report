@@ -8,6 +8,7 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { Spinner } from '../components/ui/Spinner'
 import { useToast } from '../components/ui/Toast'
 import { SegmentedControl } from '../components/ui/SegmentedControl'
+import { KebabMenu } from '../components/ui/KebabMenu'
 import { LOCATION_TYPES, LOCATION_TYPE_COLORS } from '../lib/constants'
 
 const EMPTY_FORM = { name: '', description: '', types: [], archived: false }
@@ -202,7 +203,10 @@ export default function LocationsPage() {
         <div className="flex flex-col gap-3">
           {visible.map(location => (
             <div key={location.id} className="gradient-border rounded-xl p-4 bg-retro-surface flex flex-col gap-2">
-              <p className="text-white font-semibold text-sm">{location.name}</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-white font-semibold text-sm">{location.name}</p>
+                <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/locations/${location.id}/metrics`, { state: { name: location.name } })}>View Metrics</Button>
+              </div>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex flex-wrap gap-1">
                   {location.types?.map(type => (
@@ -214,11 +218,7 @@ export default function LocationsPage() {
                     </span>
                   ))}
                 </div>
-                <div className="flex gap-2 shrink-0">
-                  <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/locations/${location.id}/metrics`, { state: { name: location.name } })}>Metrics</Button>
-                  <Button size="sm" variant="ghost" onClick={() => openEdit(location)}>Edit</Button>
-                  <Button size="sm" variant="danger" onClick={() => { setDeletingId(location.id); setDeleteError(null) }}>Delete</Button>
-                </div>
+                <KebabMenu onEdit={() => openEdit(location)} onDelete={() => { setDeletingId(location.id); setDeleteError(null) }} />
               </div>
               {location.description && (
                 <p className="text-retro-muted text-xs">{location.description}</p>
