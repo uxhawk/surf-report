@@ -1,17 +1,16 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { formatDate, parseLocalDate } from '../../lib/utils'
 import { Button } from '../ui/Button'
 import { Modal } from '../ui/Modal'
 
-function SessionTooltip({ session, rect }) {
-  const top = Math.min(rect.bottom + 6, window.innerHeight - 240)
-  const left = Math.max(8, Math.min(rect.left, window.innerWidth - 304))
+function SessionTooltip({ session, rowRect, tableRect }) {
+  const top = Math.min(rowRect.bottom + 6, window.innerHeight - 240)
 
   return createPortal(
     <div
-      style={{ top, left, width: 296 }}
+      style={{ top, left: tableRect.left, width: tableRect.width }}
       className="fixed z-50 gradient-border rounded-xl p-4 bg-retro-surface shadow-lg pointer-events-none flex flex-col gap-2.5"
     >
       <div className="flex items-baseline justify-between gap-2">
@@ -72,9 +71,14 @@ export function SessionsTable({ sessions, onDelete }) {
   const [sortField, setSortField] = useState('date')
   const [sortDir, setSortDir] = useState('desc')
   const [tooltip, setTooltip] = useState(null)
+  const tableRef = useRef(null)
 
   function showTooltip(e, session) {
-    setTooltip({ session, rect: e.currentTarget.getBoundingClientRect() })
+    setTooltip({
+      session,
+      rowRect: e.currentTarget.getBoundingClientRect(),
+      tableRect: tableRef.current?.getBoundingClientRect() ?? e.currentTarget.getBoundingClientRect(),
+    })
   }
 
   function hideTooltip() {
@@ -196,7 +200,7 @@ export function SessionsTable({ sessions, onDelete }) {
           </div>
 
           {/* Desktop: table */}
-          <div className="hidden sm:block overflow-x-auto max-h-[460px] overflow-y-auto">
+          <div ref={tableRef} className="hidden sm:block overflow-x-auto max-h-[460px] overflow-y-auto">
             <table className="w-full text-sm">
               <thead className="sticky top-0 z-10 bg-retro-surface">
                 <tr className="text-retro-muted text-xs uppercase border-b border-retro-border">
@@ -254,7 +258,7 @@ export function SessionsTable({ sessions, onDelete }) {
         onCancel={() => setDeletingId(null)}
       />
 
-      {tooltip && <SessionTooltip session={tooltip.session} rect={tooltip.rect} />}
+      {tooltip && <SessionTooltip session={tooltip.session} rowRect={tooltip.rowRect} tableRect={tooltip.tableRect} />}
     </>
   )
 }

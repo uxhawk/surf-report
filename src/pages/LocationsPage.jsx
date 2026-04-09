@@ -8,8 +8,9 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { Spinner } from '../components/ui/Spinner'
 import { useToast } from '../components/ui/Toast'
 import { SegmentedControl } from '../components/ui/SegmentedControl'
+import { LOCATION_TYPES, LOCATION_TYPE_COLORS } from '../lib/constants'
 
-const EMPTY_FORM = { name: '', description: '', archived: false }
+const EMPTY_FORM = { name: '', description: '', types: [], archived: false }
 
 function validate(form) {
   const errors = {}
@@ -42,7 +43,7 @@ export default function LocationsPage() {
 
   function openEdit(location) {
     setEditingId(location.id)
-    setForm({ name: location.name, description: location.description ?? '', archived: location.archived ?? false })
+    setForm({ name: location.name, description: location.description ?? '', types: location.types ?? [], archived: location.archived ?? false })
     setErrors({})
     setSaveError(null)
     setShowForm(true)
@@ -61,6 +62,15 @@ export default function LocationsPage() {
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }))
   }
 
+  function toggleType(type) {
+    setForm(prev => ({
+      ...prev,
+      types: prev.types.includes(type)
+        ? prev.types.filter(t => t !== type)
+        : [...prev.types, type],
+    }))
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
     const errs = validate(form)
@@ -69,7 +79,7 @@ export default function LocationsPage() {
     setSaving(true)
     setSaveError(null)
 
-    const payload = { name: form.name.trim(), description: form.description.trim() || null, archived: form.archived }
+    const payload = { name: form.name.trim(), description: form.description.trim() || null, types: form.types, archived: form.archived }
     const { error } = editingId
       ? await updateLocation(editingId, payload)
       : await createLocation(payload)
@@ -140,6 +150,21 @@ export default function LocationsPage() {
             />
           </FormField>
 
+          <FormField label="Type">
+            <div className="flex flex-wrap gap-3 pt-1">
+              {LOCATION_TYPES.map(type => (
+                <label key={type} className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={form.types.includes(type)}
+                    onChange={() => toggleType(type)}
+                  />
+                  <span className="text-white text-sm">{type}</span>
+                </label>
+              ))}
+            </div>
+          </FormField>
+
           {editingId && (
             <label className="flex items-center gap-3 cursor-pointer select-none">
               <input
@@ -187,6 +212,18 @@ export default function LocationsPage() {
                   <Button size="sm" variant="danger" onClick={() => { setDeletingId(location.id); setDeleteError(null) }}>Delete</Button>
                 </div>
               </div>
+              {location.types?.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {location.types.map(type => (
+                    <span
+                      key={type}
+                      className={`text-[9px] font-display border rounded px-1.5 py-0.5 ${LOCATION_TYPE_COLORS[type] ?? 'text-retro-muted border-retro-border'}`}
+                    >
+                      {type}
+                    </span>
+                  ))}
+                </div>
+              )}
               {location.description && (
                 <p className="text-retro-muted text-xs">{location.description}</p>
               )}
