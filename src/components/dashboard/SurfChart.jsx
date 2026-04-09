@@ -14,7 +14,7 @@ function CustomTooltip({ active, payload, label }) {
   )
 }
 
-export function SurfChart({ title, data, color = '#FF2D78', multiColor = false }) {
+export function SurfChart({ title, data, color = '#FF2D78', multiColor = false, logScale = false }) {
   if (!data?.length) return null
 
   return (
@@ -34,6 +34,8 @@ export function SurfChart({ title, data, color = '#FF2D78', multiColor = false }
           />
           <YAxis
             allowDecimals={false}
+            scale={logScale ? 'log' : 'auto'}
+            domain={logScale ? [1, 'auto'] : [0, 'auto']}
             tick={{ fill: '#A78BFA', fontSize: 9, fontFamily: 'Inter' }}
             axisLine={false}
             tickLine={false}
