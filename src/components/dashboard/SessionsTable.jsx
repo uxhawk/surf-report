@@ -1,8 +1,45 @@
 import { useState, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { formatDate, parseLocalDate } from '../../lib/utils'
 import { Button } from '../ui/Button'
 import { Modal } from '../ui/Modal'
+
+function SessionTooltip({ session, rect }) {
+  const top = Math.min(rect.bottom + 6, window.innerHeight - 240)
+  const left = Math.max(8, Math.min(rect.left, window.innerWidth - 304))
+
+  return createPortal(
+    <div
+      style={{ top, left, width: 296 }}
+      className="fixed z-50 gradient-border rounded-xl p-4 bg-retro-surface shadow-lg pointer-events-none flex flex-col gap-2.5"
+    >
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="text-neon-yellow font-semibold text-sm">{formatDate(session.date)}</span>
+        <span className="text-neon-pink text-xs font-medium">{session.waves} ft</span>
+      </div>
+      <div className="flex flex-col gap-1">
+        <Row label="Location" value={session.location?.name} />
+        <Row label="Board" value={session.board ? `${session.board.brand} ${session.board.model}` : null} />
+        <Row label="Fins" value={session.fins ? `${session.fins.brand} ${session.fins.model} · ${session.fins.setup}` : null} />
+      </div>
+      {session.notes && (
+        <p className="text-retro-muted text-xs leading-relaxed border-t border-retro-border pt-2.5">{session.notes}</p>
+      )}
+    </div>,
+    document.body
+  )
+}
+
+function Row({ label, value }) {
+  if (!value) return null
+  return (
+    <div className="flex gap-2 text-xs">
+      <span className="text-retro-muted shrink-0 w-14">{label}</span>
+      <span className="text-white">{value}</span>
+    </div>
+  )
+}
 
 const SORT_FIELDS = ['date', 'location', 'waves']
 
@@ -34,6 +71,15 @@ export function SessionsTable({ sessions, onDelete }) {
   const [search, setSearch] = useState('')
   const [sortField, setSortField] = useState('date')
   const [sortDir, setSortDir] = useState('desc')
+  const [tooltip, setTooltip] = useState(null)
+
+  function showTooltip(e, session) {
+    setTooltip({ session, rect: e.currentTarget.getBoundingClientRect() })
+  }
+
+  function hideTooltip() {
+    setTooltip(null)
+  }
 
   function handleSort(field) {
     if (sortField === field) {
@@ -165,7 +211,12 @@ export function SessionsTable({ sessions, onDelete }) {
               </thead>
               <tbody className="divide-y divide-retro-border">
                 {displayed.map(s => (
-                  <tr key={s.id} className="hover:bg-retro-surface2 transition-colors">
+                  <tr
+                    key={s.id}
+                    className="hover:bg-retro-surface2 transition-colors"
+                    onMouseEnter={e => showTooltip(e, s)}
+                    onMouseLeave={hideTooltip}
+                  >
                     <td className="px-4 py-3 text-neon-yellow whitespace-nowrap">{formatDate(s.date)}</td>
                     <td className="px-4 py-3 text-white">{s.location?.name ?? '—'}</td>
                     <td className="px-4 py-3 text-white whitespace-nowrap">
@@ -202,6 +253,8 @@ export function SessionsTable({ sessions, onDelete }) {
         onConfirm={async () => { await onDelete(deletingId); setDeletingId(null) }}
         onCancel={() => setDeletingId(null)}
       />
+
+      {tooltip && <SessionTooltip session={tooltip.session} rect={tooltip.rect} />}
     </>
   )
 }
