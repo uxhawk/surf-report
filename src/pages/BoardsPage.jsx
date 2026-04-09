@@ -43,13 +43,11 @@ function BoardCard({ board, onEdit, onDelete, onMetrics }) {
         />
       )}
       <div className="p-4 flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <p className="text-white font-semibold text-sm truncate">
-              {board.brand} {board.model}
-            </p>
-          </div>
-          <div className="flex gap-2 shrink-0">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <p className="text-white font-semibold text-sm">
+            {board.brand} {board.model}
+          </p>
+          <div className="flex gap-2">
             <Button size="sm" variant="ghost" onClick={() => onMetrics(board)}>Metrics</Button>
             <Button size="sm" variant="ghost" onClick={() => onEdit(board)}>Edit</Button>
             <Button size="sm" variant="danger" onClick={() => onDelete(board.id)}>Delete</Button>

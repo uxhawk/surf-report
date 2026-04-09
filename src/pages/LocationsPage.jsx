@@ -202,11 +202,9 @@ export default function LocationsPage() {
         <div className="flex flex-col gap-3">
           {visible.map(location => (
             <div key={location.id} className="gradient-border rounded-xl p-4 bg-retro-surface flex flex-col gap-2">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 min-w-0">
-                  <p className="text-white font-semibold text-sm truncate">{location.name}</p>
-                </div>
-                <div className="flex gap-2 shrink-0">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <p className="text-white font-semibold text-sm">{location.name}</p>
+                <div className="flex gap-2">
                   <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/locations/${location.id}/metrics`, { state: { name: location.name } })}>Metrics</Button>
                   <Button size="sm" variant="ghost" onClick={() => openEdit(location)}>Edit</Button>
                   <Button size="sm" variant="danger" onClick={() => { setDeletingId(location.id); setDeleteError(null) }}>Delete</Button>
