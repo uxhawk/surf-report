@@ -16,7 +16,7 @@ export default function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-40 bg-retro-surface border-t border-retro-border safe-bottom max-w-2xl mx-auto"
+      className="bg-retro-surface border-b border-retro-border"
       aria-label="Main navigation"
     >
       <ul className="flex">
@@ -27,7 +27,7 @@ export default function BottomNav() {
               <NavLink
                 to={item.to}
                 className={`
-                  flex flex-col items-center gap-1 py-3 px-2 w-full
+                  relative flex flex-col items-center gap-1 py-3 px-2 w-full
                   transition-colors duration-150
                   ${active ? 'text-neon-pink' : 'text-retro-muted'}
                 `}
@@ -42,7 +42,7 @@ export default function BottomNav() {
                   {item.label}
                 </span>
                 {active && (
-                  <span className="absolute top-0 inset-x-0 h-[2px] bg-neon-pink rounded-b" />
+                  <span className="absolute bottom-0 inset-x-0 h-[2px] bg-neon-pink rounded-t" />
                 )}
               </NavLink>
             </li>

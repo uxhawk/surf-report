@@ -26,29 +26,29 @@ export default function Layout({ children }) {
 
   return (
     <div className="min-h-dvh bg-retro-bg flex flex-col max-w-2xl mx-auto">
-      {/* Top bar */}
-      <header className="sticky top-0 z-40 bg-retro-bg border-b border-retro-border px-4 py-3 flex items-center gap-3">
-        {hasBack && (
-          <button
-            onClick={() => navigate(-1)}
-            className="text-neon-cyan text-sm p-1 -ml-1"
-            aria-label="Go back"
-          >
-            ← Back
-          </button>
-        )}
-        <h1 className="font-display text-neon-yellow text-[10px] leading-none flex-1 truncate">
-          {title}
-        </h1>
-      </header>
+      {/* Sticky top chrome: title bar + nav */}
+      <div className="sticky top-0 z-40">
+        <header className="bg-retro-bg border-b border-retro-border px-4 py-3 flex items-center gap-3">
+          {hasBack && (
+            <button
+              onClick={() => navigate(-1)}
+              className="text-neon-cyan text-sm p-1 -ml-1"
+              aria-label="Go back"
+            >
+              ← Back
+            </button>
+          )}
+          <h1 className="font-display text-neon-yellow text-[10px] leading-none flex-1 truncate">
+            {title}
+          </h1>
+        </header>
+        <BottomNav />
+      </div>
 
       {/* Page content */}
-      <main className="flex-1 pb-24">
+      <main className="flex-1">
         {children}
       </main>
-
-      {/* Bottom navigation */}
-      <BottomNav />
     </div>
   )
 }

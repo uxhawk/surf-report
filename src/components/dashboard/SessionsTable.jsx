@@ -72,13 +72,20 @@ export function SessionsTable({ sessions, onDelete }) {
     <>
       {/* Search + mobile sort */}
       <div className="px-4 pt-4 pb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-        <input
-          type="search"
-          placeholder="Search sessions…"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="flex-1"
-        />
+        <div className="flex items-center gap-2 flex-1">
+          <input
+            type="search"
+            placeholder="Search sessions…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="flex-1"
+          />
+          {search.trim() && (
+            <span className="text-retro-muted text-xs whitespace-nowrap">
+              {displayed.length} result{displayed.length !== 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-2 sm:hidden">
           <span className="text-retro-muted text-xs">Sort:</span>
           <select
@@ -107,7 +114,7 @@ export function SessionsTable({ sessions, onDelete }) {
       ) : (
         <>
           {/* Mobile: card list */}
-          <div className="flex flex-col divide-y divide-retro-border sm:hidden">
+          <div className="flex flex-col divide-y divide-retro-border sm:hidden max-h-[460px] overflow-y-auto">
             {displayed.map(s => (
               <div key={s.id} className="px-4 py-4 flex flex-col gap-2">
                 <div className="flex items-start justify-between gap-2">
@@ -143,9 +150,9 @@ export function SessionsTable({ sessions, onDelete }) {
           </div>
 
           {/* Desktop: table */}
-          <div className="hidden sm:block overflow-x-auto">
+          <div className="hidden sm:block overflow-x-auto max-h-[460px] overflow-y-auto">
             <table className="w-full text-sm">
-              <thead>
+              <thead className="sticky top-0 z-10 bg-retro-surface">
                 <tr className="text-retro-muted text-xs uppercase border-b border-retro-border">
                   <SortHeader label="Date" field="date" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                   <SortHeader label="Location" field="location" sortField={sortField} sortDir={sortDir} onSort={handleSort} />

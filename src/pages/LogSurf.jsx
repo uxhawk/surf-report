@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSessions } from '../hooks/useSessions'
 import { useLocations } from '../hooks/useLocations'
@@ -41,6 +41,12 @@ export default function LogSurf() {
   const [submitError, setSubmitError] = useState(null)
 
   const activeLocations = useMemo(() => locations.filter(l => !l.archived), [locations])
+
+  useEffect(() => {
+    if (!activeLocations.length || form.location_id) return
+    const oceanside = activeLocations.find(l => l.name.toLowerCase() === 'oceanside')
+    if (oceanside) setForm(prev => ({ ...prev, location_id: oceanside.id }))
+  }, [activeLocations])
   const activeBoards = useMemo(() => boards.filter(b => !b.archived), [boards])
   const activeFins = useMemo(() => fins.filter(f => !f.archived), [fins])
 
