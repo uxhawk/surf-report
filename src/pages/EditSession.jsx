@@ -54,12 +54,15 @@ export default function EditSession() {
     load()
   }, [id])
 
+  const activeBoards = useMemo(() => boards.filter(b => !b.archived), [boards])
+  const activeFins = useMemo(() => fins.filter(f => !f.archived), [fins])
+
   const availableFins = useMemo(() => {
-    if (!form || !boards.length) return fins
-    const board = boards.find(b => b.id === form.board_id)
-    if (!board?.fin_configurations?.length) return fins
-    return fins.filter(f => board.fin_configurations.includes(f.setup))
-  }, [form?.board_id, boards, fins])
+    if (!form || !activeBoards.length) return activeFins
+    const board = activeBoards.find(b => b.id === form.board_id)
+    if (!board?.fin_configurations?.length) return activeFins
+    return activeFins.filter(f => board.fin_configurations.includes(f.setup))
+  }, [form?.board_id, activeBoards, activeFins])
 
   function set(field, value) {
     setForm(prev => {
@@ -129,10 +132,8 @@ export default function EditSession() {
         <FormField label="Board" required error={errors.board_id}>
           <select value={form.board_id} onChange={e => set('board_id', e.target.value)}>
             <option value="">Select board…</option>
-            {boards.map(b => (
-              <option key={b.id} value={b.id}>
-                {b.brand} {b.model} ({b.length_inches}")
-              </option>
+            {activeBoards.map(b => (
+              <option key={b.id} value={b.id}>{b.model}</option>
             ))}
           </select>
         </FormField>
@@ -144,9 +145,7 @@ export default function EditSession() {
           >
             <option value="">Select fins…</option>
             {availableFins.map(f => (
-              <option key={f.id} value={f.id}>
-                {f.brand} {f.model} ({f.setup})
-              </option>
+              <option key={f.id} value={f.id}>{f.model} ({f.setup})</option>
             ))}
           </select>
         </FormField>

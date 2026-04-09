@@ -92,11 +92,12 @@ export function computeDashboardStats(sessions) {
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count)
 
-  // By fin type (derived from fins.setup)
+  // By fin setup (brand + model + setup as key, e.g. "Rob Machado Quad")
   const finTypeCounts = {}
   sessions.forEach(s => {
     if (s.fins?.setup) {
-      finTypeCounts[s.fins.setup] = (finTypeCounts[s.fins.setup] ?? 0) + 1
+      const name = `${s.fins.brand} ${s.fins.model} ${s.fins.setup}`
+      finTypeCounts[name] = (finTypeCounts[name] ?? 0) + 1
     }
   })
   const byFinType = Object.entries(finTypeCounts)

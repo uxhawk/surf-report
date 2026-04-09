@@ -40,12 +40,15 @@ export default function LogSurf() {
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState(null)
 
+  const activeBoards = useMemo(() => boards.filter(b => !b.archived), [boards])
+  const activeFins = useMemo(() => fins.filter(f => !f.archived), [fins])
+
   // Filter fins to match the selected board's fin configurations
   const availableFins = useMemo(() => {
-    const board = boards.find(b => b.id === form.board_id)
-    if (!board?.fin_configurations?.length) return fins
-    return fins.filter(f => board.fin_configurations.includes(f.setup))
-  }, [form.board_id, boards, fins])
+    const board = activeBoards.find(b => b.id === form.board_id)
+    if (!board?.fin_configurations?.length) return activeFins
+    return activeFins.filter(f => board.fin_configurations.includes(f.setup))
+  }, [form.board_id, activeBoards, activeFins])
 
   function set(field, value) {
     setForm(prev => {
@@ -110,17 +113,15 @@ export default function LogSurf() {
         </FormField>
 
         <FormField label="Board" required error={errors.board_id}>
-          {boards.length === 0 ? (
+          {activeBoards.length === 0 ? (
             <p className="text-neon-pink text-xs py-2">
               No boards yet — add them in Gear → Boards first.
             </p>
           ) : (
             <select value={form.board_id} onChange={e => set('board_id', e.target.value)}>
               <option value="">Select board…</option>
-              {boards.map(b => (
-                <option key={b.id} value={b.id}>
-                  {b.brand} {b.model} ({b.length_inches}")
-                </option>
+              {activeBoards.map(b => (
+                <option key={b.id} value={b.id}>{b.model}</option>
               ))}
             </select>
           )}
@@ -132,7 +133,7 @@ export default function LogSurf() {
           error={errors.fins_id}
           hint={form.board_id && availableFins.length === 0 ? 'No fins match this board\'s setup. Add matching fins in Gear → Fins.' : undefined}
         >
-          {fins.length === 0 ? (
+          {activeFins.length === 0 ? (
             <p className="text-neon-pink text-xs py-2">
               No fins yet — add them in Gear → Fins first.
             </p>
@@ -146,9 +147,7 @@ export default function LogSurf() {
                 {form.board_id ? 'Select fins…' : 'Select a board first…'}
               </option>
               {availableFins.map(f => (
-                <option key={f.id} value={f.id}>
-                  {f.brand} {f.model} ({f.setup})
-                </option>
+                <option key={f.id} value={f.id}>{f.model} ({f.setup})</option>
               ))}
             </select>
           )}

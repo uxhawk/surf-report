@@ -8,7 +8,7 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { Spinner } from '../components/ui/Spinner'
 import { PhotoUpload } from '../components/ui/PhotoUpload'
 
-const EMPTY_FORM = { brand: '', model: '', setup: '', picture_url: '' }
+const EMPTY_FORM = { brand: '', model: '', setup: '', picture_url: '', archived: false }
 
 function validate(form) {
   const errors = {}
@@ -52,6 +52,7 @@ export default function FinsPage() {
       model: fin.model,
       setup: fin.setup,
       picture_url: fin.picture_url ?? '',
+      archived: fin.archived ?? false,
     })
     setErrors({})
     setSaveError(null)
@@ -84,6 +85,7 @@ export default function FinsPage() {
       model: form.model.trim(),
       setup: form.setup,
       picture_url: form.picture_url || null,
+      archived: form.archived,
     }
 
     const { error } = editingId
@@ -110,7 +112,10 @@ export default function FinsPage() {
   return (
     <div className="p-4 flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <span className="text-retro-muted text-xs">{fins.length} fin set{fins.length !== 1 ? 's' : ''}</span>
+        <span className="text-retro-muted text-xs">
+          {fins.filter(f => !f.archived).length} fin set{fins.filter(f => !f.archived).length !== 1 ? 's' : ''}
+          {fins.some(f => f.archived) && <span className="ml-1 opacity-50">· {fins.filter(f => f.archived).length} archived</span>}
+        </span>
         <Button size="sm" onClick={openAdd}>+ Add Fins</Button>
       </div>
 
@@ -152,6 +157,19 @@ export default function FinsPage() {
             <PhotoUpload value={form.picture_url} onChange={url => set('picture_url', url)} label="fins photo" />
           </FormField>
 
+          {editingId && (
+            <label className="flex items-center gap-3 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={form.archived}
+                onChange={e => set('archived', e.target.checked)}
+              />
+              <span className="text-retro-muted text-sm">
+                Archive <span className="text-retro-muted/60 text-xs">(hide from session logging)</span>
+              </span>
+            </label>
+          )}
+
           {saveError && <p className="text-neon-pink text-xs">{saveError}</p>}
 
           <div className="flex gap-3">
@@ -172,7 +190,7 @@ export default function FinsPage() {
       ) : (
         <div className="flex flex-col gap-3">
           {fins.map(fin => (
-            <div key={fin.id} className="gradient-border rounded-xl bg-retro-surface overflow-hidden">
+            <div key={fin.id} className={`gradient-border rounded-xl bg-retro-surface overflow-hidden${fin.archived ? ' opacity-50' : ''}`}>
               {fin.picture_url && (
                 <img
                   src={fin.picture_url}
@@ -182,9 +200,16 @@ export default function FinsPage() {
               )}
               <div className="p-4 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-white font-semibold text-sm">
-                    {fin.brand} {fin.model}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-white font-semibold text-sm">
+                      {fin.brand} {fin.model}
+                    </p>
+                    {fin.archived && (
+                      <span className="text-[9px] font-display text-retro-muted border border-retro-border rounded px-1.5 py-0.5">
+                        ARCHIVED
+                      </span>
+                    )}
+                  </div>
                   <span className={`text-[9px] font-display border rounded px-1.5 py-0.5 mt-1 inline-block ${SETUP_COLORS[fin.setup] ?? 'text-retro-muted border-retro-border'}`}>
                     {fin.setup}
                   </span>

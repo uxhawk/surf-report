@@ -10,7 +10,7 @@ import { PhotoUpload } from '../components/ui/PhotoUpload'
 
 const EMPTY_FORM = {
   brand: '', model: '', length_inches: '', volume: '',
-  description: '', fin_configurations: [], picture_url: '',
+  description: '', fin_configurations: [], picture_url: '', archived: false,
 }
 
 function validate(form) {
@@ -25,7 +25,7 @@ function validate(form) {
 
 function BoardCard({ board, onEdit, onDelete }) {
   return (
-    <div className="gradient-border rounded-xl bg-retro-surface overflow-hidden">
+    <div className={`gradient-border rounded-xl bg-retro-surface overflow-hidden${board.archived ? ' opacity-50' : ''}`}>
       {board.picture_url && (
         <img
           src={board.picture_url}
@@ -35,9 +35,16 @@ function BoardCard({ board, onEdit, onDelete }) {
       )}
       <div className="p-4 flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <p className="text-white font-semibold text-sm">
-            {board.brand} {board.model}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-white font-semibold text-sm">
+              {board.brand} {board.model}
+            </p>
+            {board.archived && (
+              <span className="text-[9px] font-display text-retro-muted border border-retro-border rounded px-1.5 py-0.5">
+                ARCHIVED
+              </span>
+            )}
+          </div>
           <p className="text-retro-muted text-xs mt-0.5">
             {board.length_inches}"
             {board.volume ? ` · ${board.volume}L` : ''}
@@ -97,6 +104,7 @@ export default function BoardsPage() {
       description: board.description ?? '',
       fin_configurations: board.fin_configurations ?? [],
       picture_url: board.picture_url ?? '',
+      archived: board.archived ?? false,
     })
     setErrors({})
     setSaveError(null)
@@ -142,6 +150,7 @@ export default function BoardsPage() {
       description: form.description.trim() || null,
       fin_configurations: form.fin_configurations,
       picture_url: form.picture_url || null,
+      archived: form.archived,
     }
 
     const { error } = editingId
@@ -168,7 +177,10 @@ export default function BoardsPage() {
   return (
     <div className="p-4 flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <span className="text-retro-muted text-xs">{boards.length} board{boards.length !== 1 ? 's' : ''}</span>
+        <span className="text-retro-muted text-xs">
+          {boards.filter(b => !b.archived).length} board{boards.filter(b => !b.archived).length !== 1 ? 's' : ''}
+          {boards.some(b => b.archived) && <span className="ml-1 opacity-50">· {boards.filter(b => b.archived).length} archived</span>}
+        </span>
         <Button size="sm" onClick={openAdd}>+ Add Board</Button>
       </div>
 
@@ -228,6 +240,19 @@ export default function BoardsPage() {
           <FormField label="Photo">
             <PhotoUpload value={form.picture_url} onChange={url => set('picture_url', url)} label="board photo" />
           </FormField>
+
+          {editingId && (
+            <label className="flex items-center gap-3 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={form.archived}
+                onChange={e => set('archived', e.target.checked)}
+              />
+              <span className="text-retro-muted text-sm">
+                Archive <span className="text-retro-muted/60 text-xs">(hide from session logging)</span>
+              </span>
+            </label>
+          )}
 
           {saveError && <p className="text-neon-pink text-xs">{saveError}</p>}
 

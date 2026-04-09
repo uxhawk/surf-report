@@ -21,6 +21,7 @@ create table if not exists boards (
   description        text,
   fin_configurations text[]        not null default '{}',
   picture_url        text,
+  archived           boolean       not null default false,
   created_at         timestamptz   default now()
 );
 
@@ -31,6 +32,7 @@ create table if not exists fins (
   model       text        not null,
   setup       text        not null check (setup in ('Single', 'Twin', 'Thruster', 'Quad')),
   picture_url text,
+  archived    boolean     not null default false,
   created_at  timestamptz default now()
 );
 
