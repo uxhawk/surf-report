@@ -40,6 +40,7 @@ export default function LogSurf() {
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState(null)
 
+  const activeLocations = useMemo(() => locations.filter(l => !l.archived), [locations])
   const activeBoards = useMemo(() => boards.filter(b => !b.archived), [boards])
   const activeFins = useMemo(() => fins.filter(f => !f.archived), [fins])
 
@@ -98,14 +99,14 @@ export default function LogSurf() {
         </FormField>
 
         <FormField label="Location" required error={errors.location_id}>
-          {locations.length === 0 ? (
+          {activeLocations.length === 0 ? (
             <p className="text-neon-pink text-xs py-2">
               No locations yet — add them in Gear → Locations bro
             </p>
           ) : (
             <select value={form.location_id} onChange={e => set('location_id', e.target.value)}>
               <option value="">Select location…</option>
-              {locations.map(l => (
+              {activeLocations.map(l => (
                 <option key={l.id} value={l.id}>{l.name}</option>
               ))}
             </select>

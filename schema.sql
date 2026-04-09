@@ -8,6 +8,7 @@ create table if not exists locations (
   id          uuid        default gen_random_uuid() primary key,
   name        text        not null,
   description text,
+  archived    boolean     not null default false,
   created_at  timestamptz default now()
 );
 

@@ -1,4 +1,4 @@
-export function StatCard({ label, value, color = 'neon-yellow', icon }) {
+export function StatCard({ label, value, color = 'neon-yellow', icon, className = '' }) {
   const colorMap = {
     'neon-yellow': 'text-neon-yellow',
     'neon-pink': 'text-neon-pink',
@@ -7,7 +7,7 @@ export function StatCard({ label, value, color = 'neon-yellow', icon }) {
   }
 
   return (
-    <div className="gradient-border rounded-xl p-4 flex flex-col gap-2 bg-retro-surface">
+    <div className={`gradient-border rounded-xl p-4 flex flex-col gap-2 bg-retro-surface ${className}`}>
       {icon && <span className="text-2xl">{icon}</span>}
       <span className={`font-display text-2xl leading-none ${colorMap[color] ?? 'text-neon-yellow'}`}>
         {value}

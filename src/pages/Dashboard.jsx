@@ -82,16 +82,11 @@ export default function Dashboard() {
             icon="🔥"
           />
           <StatCard
-            label="All Time"
-            value={sessions.length}
-            color="neon-cyan"
-            icon="📅"
-          />
-          <StatCard
             label="Last Surf"
             value={lastSurf ? formatDate(lastSurf) : '—'}
             color="neon-purple"
             icon="📍"
+            className="col-span-2"
           />
         </div>
 

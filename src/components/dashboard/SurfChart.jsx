@@ -9,7 +9,7 @@ function CustomTooltip({ active, payload, label }) {
   return (
     <div className="bg-retro-surface2 border border-retro-border rounded-lg px-3 py-2">
       <p className="text-retro-muted text-xs mb-0.5">{label}</p>
-      <p className="text-white text-sm font-semibold">{payload[0].value} surfs</p>
+      <p className="text-white text-sm font-semibold">{payload[0].value}</p>
     </div>
   )
 }

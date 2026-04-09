@@ -54,6 +54,7 @@ export default function EditSession() {
     load()
   }, [id])
 
+  const activeLocations = useMemo(() => locations.filter(l => !l.archived), [locations])
   const activeBoards = useMemo(() => boards.filter(b => !b.archived), [boards])
   const activeFins = useMemo(() => fins.filter(f => !f.archived), [fins])
 
@@ -123,7 +124,7 @@ export default function EditSession() {
         <FormField label="Location" required error={errors.location_id}>
           <select value={form.location_id} onChange={e => set('location_id', e.target.value)}>
             <option value="">Select location…</option>
-            {locations.map(l => (
+            {activeLocations.map(l => (
               <option key={l.id} value={l.id}>{l.name}</option>
             ))}
           </select>
