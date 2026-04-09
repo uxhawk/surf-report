@@ -21,7 +21,7 @@ export function ToastProvider({ children }) {
           {toasts.map(toast => (
             <div
               key={toast.id}
-              className="gradient-border rounded-xl px-4 py-3 bg-retro-surface text-neon-cyan text-sm font-medium text-center shadow-lg"
+              className="rounded-xl px-4 py-3 bg-green-600 text-white text-sm font-medium text-center shadow-lg"
             >
               {toast.message}
             </div>
