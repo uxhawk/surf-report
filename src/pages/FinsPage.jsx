@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useFins } from '../hooks/useFins'
 import { FIN_SETUPS } from '../lib/constants'
 import { FormField } from '../components/ui/FormField'
@@ -26,6 +27,7 @@ const SETUP_COLORS = {
 }
 
 export default function FinsPage() {
+  const navigate = useNavigate()
   const { fins, loading, createFin, updateFin, deleteFin } = useFins()
 
   const [showForm, setShowForm] = useState(false)
@@ -215,6 +217,7 @@ export default function FinsPage() {
                   </span>
                 </div>
                 <div className="flex gap-2 shrink-0">
+                  <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/fins/${fin.id}/metrics`, { state: { name: `${fin.brand} ${fin.model}` } })}>Metrics</Button>
                   <Button size="sm" variant="ghost" onClick={() => openEdit(fin)}>Edit</Button>
                   <Button size="sm" variant="danger" onClick={() => { setDeletingId(fin.id); setDeleteError(null) }}>Delete</Button>
                 </div>

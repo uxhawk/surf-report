@@ -11,11 +11,16 @@ const PAGE_TITLES = {
 
 function getTitle(pathname) {
   if (pathname.startsWith('/sessions/')) return 'Edit Session'
+  if (pathname.includes('/metrics')) {
+    if (pathname.startsWith('/gear/boards/')) return 'Board Metrics'
+    if (pathname.startsWith('/gear/fins/')) return 'Fin Metrics'
+    if (pathname.startsWith('/gear/locations/')) return 'Location Metrics'
+  }
   return PAGE_TITLES[pathname] ?? 'Surf Tracker'
 }
 
 function showsBackButton(pathname) {
-  return pathname.startsWith('/sessions/')
+  return pathname.startsWith('/sessions/') || pathname.includes('/metrics')
 }
 
 export default function Layout({ children }) {

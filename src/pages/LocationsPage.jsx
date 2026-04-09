@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useLocations } from '../hooks/useLocations'
 import { FormField } from '../components/ui/FormField'
 import { Button } from '../components/ui/Button'
@@ -15,6 +16,7 @@ function validate(form) {
 }
 
 export default function LocationsPage() {
+  const navigate = useNavigate()
   const { locations, loading, createLocation, updateLocation, deleteLocation } = useLocations()
 
   const [showForm, setShowForm] = useState(false)
@@ -182,6 +184,7 @@ export default function LocationsPage() {
                 )}
               </div>
               <div className="flex gap-2 shrink-0">
+                <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/locations/${location.id}/metrics`, { state: { name: location.name } })}>Metrics</Button>
                 <Button size="sm" variant="ghost" onClick={() => openEdit(location)}>Edit</Button>
                 <Button size="sm" variant="danger" onClick={() => { setDeletingId(location.id); setDeleteError(null) }}>Delete</Button>
               </div>

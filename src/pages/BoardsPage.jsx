@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useBoards } from '../hooks/useBoards'
 import { FIN_CONFIGS } from '../lib/constants'
 import { FormField } from '../components/ui/FormField'
@@ -23,7 +24,7 @@ function validate(form) {
   return errors
 }
 
-function BoardCard({ board, onEdit, onDelete }) {
+function BoardCard({ board, onEdit, onDelete, onMetrics }) {
   return (
     <div className={`gradient-border rounded-xl bg-retro-surface overflow-hidden${board.archived ? ' opacity-50' : ''}`}>
       {board.picture_url && (
@@ -66,6 +67,7 @@ function BoardCard({ board, onEdit, onDelete }) {
           )}
         </div>
         <div className="flex gap-2 shrink-0">
+          <Button size="sm" variant="ghost" onClick={() => onMetrics(board)}>Metrics</Button>
           <Button size="sm" variant="ghost" onClick={() => onEdit(board)}>Edit</Button>
           <Button size="sm" variant="danger" onClick={() => onDelete(board.id)}>Delete</Button>
         </div>
@@ -75,6 +77,7 @@ function BoardCard({ board, onEdit, onDelete }) {
 }
 
 export default function BoardsPage() {
+  const navigate = useNavigate()
   const { boards, loading, createBoard, updateBoard, deleteBoard } = useBoards()
 
   const [showForm, setShowForm] = useState(false)
@@ -279,6 +282,7 @@ export default function BoardsPage() {
               board={board}
               onEdit={openEdit}
               onDelete={(id) => { setDeletingId(id); setDeleteError(null) }}
+              onMetrics={b => navigate(`/gear/boards/${b.id}/metrics`, { state: { name: `${b.brand} ${b.model}` } })}
             />
           ))}
         </div>
