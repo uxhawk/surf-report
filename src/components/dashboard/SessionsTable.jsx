@@ -1,44 +1,9 @@
-import { useState, useMemo, useRef } from 'react'
-import { createPortal } from 'react-dom'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { formatDate, parseLocalDate } from '../../lib/utils'
 import { Button } from '../ui/Button'
 import { Modal } from '../ui/Modal'
 
-function SessionTooltip({ session, rowRect, tableRect }) {
-  const top = Math.min(rowRect.bottom + 6, window.innerHeight - 240)
-
-  return createPortal(
-    <div
-      style={{ top, left: tableRect.left, width: tableRect.width }}
-      className="fixed z-50 gradient-border rounded-xl p-4 bg-retro-surface shadow-lg pointer-events-none flex flex-col gap-2.5"
-    >
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="text-neon-yellow font-semibold text-sm">{formatDate(session.date)}</span>
-        <span className="text-neon-pink text-xs font-medium">{session.waves} ft</span>
-      </div>
-      <div className="flex flex-col gap-1">
-        <Row label="Location" value={session.location?.name} />
-        <Row label="Board" value={session.board ? `${session.board.brand} ${session.board.model}` : null} />
-        <Row label="Fins" value={session.fins ? `${session.fins.brand} ${session.fins.model} · ${session.fins.setup}` : null} />
-      </div>
-      {session.notes && (
-        <p className="text-retro-muted text-xs leading-relaxed border-t border-retro-border pt-2.5">{session.notes}</p>
-      )}
-    </div>,
-    document.body
-  )
-}
-
-function Row({ label, value }) {
-  if (!value) return null
-  return (
-    <div className="flex gap-2 text-xs">
-      <span className="text-retro-muted shrink-0 w-14">{label}</span>
-      <span className="text-white">{value}</span>
-    </div>
-  )
-}
 
 const SORT_FIELDS = ['date', 'location', 'waves']
 
@@ -67,24 +32,18 @@ function SortHeader({ label, field, sortField, sortDir, onSort, className = '' }
 export function SessionsTable({ sessions, onDelete }) {
   const navigate = useNavigate()
   const [deletingId, setDeletingId] = useState(null)
+  const [expandedIds, setExpandedIds] = useState(new Set())
   const [search, setSearch] = useState('')
   const [sortField, setSortField] = useState('date')
   const [sortDir, setSortDir] = useState('desc')
-  const [tooltip, setTooltip] = useState(null)
-  const tableRef = useRef(null)
 
-  function showTooltip(e, session) {
-    setTooltip({
-      session,
-      rowRect: e.currentTarget.getBoundingClientRect(),
-      tableRect: tableRef.current?.getBoundingClientRect() ?? e.currentTarget.getBoundingClientRect(),
+  function toggleExpand(id) {
+    setExpandedIds(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
     })
   }
-
-  function hideTooltip() {
-    setTooltip(null)
-  }
-
   function handleSort(field) {
     if (sortField === field) {
       setSortDir(d => d === 'desc' ? 'asc' : 'desc')
@@ -183,14 +142,22 @@ export function SessionsTable({ sessions, onDelete }) {
                   {s.fins ? `${s.fins.brand} ${s.fins.model}` : '—'}
                 </div>
                 {s.notes && (
-                  <p className="text-retro-muted text-xs">{s.notes}</p>
+                  <div>
+                    <p className={`text-retro-muted text-xs ${expandedIds.has(s.id) ? '' : 'line-clamp-2'}`}>{s.notes}</p>
+                    <button
+                      onClick={() => toggleExpand(s.id)}
+                      className="text-retro-muted/60 text-xs hover:text-retro-muted transition-colors mt-0.5"
+                    >
+                      {expandedIds.has(s.id) ? 'Show less' : 'Show more'}
+                    </button>
+                  </div>
                 )}
               </div>
             ))}
           </div>
 
           {/* Desktop: table */}
-          <div ref={tableRef} className="hidden sm:block overflow-x-auto max-h-[460px] overflow-y-auto">
+          <div className="hidden sm:block overflow-x-auto max-h-[460px] overflow-y-auto">
             <table className="w-full text-sm">
               <thead className="sticky top-0 z-10 bg-retro-surface">
                 <tr className="text-retro-muted text-xs uppercase border-b border-retro-border">
@@ -208,8 +175,6 @@ export function SessionsTable({ sessions, onDelete }) {
                   <tr
                     key={s.id}
                     className="hover:bg-retro-surface2 transition-colors"
-                    onMouseEnter={e => showTooltip(e, s)}
-                    onMouseLeave={hideTooltip}
                   >
                     <td className="px-4 py-3 text-neon-yellow whitespace-nowrap">{formatDate(s.date)}</td>
                     <td className="px-4 py-3 text-white">{s.location?.name ?? '—'}</td>
@@ -220,7 +185,19 @@ export function SessionsTable({ sessions, onDelete }) {
                       {s.fins ? `${s.fins.brand} ${s.fins.model}` : '—'}
                     </td>
                     <td className="px-4 py-3 text-retro-muted">{s.waves} ft</td>
-                    <td className="px-4 py-3 text-retro-muted">{s.notes}</td>
+                    <td className="px-4 py-3 text-retro-muted max-w-xs">
+                      {s.notes && (
+                        <div>
+                          <p className={expandedIds.has(s.id) ? '' : 'truncate'}>{s.notes}</p>
+                          <button
+                            onClick={() => toggleExpand(s.id)}
+                            className="text-retro-muted/60 text-xs hover:text-retro-muted transition-colors mt-0.5"
+                          >
+                            {expandedIds.has(s.id) ? 'Show less' : 'Show more'}
+                          </button>
+                        </div>
+                      )}
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2 justify-end">
                         <Button size="sm" variant="ghost" onClick={() => navigate(`/sessions/${s.id}/edit`)}>
@@ -248,7 +225,6 @@ export function SessionsTable({ sessions, onDelete }) {
         onCancel={() => setDeletingId(null)}
       />
 
-      {tooltip && <SessionTooltip session={tooltip.session} rowRect={tooltip.rowRect} tableRect={tooltip.tableRect} />}
     </>
   )
 }
