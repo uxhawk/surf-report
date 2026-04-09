@@ -104,17 +104,17 @@ export default function Dashboard() {
         </div>
 
         {/* Charts */}
-        <SurfChart title="Surfs by Day of Week" data={stats.byDayOfWeek} color="#FF2D78" />
         <SurfChart title="Surfs by Month" data={stats.byMonth} color="#00CFFF" />
-        {stats.byLocation.length > 0 && (
-          <SurfChart title="Surfs by Location" data={stats.byLocation} color="#FFE600" multiColor logScale />
-        )}
         {stats.byBoard.length > 0 && (
           <SurfChart title="Surfs by Board" data={stats.byBoard} color="#BF00FF" multiColor />
         )}
         {stats.byFinType.length > 0 && (
           <SurfChart title="Surfs by Fin Type" data={stats.byFinType} color="#FF2D78" multiColor />
         )}
+        {stats.byLocation.length > 0 && (
+          <SurfChart title="Surfs by Location" data={stats.byLocation} color="#FFE600" multiColor logScale />
+        )}
+        <SurfChart title="Surfs by Day of Week" data={stats.byDayOfWeek} color="#FF2D78" />
 
         {/* Sessions table */}
         <div>

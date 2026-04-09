@@ -107,19 +107,32 @@ export default function GearMetrics({ type }) {
         )}
       </div>
 
-      <SurfChart title="Wave Sizes" data={byWaveSize} color="#FF2D78" />
-      <SurfChart title="By Day of Week" data={stats.byDayOfWeek} color="#00CFFF" />
-      <SurfChart title="By Month" data={stats.byMonth} color="#FFE600" />
+      {/* Location metrics: board, wave size, fin setup, month, day of week */}
+      {type === 'location' && (<>
+        {stats.byBoard.length > 0 && <SurfChart title="By Board" data={stats.byBoard} color="#BF00FF" multiColor />}
+        <SurfChart title="By Wave Size" data={byWaveSize} color="#FF2D78" />
+        {stats.byFinType.length > 0 && <SurfChart title="By Fin Setup" data={stats.byFinType} color="#FF2D78" multiColor />}
+        <SurfChart title="By Month" data={stats.byMonth} color="#FFE600" />
+        <SurfChart title="By Day of Week" data={stats.byDayOfWeek} color="#00CFFF" />
+      </>)}
 
-      {type !== 'location' && stats.byLocation.length > 0 && (
-        <SurfChart title="By Location" data={stats.byLocation} color="#00CFFF" multiColor />
-      )}
-      {type !== 'board' && stats.byBoard.length > 0 && (
-        <SurfChart title="By Board" data={stats.byBoard} color="#BF00FF" multiColor />
-      )}
-      {type !== 'fin' && stats.byFinType.length > 0 && (
-        <SurfChart title="By Fin Setup" data={stats.byFinType} color="#FF2D78" multiColor />
-      )}
+      {/* Board metrics: location, wave size, fin setup, month, day of week */}
+      {type === 'board' && (<>
+        {stats.byLocation.length > 0 && <SurfChart title="By Location" data={stats.byLocation} color="#00CFFF" multiColor />}
+        <SurfChart title="By Wave Size" data={byWaveSize} color="#FF2D78" />
+        {stats.byFinType.length > 0 && <SurfChart title="By Fin Setup" data={stats.byFinType} color="#FF2D78" multiColor />}
+        <SurfChart title="By Month" data={stats.byMonth} color="#FFE600" />
+        <SurfChart title="By Day of Week" data={stats.byDayOfWeek} color="#00CFFF" />
+      </>)}
+
+      {/* Fin metrics: wave size, board, location, month, day of week */}
+      {type === 'fin' && (<>
+        <SurfChart title="By Wave Size" data={byWaveSize} color="#FF2D78" />
+        {stats.byBoard.length > 0 && <SurfChart title="By Board" data={stats.byBoard} color="#BF00FF" multiColor />}
+        {stats.byLocation.length > 0 && <SurfChart title="By Location" data={stats.byLocation} color="#00CFFF" multiColor />}
+        <SurfChart title="By Month" data={stats.byMonth} color="#FFE600" />
+        <SurfChart title="By Day of Week" data={stats.byDayOfWeek} color="#00CFFF" />
+      </>)}
     </div>
   )
 }

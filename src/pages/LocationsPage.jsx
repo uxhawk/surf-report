@@ -8,10 +8,11 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { Spinner } from '../components/ui/Spinner'
 import { useToast } from '../components/ui/Toast'
 import { SegmentedControl } from '../components/ui/SegmentedControl'
+import { PhotoUpload } from '../components/ui/PhotoUpload'
 import { KebabMenu } from '../components/ui/KebabMenu'
 import { LOCATION_TYPES, LOCATION_TYPE_COLORS } from '../lib/constants'
 
-const EMPTY_FORM = { name: '', description: '', types: [], archived: false }
+const EMPTY_FORM = { name: '', description: '', types: [], picture_url: '', archived: false }
 
 function validate(form) {
   const errors = {}
@@ -44,7 +45,7 @@ export default function LocationsPage() {
 
   function openEdit(location) {
     setEditingId(location.id)
-    setForm({ name: location.name, description: location.description ?? '', types: location.types ?? [], archived: location.archived ?? false })
+    setForm({ name: location.name, description: location.description ?? '', types: location.types ?? [], picture_url: location.picture_url ?? '', archived: location.archived ?? false })
     setErrors({})
     setSaveError(null)
     setShowForm(true)
@@ -80,7 +81,7 @@ export default function LocationsPage() {
     setSaving(true)
     setSaveError(null)
 
-    const payload = { name: form.name.trim(), description: form.description.trim() || null, types: form.types, archived: form.archived }
+    const payload = { name: form.name.trim(), description: form.description.trim() || null, types: form.types, picture_url: form.picture_url || null, archived: form.archived }
     const { error } = editingId
       ? await updateLocation(editingId, payload)
       : await createLocation(payload)
@@ -166,6 +167,10 @@ export default function LocationsPage() {
             </div>
           </FormField>
 
+          <FormField label="Photo">
+            <PhotoUpload value={form.picture_url} onChange={url => set('picture_url', url)} label="location photo" />
+          </FormField>
+
           {editingId && (
             <label className="flex items-center gap-3 cursor-pointer select-none">
               <input
@@ -202,7 +207,15 @@ export default function LocationsPage() {
       ) : (
         <div className="flex flex-col gap-3">
           {visible.map(location => (
-            <div key={location.id} className="gradient-border rounded-xl p-4 bg-retro-surface flex flex-col gap-2">
+            <div key={location.id} className="gradient-border rounded-xl bg-retro-surface overflow-hidden">
+              {location.picture_url && (
+                <img
+                  src={location.picture_url}
+                  alt={location.name}
+                  className="w-full h-40 object-cover"
+                />
+              )}
+            <div className="p-4 flex flex-col gap-2">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-white font-semibold text-sm">{location.name}</p>
                 <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/locations/${location.id}/metrics`, { state: { name: location.name } })}>View Metrics</Button>
@@ -223,6 +236,7 @@ export default function LocationsPage() {
               {location.description && (
                 <p className="text-retro-muted text-xs">{location.description}</p>
               )}
+            </div>
             </div>
           ))}
         </div>
