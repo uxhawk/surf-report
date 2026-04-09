@@ -3,6 +3,7 @@ import {
 } from 'recharts'
 
 const COLORS = ['#FF2D78', '#00CFFF', '#FFE600', '#BF00FF']
+const MAX_LABEL_LEN = 14
 
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
@@ -14,23 +15,50 @@ function CustomTooltip({ active, payload, label }) {
   )
 }
 
+function RotatedTick({ x, y, payload }) {
+  const label = payload.value.length > MAX_LABEL_LEN
+    ? payload.value.slice(0, MAX_LABEL_LEN) + '…'
+    : payload.value
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text
+        x={0}
+        y={0}
+        dy={4}
+        textAnchor="end"
+        fill="#A78BFA"
+        fontSize={9}
+        fontFamily="Inter"
+        transform="rotate(-45)"
+      >
+        {label}
+      </text>
+    </g>
+  )
+}
+
 export function SurfChart({ title, data, color = '#FF2D78', multiColor = false, logScale = false }) {
   if (!data?.length) return null
+
+  // Rotate labels when any name is longer than 4 chars (locations, boards, fins)
+  // or when there are too many bars to fit cleanly
+  const needsRotation = data.some(d => d.name.length > 4) || data.length > 9
 
   return (
     <div className="gradient-border rounded-xl p-4 bg-retro-surface">
       <h3 className="text-neon-yellow font-display text-[9px] leading-relaxed mb-4 uppercase">
         {title}
       </h3>
-      <ResponsiveContainer width="100%" height={160}>
-        <BarChart data={data} margin={{ top: 14, right: 0, left: -28, bottom: 0 }}>
+      <ResponsiveContainer width="100%" height={needsRotation ? 200 : 160}>
+        <BarChart data={data} margin={{ top: 14, right: 4, left: -28, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#2D1060" vertical={false} />
           <XAxis
             dataKey="name"
-            tick={{ fill: '#A78BFA', fontSize: 9, fontFamily: 'Inter' }}
+            tick={needsRotation ? <RotatedTick /> : { fill: '#A78BFA', fontSize: 9, fontFamily: 'Inter' }}
             axisLine={false}
             tickLine={false}
             interval={0}
+            height={needsRotation ? 64 : 30}
           />
           <YAxis
             allowDecimals={false}
