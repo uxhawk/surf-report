@@ -173,18 +173,8 @@ export function SessionsTable({ sessions, onDelete }) {
                     <span className="ml-2 text-retro-muted text-xs">{s.waves} ft</span>
                   </div>
                   <div className="flex gap-2 shrink-0">
-                    <button
-                      onClick={() => navigate(`/sessions/${s.id}/edit`)}
-                      className="text-neon-cyan text-xs underline"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => setDeletingId(s.id)}
-                      className="text-neon-pink text-xs underline"
-                    >
-                      Delete
-                    </button>
+                    <Button size="sm" variant="ghost" onClick={() => navigate(`/sessions/${s.id}/edit`)}>Edit</Button>
+                    <Button size="sm" variant="danger" onClick={() => setDeletingId(s.id)}>Delete</Button>
                   </div>
                 </div>
                 <div className="text-white text-sm">{s.location?.name ?? '—'}</div>
@@ -193,7 +183,7 @@ export function SessionsTable({ sessions, onDelete }) {
                   {s.fins ? `${s.fins.brand} ${s.fins.model}` : '—'}
                 </div>
                 {s.notes && (
-                  <p className="text-retro-muted text-xs line-clamp-2">{s.notes}</p>
+                  <p className="text-retro-muted text-xs">{s.notes}</p>
                 )}
               </div>
             ))}
@@ -230,7 +220,7 @@ export function SessionsTable({ sessions, onDelete }) {
                       {s.fins ? `${s.fins.brand} ${s.fins.model}` : '—'}
                     </td>
                     <td className="px-4 py-3 text-retro-muted">{s.waves} ft</td>
-                    <td className="px-4 py-3 text-retro-muted max-w-xs truncate">{s.notes}</td>
+                    <td className="px-4 py-3 text-retro-muted">{s.notes}</td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2 justify-end">
                         <Button size="sm" variant="ghost" onClick={() => navigate(`/sessions/${s.id}/edit`)}>
