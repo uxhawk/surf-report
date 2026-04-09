@@ -84,17 +84,17 @@ export default function Dashboard() {
             icon="🔥"
           />
           <StatCard
+            label="Last Surf"
+            value={lastSurf ? formatDate(lastSurf) : '—'}
+            color="neon-purple"
+            icon="📍"
+          />
+          <StatCard
             label="Longest Streak"
             value={longestStreak.count ? `${longestStreak.count}d` : '—'}
             subtitle={longestStreak.range}
             color="neon-cyan"
             icon="🏆"
-          />
-          <StatCard
-            label="Last Surf"
-            value={lastSurf ? formatDate(lastSurf) : '—'}
-            color="neon-purple"
-            icon="📍"
           />
         </div>
 
