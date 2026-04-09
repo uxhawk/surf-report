@@ -219,19 +219,17 @@ export default function FinsPage() {
                 />
               )}
               <div className="p-4 flex flex-col gap-2">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <p className="text-white font-semibold text-sm">
-                    {fin.brand} {fin.model}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-[9px] font-display border rounded px-1.5 py-0.5 ${SETUP_COLORS[fin.setup] ?? 'text-retro-muted border-retro-border'}`}>
-                      {fin.setup}
-                    </span>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/fins/${fin.id}/metrics`, { state: { name: `${fin.brand} ${fin.model}` } })}>Metrics</Button>
-                      <Button size="sm" variant="ghost" onClick={() => openEdit(fin)}>Edit</Button>
-                      <Button size="sm" variant="danger" onClick={() => { setDeletingId(fin.id); setDeleteError(null) }}>Delete</Button>
-                    </div>
+                <p className="text-white font-semibold text-sm">
+                  {fin.brand} {fin.model}
+                </p>
+                <div className="flex items-center justify-between gap-2">
+                  <span className={`text-[9px] font-display border rounded px-1.5 py-0.5 ${SETUP_COLORS[fin.setup] ?? 'text-retro-muted border-retro-border'}`}>
+                    {fin.setup}
+                  </span>
+                  <div className="flex gap-2 shrink-0">
+                    <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/fins/${fin.id}/metrics`, { state: { name: `${fin.brand} ${fin.model}` } })}>Metrics</Button>
+                    <Button size="sm" variant="ghost" onClick={() => openEdit(fin)}>Edit</Button>
+                    <Button size="sm" variant="danger" onClick={() => { setDeletingId(fin.id); setDeleteError(null) }}>Delete</Button>
                   </div>
                 </div>
                 {fin.description && (

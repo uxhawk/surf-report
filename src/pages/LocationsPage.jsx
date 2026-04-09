@@ -202,17 +202,10 @@ export default function LocationsPage() {
         <div className="flex flex-col gap-3">
           {visible.map(location => (
             <div key={location.id} className="gradient-border rounded-xl p-4 bg-retro-surface flex flex-col gap-2">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <p className="text-white font-semibold text-sm">{location.name}</p>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/locations/${location.id}/metrics`, { state: { name: location.name } })}>Metrics</Button>
-                  <Button size="sm" variant="ghost" onClick={() => openEdit(location)}>Edit</Button>
-                  <Button size="sm" variant="danger" onClick={() => { setDeletingId(location.id); setDeleteError(null) }}>Delete</Button>
-                </div>
-              </div>
-              {location.types?.length > 0 && (
+              <p className="text-white font-semibold text-sm">{location.name}</p>
+              <div className="flex items-center justify-between gap-2">
                 <div className="flex flex-wrap gap-1">
-                  {location.types.map(type => (
+                  {location.types?.map(type => (
                     <span
                       key={type}
                       className={`text-[9px] font-display border rounded px-1.5 py-0.5 ${LOCATION_TYPE_COLORS[type] ?? 'text-retro-muted border-retro-border'}`}
@@ -221,7 +214,12 @@ export default function LocationsPage() {
                     </span>
                   ))}
                 </div>
-              )}
+                <div className="flex gap-2 shrink-0">
+                  <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/locations/${location.id}/metrics`, { state: { name: location.name } })}>Metrics</Button>
+                  <Button size="sm" variant="ghost" onClick={() => openEdit(location)}>Edit</Button>
+                  <Button size="sm" variant="danger" onClick={() => { setDeletingId(location.id); setDeleteError(null) }}>Delete</Button>
+                </div>
+              </div>
               {location.description && (
                 <p className="text-retro-muted text-xs">{location.description}</p>
               )}
