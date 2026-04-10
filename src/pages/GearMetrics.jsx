@@ -4,7 +4,7 @@ import { useSessions } from '../hooks/useSessions'
 import { useBoards } from '../hooks/useBoards'
 import { useFins } from '../hooks/useFins'
 import { useLocations } from '../hooks/useLocations'
-import { computeDashboardStats, parseLocalDate, formatDate } from '../lib/utils'
+import { computeDashboardStats, parseLocalDate, formatDate, formatTimeSince } from '../lib/utils'
 import { DAYS_OF_WEEK, MONTHS } from '../lib/constants'
 import { SurfChart } from '../components/dashboard/SurfChart'
 import { StatCard } from '../components/dashboard/StatCard'
@@ -146,6 +146,7 @@ export default function GearMetrics({ type }) {
           <StatCard
             label="Last Surf"
             value={lastSurf ? formatDate(lastSurf) : '—'}
+            subtitle={lastSurf ? `${formatTimeSince(lastSurf)} ago` : ''}
             color="neon-purple"
             icon="🗓️"
           />

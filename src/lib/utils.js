@@ -25,6 +25,40 @@ function offsetDayStr(days) {
   return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-')
 }
 
+export function formatTimeSince(dateStr) {
+  if (!dateStr) return ''
+  const past = parseLocalDate(dateStr)
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0)
+
+  let years = today.getFullYear() - past.getFullYear()
+  let months = today.getMonth() - past.getMonth()
+  let days = today.getDate() - past.getDate()
+
+  if (days < 0) {
+    months--
+    days += new Date(today.getFullYear(), today.getMonth(), 0).getDate()
+  }
+  if (months < 0) {
+    years--
+    months += 12
+  }
+
+  if (years === 0 && months === 0) {
+    if (days === 0) return 'Today'
+    return `${days} ${days === 1 ? 'day' : 'days'}`
+  }
+
+  const parts = []
+  if (years > 0) parts.push(`${years} ${years === 1 ? 'year' : 'years'}`)
+  if (months > 0) parts.push(`${months} ${months === 1 ? 'month' : 'months'}`)
+  if (days > 0) parts.push(`${days} ${days === 1 ? 'day' : 'days'}`)
+
+  if (parts.length === 1) return parts[0]
+  if (parts.length === 2) return `${parts[0]} and ${parts[1]}`
+  return `${parts.slice(0, -1).join(', ')}, and ${parts[parts.length - 1]}`
+}
+
 export function formatShortDate(dateStr) {
   if (!dateStr) return ''
   return parseLocalDate(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
