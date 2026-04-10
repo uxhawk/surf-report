@@ -3,7 +3,7 @@ import { useSessions } from '../hooks/useSessions'
 import { useLocations } from '../hooks/useLocations'
 import { useBoards } from '../hooks/useBoards'
 import { useFins } from '../hooks/useFins'
-import { computeDashboardStats, calculateStreak, calculateLongestStreak, formatDate, parseLocalDate } from '../lib/utils'
+import { computeDashboardStats, calculateStreak, calculateLongestStreak, formatDate, formatTimeSince, parseLocalDate } from '../lib/utils'
 import { StatCard } from '../components/dashboard/StatCard'
 import { SurfChart } from '../components/dashboard/SurfChart'
 import { FilterBar } from '../components/dashboard/FilterBar'
@@ -91,6 +91,7 @@ export default function Dashboard() {
           <StatCard
             label="Last Surf"
             value={lastSurf ? formatDate(lastSurf) : '—'}
+            subtitle={lastSurf ? (formatTimeSince(lastSurf) === 'Today' ? 'Today' : `${formatTimeSince(lastSurf)} ago`) : ''}
             color="neon-purple"
             icon="🗓️"
           />

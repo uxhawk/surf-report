@@ -2,24 +2,35 @@ import { useState } from 'react'
 import { ChevronDown } from 'pixelarticons/react/ChevronDown.js'
 import { ChevronUp } from 'pixelarticons/react/ChevronUp.js'
 import { Settings2 } from 'pixelarticons/react/Settings2.js'
+import { ZapOff } from 'pixelarticons/react/ZapOff.js'
 import { MONTHS } from '../../lib/constants'
 import { Button } from '../ui/Button'
 
 export function FilterBar({ filters, onChange, locations, boards, fins }) {
   const [open, setOpen] = useState(false)
   const years = [2026, 2025]
+  const hasFilters = Object.values(filters).some(v => v !== '')
 
   function set(key, value) {
     onChange({ ...filters, [key]: value })
+  }
+
+  function clearAll() {
+    onChange({ year: '', month: '', locationId: '', boardId: '', finsId: '' })
   }
 
   return (
     <div className="bg-retro-surface border-b border-retro-border">
       <div className="flex items-center justify-between px-4 py-3">
         <p className="flex items-center gap-1.5 text-retro-muted text-xs font-display uppercase"><Settings2 className="w-4 h-4" /> Filter</p>
-        <Button size="sm" variant="ghost" onClick={() => setOpen(prev => !prev)}>
-          {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-        </Button>
+        <div className="flex items-center gap-1.5">
+          <Button size="sm" variant="ghost" disabled={!hasFilters} onClick={clearAll}>
+            <ZapOff className="w-4 h-4" /> Clear Filters
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setOpen(prev => !prev)}>
+            {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </Button>
+        </div>
       </div>
 
       <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
@@ -82,10 +93,11 @@ export function FilterBar({ filters, onChange, locations, boards, fins }) {
 
           <button
             type="button"
-            onClick={() => onChange({ year: '', month: '', locationId: '', boardId: '', finsId: '' })}
-            className="text-retro-muted text-xs border border-retro-border rounded-lg px-3 py-2 hover:border-neon-pink hover:text-neon-pink transition-colors"
+            disabled={!hasFilters}
+            onClick={clearAll}
+            className="inline-flex items-center justify-center gap-1.5 text-retro-muted text-xs border border-retro-border rounded-lg px-3 py-2 hover:border-neon-pink hover:text-neon-pink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Clear
+            <ZapOff className="w-3.5 h-3.5" /> Clear
           </button>
         </div>
         </div>

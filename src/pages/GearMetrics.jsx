@@ -13,6 +13,7 @@ import { Button } from '../components/ui/Button'
 import { ChevronDown } from 'pixelarticons/react/ChevronDown.js'
 import { ChevronUp } from 'pixelarticons/react/ChevronUp.js'
 import { Settings2 } from 'pixelarticons/react/Settings2.js'
+import { ZapOff } from 'pixelarticons/react/ZapOff.js'
 
 function computeWaveSizes(sessions) {
   const counts = {}
@@ -93,9 +94,14 @@ export default function GearMetrics({ type }) {
       <div className="bg-retro-surface border-b border-retro-border">
         <div className="flex items-center justify-between px-4 py-3">
           <p className="flex items-center gap-1.5 text-retro-muted text-xs font-display uppercase"><Settings2 className="w-4 h-4" /> Filter</p>
-          <Button size="sm" variant="ghost" onClick={() => setFilterOpen(prev => !prev)}>
-            {filterOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </Button>
+          <div className="flex items-center gap-1.5">
+            <Button size="sm" variant="ghost" disabled={!year} onClick={() => setYear('')}>
+              <ZapOff className="w-4 h-4" /> Clear Filters
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setFilterOpen(prev => !prev)}>
+              {filterOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </Button>
+          </div>
         </div>
         <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${filterOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
           <div className="overflow-hidden">
@@ -106,10 +112,11 @@ export default function GearMetrics({ type }) {
               </select>
               <button
                 type="button"
+                disabled={!year}
                 onClick={() => setYear('')}
-                className="text-retro-muted text-xs border border-retro-border rounded-lg px-3 py-2 hover:border-neon-pink hover:text-neon-pink transition-colors"
+                className="inline-flex items-center justify-center gap-1.5 text-retro-muted text-xs border border-retro-border rounded-lg px-3 py-2 hover:border-neon-pink hover:text-neon-pink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Clear
+                <ZapOff className="w-3.5 h-3.5" /> Clear
               </button>
             </div>
           </div>
@@ -146,7 +153,7 @@ export default function GearMetrics({ type }) {
           <StatCard
             label="Last Surf"
             value={lastSurf ? formatDate(lastSurf) : '—'}
-            subtitle={lastSurf ? `${formatTimeSince(lastSurf)} ago` : ''}
+            subtitle={lastSurf ? (formatTimeSince(lastSurf) === 'Today' ? 'Today' : `${formatTimeSince(lastSurf)} ago`) : ''}
             color="neon-purple"
             icon="🗓️"
           />
