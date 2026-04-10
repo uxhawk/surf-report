@@ -48,6 +48,13 @@ export default function Dashboard() {
   const streak = useMemo(() => calculateStreak(sessions), [sessions])
   const longestStreak = useMemo(() => calculateLongestStreak(yearFiltered), [yearFiltered])
 
+  const visibleMonths = useMemo(() => {
+    if (Number(filters.year) === new Date().getFullYear()) {
+      return stats.byMonth.slice(0, new Date().getMonth() + 1)
+    }
+    return stats.byMonth
+  }, [stats.byMonth, filters.year])
+
   const lastSurf = sessions[0]?.date
 
   if (loading) return <Spinner />
@@ -105,7 +112,7 @@ export default function Dashboard() {
         </div>
 
         {/* Charts */}
-        <SurfChart title="Surfs by Month" data={stats.byMonth} color="#00CFFF" />
+        <SurfChart title="Surfs by Month" data={visibleMonths} color="#00CFFF" />
         {stats.byBoard.length > 0 && (
           <SurfChart title="Surfs by Board" data={stats.byBoard} color="#BF00FF" multiColor logScale />
         )}
