@@ -103,11 +103,13 @@ textarea {
   min-height: 100px;
 }
 
-/* iOS date input fixes */
+/* iOS Safari date input: the native widget ignores width constraints under
+   -webkit-appearance:auto, so we reset to none.  The iOS picker wheel still
+   opens on tap; only the in-field chrome changes. */
 input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
   min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
