@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useSessions } from '../hooks/useSessions'
 import { useLocations } from '../hooks/useLocations'
 import { useBoards } from '../hooks/useBoards'
@@ -57,6 +58,23 @@ export default function Dashboard() {
 
   const lastSurf = sessions[0]?.date
 
+  const navigate = useNavigate()
+
+  const handleBoardClick = useCallback((entry) => {
+    const board = boards.find(b => `${b.brand} ${b.model}` === entry.name)
+    if (board) navigate(`/gear/boards/${board.id}/metrics`, { state: { name: `${board.brand} ${board.model}` } })
+  }, [boards, navigate])
+
+  const handleFinClick = useCallback((entry) => {
+    const fin = fins.find(f => `${f.brand} ${f.model} ${f.setup}` === entry.name)
+    if (fin) navigate(`/gear/fins/${fin.id}/metrics`, { state: { name: `${fin.brand} ${fin.model} · ${fin.setup}` } })
+  }, [fins, navigate])
+
+  const handleLocationClick = useCallback((entry) => {
+    const location = locations.find(l => l.name === entry.name)
+    if (location) navigate(`/gear/locations/${location.id}/metrics`, { state: { name: location.name } })
+  }, [locations, navigate])
+
   if (loading) return <Spinner />
 
   if (!sessions.length) {
@@ -114,13 +132,13 @@ export default function Dashboard() {
         {/* Charts */}
         <SurfChart title="Surfs by Month" data={visibleMonths} color="#00CFFF" />
         {stats.byBoard.length > 0 && (
-          <SurfChart title="Surfs by Board" data={stats.byBoard} color="#BF00FF" multiColor logScale />
+          <SurfChart title="Surfs by Board" data={stats.byBoard} color="#BF00FF" multiColor logScale onBarClick={handleBoardClick} />
         )}
         {stats.byFinType.length > 0 && (
-          <SurfChart title="Surfs by Fin Type" data={stats.byFinType} color="#FF2D78" multiColor logScale />
+          <SurfChart title="Surfs by Fin Type" data={stats.byFinType} color="#FF2D78" multiColor logScale onBarClick={handleFinClick} />
         )}
         {stats.byLocation.length > 0 && (
-          <SurfChart title="Surfs by Location" data={stats.byLocation} color="#FFE600" multiColor logScale />
+          <SurfChart title="Surfs by Location" data={stats.byLocation} color="#FFE600" multiColor logScale onBarClick={handleLocationClick} />
         )}
         <SurfChart title="Surfs by Day of Week" data={stats.byDayOfWeek} color="#FF2D78" />
 

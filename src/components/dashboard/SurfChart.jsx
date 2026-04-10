@@ -37,7 +37,7 @@ function RotatedTick({ x, y, payload }) {
   )
 }
 
-export function SurfChart({ title, data, color = '#FF2D78', multiColor = false, logScale = false }) {
+export function SurfChart({ title, data, color = '#FF2D78', multiColor = false, logScale = false, onBarClick }) {
   if (!data?.length) return null
 
   // Rotate labels when any name is longer than 4 chars (locations, boards, fins)
@@ -69,7 +69,12 @@ export function SurfChart({ title, data, color = '#FF2D78', multiColor = false, 
             tickLine={false}
           />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,45,120,0.08)' }} />
-          <Bar dataKey="count" radius={[3, 3, 0, 0]}>
+          <Bar
+            dataKey="count"
+            radius={[3, 3, 0, 0]}
+            onClick={onBarClick ? (entry) => onBarClick(entry) : undefined}
+            style={onBarClick ? { cursor: 'pointer' } : undefined}
+          >
             <LabelList dataKey="count" position="top" style={{ fill: '#A78BFA', fontSize: 9, fontFamily: 'Inter' }} />
             {data.map((_, index) => (
               <Cell
