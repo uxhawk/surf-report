@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ChevronDown } from 'pixelarticons/react/ChevronDown.js'
 import { ChevronUp } from 'pixelarticons/react/ChevronUp.js'
+import { Settings2 } from 'pixelarticons/react/Settings2.js'
 import { MONTHS } from '../../lib/constants'
 import { Button } from '../ui/Button'
 
@@ -15,7 +16,7 @@ export function FilterBar({ filters, onChange, locations, boards, fins }) {
   return (
     <div className="bg-retro-surface border-b border-retro-border">
       <div className="flex items-center justify-between px-4 py-3">
-        <p className="text-retro-muted text-xs font-display uppercase">Filter</p>
+        <p className="flex items-center gap-1.5 text-retro-muted text-xs font-display uppercase"><Settings2 className="w-4 h-4" /> Filter</p>
         <Button size="sm" variant="ghost" onClick={() => setOpen(prev => !prev)}>
           {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </Button>

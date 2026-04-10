@@ -92,7 +92,7 @@ export default function Dashboard() {
             label="Last Surf"
             value={lastSurf ? formatDate(lastSurf) : '—'}
             color="neon-purple"
-            icon="📍"
+            icon="🗓️"
           />
           <StatCard
             label="Longest Streak"
@@ -106,10 +106,10 @@ export default function Dashboard() {
         {/* Charts */}
         <SurfChart title="Surfs by Month" data={stats.byMonth} color="#00CFFF" />
         {stats.byBoard.length > 0 && (
-          <SurfChart title="Surfs by Board" data={stats.byBoard} color="#BF00FF" multiColor />
+          <SurfChart title="Surfs by Board" data={stats.byBoard} color="#BF00FF" multiColor logScale />
         )}
         {stats.byFinType.length > 0 && (
-          <SurfChart title="Surfs by Fin Type" data={stats.byFinType} color="#FF2D78" multiColor />
+          <SurfChart title="Surfs by Fin Type" data={stats.byFinType} color="#FF2D78" multiColor logScale />
         )}
         {stats.byLocation.length > 0 && (
           <SurfChart title="Surfs by Location" data={stats.byLocation} color="#FFE600" multiColor logScale />

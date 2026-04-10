@@ -5,7 +5,7 @@ export function SegmentedControl({ options, value, onChange }) {
         <button
           key={opt.value}
           onClick={() => onChange(opt.value)}
-          className={`px-3 py-1.5 text-xs font-medium transition-colors duration-150 cursor-pointer ${
+          className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors duration-150 cursor-pointer ${
             value === opt.value
               ? 'bg-neon-pink text-white'
               : 'text-retro-muted hover:text-white'

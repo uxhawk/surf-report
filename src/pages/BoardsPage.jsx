@@ -12,6 +12,9 @@ import { useToast } from '../components/ui/Toast'
 import { SegmentedControl } from '../components/ui/SegmentedControl'
 import { KebabMenu } from '../components/ui/KebabMenu'
 import { PlusBox } from 'pixelarticons/react/PlusBox.js'
+import { Database } from 'pixelarticons/react/Database.js'
+import { Archive } from 'pixelarticons/react/Archive.js'
+import { ImageNew } from 'pixelarticons/react/ImageNew.js'
 
 function formatBoardLength(inches) {
   const feet = Math.floor(inches / 12)
@@ -46,10 +49,10 @@ function BoardCard({ board, onEdit, onDelete, onMetrics }) {
       )}
       <div className="p-4 flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-white font-semibold text-sm">
+          <p className="text-white font-display text-[10px]">
             {board.brand} {board.model}
           </p>
-          <Button size="sm" variant="ghost" onClick={() => onMetrics(board)}>View Metrics</Button>
+          <Button size="sm" variant="ghost" onClick={() => onMetrics(board)}><Database className="w-4 h-4" /> View Metrics</Button>
         </div>
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
@@ -185,7 +188,7 @@ export default function BoardsPage() {
     <div className="p-4 flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
         <SegmentedControl
-          options={[{ label: 'Active', value: 'active' }, { label: 'Archived', value: 'archived' }]}
+          options={[{ label: <><ImageNew className="w-3 h-3" /> Active</>, value: 'active' }, { label: <><Archive className="w-3 h-3" /> Archived</>, value: 'archived' }]}
           value={view}
           onChange={setView}
         />

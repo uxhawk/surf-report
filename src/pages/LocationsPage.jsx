@@ -11,6 +11,9 @@ import { SegmentedControl } from '../components/ui/SegmentedControl'
 import { PhotoUpload } from '../components/ui/PhotoUpload'
 import { KebabMenu } from '../components/ui/KebabMenu'
 import { PlusBox } from 'pixelarticons/react/PlusBox.js'
+import { Database } from 'pixelarticons/react/Database.js'
+import { Archive } from 'pixelarticons/react/Archive.js'
+import { ImageNew } from 'pixelarticons/react/ImageNew.js'
 import { LOCATION_TYPES, LOCATION_TYPE_COLORS } from '../lib/constants'
 
 const EMPTY_FORM = { name: '', description: '', types: [], picture_url: '', archived: false }
@@ -110,7 +113,7 @@ export default function LocationsPage() {
     <div className="p-4 flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
         <SegmentedControl
-          options={[{ label: 'Active', value: 'active' }, { label: 'Archived', value: 'archived' }]}
+          options={[{ label: <><ImageNew className="w-3 h-3" /> Active</>, value: 'active' }, { label: <><Archive className="w-3 h-3" /> Archived</>, value: 'archived' }]}
           value={view}
           onChange={setView}
         />
@@ -218,8 +221,8 @@ export default function LocationsPage() {
               )}
             <div className="p-4 flex flex-col gap-2">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-white font-semibold text-sm">{location.name}</p>
-                <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/locations/${location.id}/metrics`, { state: { name: location.name } })}>View Metrics</Button>
+                <p className="text-white font-display text-[10px]">{location.name}</p>
+                <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/locations/${location.id}/metrics`, { state: { name: location.name } })}><Database className="w-4 h-4" /> View Metrics</Button>
               </div>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex flex-wrap gap-1">

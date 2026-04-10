@@ -12,6 +12,9 @@ import { useToast } from '../components/ui/Toast'
 import { SegmentedControl } from '../components/ui/SegmentedControl'
 import { KebabMenu } from '../components/ui/KebabMenu'
 import { PlusBox } from 'pixelarticons/react/PlusBox.js'
+import { Database } from 'pixelarticons/react/Database.js'
+import { Archive } from 'pixelarticons/react/Archive.js'
+import { ImageNew } from 'pixelarticons/react/ImageNew.js'
 
 const EMPTY_FORM = { brand: '', model: '', setup: '', description: '', picture_url: '', archived: false }
 
@@ -125,7 +128,7 @@ export default function FinsPage() {
     <div className="p-4 flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
         <SegmentedControl
-          options={[{ label: 'Active', value: 'active' }, { label: 'Archived', value: 'archived' }]}
+          options={[{ label: <><ImageNew className="w-3 h-3" /> Active</>, value: 'active' }, { label: <><Archive className="w-3 h-3" /> Archived</>, value: 'archived' }]}
           value={view}
           onChange={setView}
         />
@@ -222,10 +225,10 @@ export default function FinsPage() {
               )}
               <div className="p-4 flex flex-col gap-2">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-white font-semibold text-sm">
+                  <p className="text-white font-display text-[10px]">
                     {fin.brand} {fin.model}
                   </p>
-                  <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/fins/${fin.id}/metrics`, { state: { name: `${fin.brand} ${fin.model} · ${fin.setup}` } })}>View Metrics</Button>
+                  <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/fins/${fin.id}/metrics`, { state: { name: `${fin.brand} ${fin.model} · ${fin.setup}` } })}><Database className="w-4 h-4" /> View Metrics</Button>
                 </div>
                 <div className="flex items-center justify-between gap-2">
                   <span className={`text-[9px] font-display border rounded px-1.5 py-0.5 ${SETUP_COLORS[fin.setup] ?? 'text-retro-muted border-retro-border'}`}>

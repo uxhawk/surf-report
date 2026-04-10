@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Delete } from 'pixelarticons/react/Delete.js'
+import { MagicEdit } from 'pixelarticons/react/MagicEdit.js'
 import { formatDate, parseLocalDate } from '../../lib/utils'
 import { Button } from '../ui/Button'
 import { Modal } from '../ui/Modal'
@@ -132,8 +134,8 @@ export function SessionsTable({ sessions, onDelete }) {
                     <span className="ml-2 text-retro-muted text-xs">{s.waves} ft</span>
                   </div>
                   <div className="flex gap-2 shrink-0">
-                    <Button size="sm" variant="ghost" onClick={() => navigate(`/sessions/${s.id}/edit`)}>Edit</Button>
-                    <Button size="sm" variant="danger" onClick={() => setDeletingId(s.id)}>Delete</Button>
+                    <Button size="sm" variant="ghost" onClick={() => navigate(`/sessions/${s.id}/edit`)}><MagicEdit className="w-4 h-4" /> Edit</Button>
+                    <Button size="sm" variant="danger" onClick={() => setDeletingId(s.id)}><Delete className="w-4 h-4" /> Delete</Button>
                   </div>
                 </div>
                 <div className="text-white text-sm">{s.location?.name ?? '—'}</div>
@@ -201,10 +203,10 @@ export function SessionsTable({ sessions, onDelete }) {
                     <td className="px-4 py-3">
                       <div className="flex gap-2 justify-end">
                         <Button size="sm" variant="ghost" onClick={() => navigate(`/sessions/${s.id}/edit`)}>
-                          Edit
+                          <MagicEdit className="w-4 h-4" /> Edit
                         </Button>
                         <Button size="sm" variant="danger" onClick={() => setDeletingId(s.id)}>
-                          Delete
+                          <Delete className="w-4 h-4" /> Delete
                         </Button>
                       </div>
                     </td>
