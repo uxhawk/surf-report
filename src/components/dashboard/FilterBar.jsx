@@ -27,11 +27,11 @@ export function FilterBar({ filters, onChange, locations, boards, fins }) {
         <div className="flex items-center gap-1.5">
           {!hasFilters && (
             <Button size="sm" variant="ghost" onClick={() => onChange({ year: String(new Date().getFullYear()), month: '', locationId: '', boardId: '', finsId: '' })}>
-              <Calendar2 className="w-4 h-4" /> This Year
+              <Calendar2 className="w-4 h-4" /> {new Date().getFullYear()}
             </Button>
           )}
           <Button size="sm" variant="ghost" disabled={!hasFilters} onClick={clearAll}>
-            <ZapOff className="w-4 h-4" /> Clear Filters
+            <ZapOff className="w-4 h-4" /> Clear
           </Button>
           <Button size="sm" variant="ghost" onClick={() => setOpen(prev => !prev)}>
             {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
