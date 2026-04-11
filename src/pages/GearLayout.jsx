@@ -1,9 +1,9 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 
 const TABS = [
-  { to: '/gear/locations', label: 'Locations' },
-  { to: '/gear/boards', label: 'Boards' },
-  { to: '/gear/fins', label: 'Fins' },
+  { to: '/profile/locations', label: 'Locations' },
+  { to: '/profile/boards', label: 'Boards' },
+  { to: '/profile/fins', label: 'Fins' },
 ]
 
 export default function GearLayout() {

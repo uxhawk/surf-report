@@ -17,6 +17,8 @@ import { Send } from 'pixelarticons/react/Send.js'
 import { Angry } from 'pixelarticons/react/Angry.js'
 import { Archive } from 'pixelarticons/react/Archive.js'
 import { ImageNew } from 'pixelarticons/react/ImageNew.js'
+import { AArrowUp } from 'pixelarticons/react/AArrowUp.js'
+import { AArrowDown } from 'pixelarticons/react/AArrowDown.js'
 
 const EMPTY_FORM = { brand: '', model: '', setup: '', description: '', picture_url: '', archived: false }
 
@@ -49,6 +51,7 @@ export default function FinsPage() {
   const [deletingId, setDeletingId] = useState(null)
   const [deleteError, setDeleteError] = useState(null)
   const [view, setView] = useState('active')
+  const [sortAsc, setSortAsc] = useState(true)
 
   function openAdd() {
     setEditingId(null)
@@ -124,7 +127,13 @@ export default function FinsPage() {
   if (loading) return <Spinner />
 
   const deletingFin = fins.find(f => f.id === deletingId)
-  const visible = fins.filter(f => view === 'archived' ? f.archived : !f.archived)
+  const visible = fins
+    .filter(f => view === 'archived' ? f.archived : !f.archived)
+    .sort((a, b) => {
+      const nameA = `${a.brand} ${a.model}`
+      const nameB = `${b.brand} ${b.model}`
+      return sortAsc ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA)
+    })
 
   return (
     <div className="p-4 flex flex-col gap-4">
@@ -134,7 +143,12 @@ export default function FinsPage() {
           value={view}
           onChange={setView}
         />
-        <Button size="sm" onClick={openAdd}><PlusBox className="w-4 h-4" /> Add Fins</Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="ghost" onClick={() => setSortAsc(prev => !prev)}>
+            {sortAsc ? <AArrowUp className="w-4 h-4" /> : <AArrowDown className="w-4 h-4" />}
+          </Button>
+          <Button size="sm" onClick={openAdd}><PlusBox className="w-4 h-4" /> Add Fins</Button>
+        </div>
       </div>
 
       {deleteError && (
@@ -230,7 +244,7 @@ export default function FinsPage() {
                   <p className="text-white font-display text-[10px]">
                     {fin.brand} {fin.model}
                   </p>
-                  <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/fins/${fin.id}/metrics`, { state: { name: `${fin.brand} ${fin.model} · ${fin.setup}` } })}><Database className="w-4 h-4" /> View Metrics</Button>
+                  <Button size="sm" variant="ghost" onClick={() => navigate(`/profile/fins/${fin.id}/metrics`, { state: { name: `${fin.brand} ${fin.model} · ${fin.setup}` } })}><Database className="w-4 h-4" /> View Metrics</Button>
                 </div>
                 <div className="flex items-center justify-between gap-2">
                   <span className={`text-[9px] font-display border rounded px-1.5 py-0.5 ${SETUP_COLORS[fin.setup] ?? 'text-retro-muted border-retro-border'}`}>

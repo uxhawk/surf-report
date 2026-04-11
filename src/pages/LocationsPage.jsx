@@ -16,6 +16,8 @@ import { Send } from 'pixelarticons/react/Send.js'
 import { Angry } from 'pixelarticons/react/Angry.js'
 import { Archive } from 'pixelarticons/react/Archive.js'
 import { ImageNew } from 'pixelarticons/react/ImageNew.js'
+import { AArrowUp } from 'pixelarticons/react/AArrowUp.js'
+import { AArrowDown } from 'pixelarticons/react/AArrowDown.js'
 import { LOCATION_TYPES, LOCATION_TYPE_COLORS } from '../lib/constants'
 
 const EMPTY_FORM = { name: '', description: '', types: [], picture_url: '', archived: false }
@@ -40,6 +42,7 @@ export default function LocationsPage() {
   const [deletingId, setDeletingId] = useState(null)
   const [deleteError, setDeleteError] = useState(null)
   const [view, setView] = useState('active')
+  const [sortAsc, setSortAsc] = useState(true)
 
   function openAdd() {
     setEditingId(null)
@@ -109,7 +112,9 @@ export default function LocationsPage() {
   if (loading) return <Spinner />
 
   const deletingLocation = locations.find(l => l.id === deletingId)
-  const visible = locations.filter(l => view === 'archived' ? l.archived : !l.archived)
+  const visible = locations
+    .filter(l => view === 'archived' ? l.archived : !l.archived)
+    .sort((a, b) => sortAsc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name))
 
   return (
     <div className="p-4 flex flex-col gap-4">
@@ -119,7 +124,12 @@ export default function LocationsPage() {
           value={view}
           onChange={setView}
         />
-        <Button size="sm" onClick={openAdd}><PlusBox className="w-4 h-4" /> Add Location</Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="ghost" onClick={() => setSortAsc(prev => !prev)}>
+            {sortAsc ? <AArrowUp className="w-4 h-4" /> : <AArrowDown className="w-4 h-4" />}
+          </Button>
+          <Button size="sm" onClick={openAdd}><PlusBox className="w-4 h-4" /> Add Location</Button>
+        </div>
       </div>
 
       {deleteError && (
@@ -224,7 +234,7 @@ export default function LocationsPage() {
             <div className="p-4 flex flex-col gap-2">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-white font-display text-[10px]">{location.name}</p>
-                <Button size="sm" variant="ghost" onClick={() => navigate(`/gear/locations/${location.id}/metrics`, { state: { name: location.name } })}><Database className="w-4 h-4" /> View Metrics</Button>
+                <Button size="sm" variant="ghost" onClick={() => navigate(`/profile/locations/${location.id}/metrics`, { state: { name: location.name } })}><Database className="w-4 h-4" /> View Metrics</Button>
               </div>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex flex-wrap gap-1">

@@ -34,10 +34,10 @@ export default function App() {
                       <Route path="/" element={<Dashboard />} />
                       <Route path="/log" element={<LogSurf />} />
                       <Route path="/sessions/:id/edit" element={<EditSession />} />
-                      <Route path="/gear/boards/:id/metrics" element={<GearMetrics type="board" />} />
-                      <Route path="/gear/fins/:id/metrics" element={<GearMetrics type="fin" />} />
-                      <Route path="/gear/locations/:id/metrics" element={<GearMetrics type="location" />} />
-                      <Route path="/gear" element={<GearLayout />}>
+                      <Route path="/profile/boards/:id/metrics" element={<GearMetrics type="board" />} />
+                      <Route path="/profile/fins/:id/metrics" element={<GearMetrics type="fin" />} />
+                      <Route path="/profile/locations/:id/metrics" element={<GearMetrics type="location" />} />
+                      <Route path="/profile" element={<GearLayout />}>
                         <Route index element={<Navigate to="locations" replace />} />
                         <Route path="locations" element={<LocationsPage />} />
                         <Route path="boards" element={<BoardsPage />} />

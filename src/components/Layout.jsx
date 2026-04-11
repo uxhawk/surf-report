@@ -8,18 +8,18 @@ import { Logout } from 'pixelarticons/react/Logout.js'
 const PAGE_TITLES = {
   '/': '🏄 Surf Tracker',
   '/log': 'Log Session',
-  '/gear/locations': 'Profile',
-  '/gear/boards': 'Profile',
-  '/gear/fins': 'Profile',
+  '/profile/locations': 'Profile',
+  '/profile/boards': 'Profile',
+  '/profile/fins': 'Profile',
 }
 
 function getTitle(pathname, state) {
   if (pathname.startsWith('/sessions/')) return 'Edit Session'
   if (pathname.includes('/metrics')) {
     if (state?.name) return `${state.name} Metrics`
-    if (pathname.startsWith('/gear/boards/')) return 'Board Metrics'
-    if (pathname.startsWith('/gear/fins/')) return 'Fin Metrics'
-    if (pathname.startsWith('/gear/locations/')) return 'Location Metrics'
+    if (pathname.startsWith('/profile/boards/')) return 'Board Metrics'
+    if (pathname.startsWith('/profile/fins/')) return 'Fin Metrics'
+    if (pathname.startsWith('/profile/locations/')) return 'Location Metrics'
   }
   return PAGE_TITLES[pathname] ?? 'Surf Tracker'
 }

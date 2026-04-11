@@ -5,15 +5,9 @@ import { useBoards } from '../hooks/useBoards'
 import { useFins } from '../hooks/useFins'
 import { useLocations } from '../hooks/useLocations'
 import { computeDashboardStats, parseLocalDate, formatDate, formatTimeSince } from '../lib/utils'
-import { DAYS_OF_WEEK, MONTHS } from '../lib/constants'
 import { SurfChart } from '../components/dashboard/SurfChart'
 import { StatCard } from '../components/dashboard/StatCard'
 import { Spinner } from '../components/ui/Spinner'
-import { Button } from '../components/ui/Button'
-import { ChevronDown } from 'pixelarticons/react/ChevronDown.js'
-import { ChevronUp } from 'pixelarticons/react/ChevronUp.js'
-import { Settings2 } from 'pixelarticons/react/Settings2.js'
-import { ZapOff } from 'pixelarticons/react/ZapOff.js'
 
 function computeWaveSizes(sessions) {
   const counts = {}
@@ -29,8 +23,8 @@ export default function GearMetrics({ type }) {
   const { id } = useParams()
   const routerLocation = useLocation()
   const itemName = routerLocation.state?.name ?? ''
-  const [filterOpen, setFilterOpen] = useState(false)
   const [year, setYear] = useState('')
+  const years = [2026, 2025]
 
   const { sessions, loading: sessionsLoading } = useSessions()
   const { boards, loading: boardsLoading } = useBoards()
@@ -45,11 +39,6 @@ export default function GearMetrics({ type }) {
     if (type === 'location') return sessions.filter(s => s.location?.id === id)
     return []
   }, [sessions, type, id])
-
-  const years = useMemo(() => {
-    const set = new Set(allFiltered.map(s => parseLocalDate(s.date).getFullYear()))
-    return [...set].sort((a, b) => b - a)
-  }, [allFiltered])
 
   const filtered = useMemo(() => {
     if (!year) return allFiltered
@@ -90,36 +79,23 @@ export default function GearMetrics({ type }) {
 
   return (
     <div>
-      {/* Filter bar */}
-      <div className="bg-retro-surface border-b border-retro-border">
-        <div className="flex items-center justify-between px-4 py-3">
-          <p className="flex items-center gap-1.5 text-retro-muted text-xs font-display uppercase"><Settings2 className="w-4 h-4" /> Filter</p>
-          <div className="flex items-center gap-1.5">
-            <Button size="sm" variant="ghost" disabled={!year} onClick={() => setYear('')}>
-              <ZapOff className="w-4 h-4" /> Clear Filters
-            </Button>
-            <Button size="sm" variant="ghost" onClick={() => setFilterOpen(prev => !prev)}>
-              {filterOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </Button>
-          </div>
-        </div>
-        <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${filterOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
-          <div className="overflow-hidden">
-            <div className="px-4 pb-4 flex gap-2">
-              <select value={year} onChange={e => setYear(e.target.value)} aria-label="Filter by year" className="flex-1">
-                <option value="">All Years</option>
-                {years.map(y => <option key={y} value={y}>{y}</option>)}
-              </select>
-              <button
-                type="button"
-                disabled={!year}
-                onClick={() => setYear('')}
-                className="inline-flex items-center justify-center gap-1.5 text-retro-muted text-xs border border-retro-border rounded-lg px-3 py-2 hover:border-neon-pink hover:text-neon-pink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <ZapOff className="w-3.5 h-3.5" /> Clear
-              </button>
-            </div>
-          </div>
+      {/* Year segmented control */}
+      <div className="bg-retro-surface border-b border-retro-border px-4 py-3">
+        <div className="flex rounded-lg border border-retro-border overflow-hidden" role="group" aria-label="Filter by year">
+          {[{ label: 'All', value: '' }, ...years.map(y => ({ label: String(y), value: String(y) }))].map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setYear(opt.value)}
+              className={`flex-1 px-3 py-2 text-xs font-display uppercase transition-colors ${
+                year === opt.value
+                  ? 'bg-neon-cyan/20 text-neon-cyan border-neon-cyan'
+                  : 'text-retro-muted hover:text-retro-text'
+              } ${opt.value !== '' ? 'border-l border-retro-border' : ''}`}
+            >
+              {opt.label}
+            </button>
+          ))}
         </div>
       </div>
 

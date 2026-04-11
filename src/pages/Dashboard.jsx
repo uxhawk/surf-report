@@ -62,17 +62,17 @@ export default function Dashboard() {
 
   const handleBoardClick = useCallback((entry) => {
     const board = boards.find(b => `${b.brand} ${b.model}` === entry.name)
-    if (board) navigate(`/gear/boards/${board.id}/metrics`, { state: { name: `${board.brand} ${board.model}` } })
+    if (board) navigate(`/profile/boards/${board.id}/metrics`, { state: { name: `${board.brand} ${board.model}` } })
   }, [boards, navigate])
 
   const handleFinClick = useCallback((entry) => {
     const fin = fins.find(f => `${f.brand} ${f.model} ${f.setup}` === entry.name)
-    if (fin) navigate(`/gear/fins/${fin.id}/metrics`, { state: { name: `${fin.brand} ${fin.model} · ${fin.setup}` } })
+    if (fin) navigate(`/profile/fins/${fin.id}/metrics`, { state: { name: `${fin.brand} ${fin.model} · ${fin.setup}` } })
   }, [fins, navigate])
 
   const handleLocationClick = useCallback((entry) => {
     const location = locations.find(l => l.name === entry.name)
-    if (location) navigate(`/gear/locations/${location.id}/metrics`, { state: { name: location.name } })
+    if (location) navigate(`/profile/locations/${location.id}/metrics`, { state: { name: location.name } })
   }, [locations, navigate])
 
   if (loading) return <Spinner />

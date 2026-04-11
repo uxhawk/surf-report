@@ -17,6 +17,8 @@ import { Send } from 'pixelarticons/react/Send.js'
 import { Angry } from 'pixelarticons/react/Angry.js'
 import { Archive } from 'pixelarticons/react/Archive.js'
 import { ImageNew } from 'pixelarticons/react/ImageNew.js'
+import { AArrowUp } from 'pixelarticons/react/AArrowUp.js'
+import { AArrowDown } from 'pixelarticons/react/AArrowDown.js'
 
 function formatBoardLength(inches) {
   const feet = Math.floor(inches / 12)
@@ -95,6 +97,7 @@ export default function BoardsPage() {
   const [deletingId, setDeletingId] = useState(null)
   const [deleteError, setDeleteError] = useState(null)
   const [view, setView] = useState('active')
+  const [sortAsc, setSortAsc] = useState(true)
 
   function openAdd() {
     setEditingId(null)
@@ -184,7 +187,13 @@ export default function BoardsPage() {
   if (loading) return <Spinner />
 
   const deletingBoard = boards.find(b => b.id === deletingId)
-  const visible = boards.filter(b => view === 'archived' ? b.archived : !b.archived)
+  const visible = boards
+    .filter(b => view === 'archived' ? b.archived : !b.archived)
+    .sort((a, b) => {
+      const nameA = `${a.brand} ${a.model}`
+      const nameB = `${b.brand} ${b.model}`
+      return sortAsc ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA)
+    })
 
   return (
     <div className="p-4 flex flex-col gap-4">
@@ -194,7 +203,12 @@ export default function BoardsPage() {
           value={view}
           onChange={setView}
         />
-        <Button size="sm" onClick={openAdd}><PlusBox className="w-4 h-4" /> Add Board</Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="ghost" onClick={() => setSortAsc(prev => !prev)}>
+            {sortAsc ? <AArrowUp className="w-4 h-4" /> : <AArrowDown className="w-4 h-4" />}
+          </Button>
+          <Button size="sm" onClick={openAdd}><PlusBox className="w-4 h-4" /> Add Board</Button>
+        </div>
       </div>
 
       {deleteError && (
@@ -292,7 +306,7 @@ export default function BoardsPage() {
               board={board}
               onEdit={openEdit}
               onDelete={(id) => { setDeletingId(id); setDeleteError(null) }}
-              onMetrics={b => navigate(`/gear/boards/${b.id}/metrics`, { state: { name: `${b.brand} ${b.model}` } })}
+              onMetrics={b => navigate(`/profile/boards/${b.id}/metrics`, { state: { name: `${b.brand} ${b.model}` } })}
             />
           ))}
         </div>

@@ -42,16 +42,22 @@ export function FilterBar({ filters, onChange, locations, boards, fins }) {
       <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
         <div className="overflow-hidden">
         <div className="px-4 pb-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
-          <select
-            value={filters.year}
-            onChange={e => set('year', e.target.value)}
-            aria-label="Filter by year"
-          >
-            <option value="">All Years</option>
-            {years.map(y => (
-              <option key={y} value={y}>{y}</option>
+          <div className="col-span-2 sm:col-span-3 flex rounded-lg border border-retro-border overflow-hidden" role="group" aria-label="Filter by year">
+            {[{ label: 'All', value: '' }, ...years.map(y => ({ label: String(y), value: String(y) }))].map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => set('year', opt.value)}
+                className={`flex-1 px-3 py-2 text-xs font-display uppercase transition-colors ${
+                  filters.year === opt.value
+                    ? 'bg-neon-cyan/20 text-neon-cyan border-neon-cyan'
+                    : 'text-retro-muted hover:text-retro-text'
+                } ${opt.value !== '' ? 'border-l border-retro-border' : ''}`}
+              >
+                {opt.label}
+              </button>
             ))}
-          </select>
+          </div>
 
           <select
             value={filters.month}
