@@ -1,7 +1,9 @@
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import BottomNav from './BottomNav'
 import { Button } from './ui/Button'
 import { ArrowLeft } from 'pixelarticons/react/ArrowLeft.js'
+import { Logout } from 'pixelarticons/react/Logout.js'
 
 const PAGE_TITLES = {
   '/': '🏄 Surf Tracker',
@@ -33,6 +35,7 @@ function isMetricsPage(pathname) {
 export default function Layout({ children }) {
   const location = useLocation()
   const navigate = useNavigate()
+  const { signOut } = useAuth()
   const title = getTitle(location.pathname, location.state)
   const hasBack = showsBackButton(location.pathname)
   const hideNav = isMetricsPage(location.pathname)
@@ -48,6 +51,14 @@ export default function Layout({ children }) {
           <h1 className="font-display text-neon-yellow text-[10px] leading-none flex-1 truncate">
             {title}
           </h1>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={signOut}
+            aria-label="Sign out"
+          >
+            <Logout className="w-4 h-4" />
+          </Button>
         </header>
         {!hideNav && <BottomNav />}
       </div>
