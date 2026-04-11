@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Button } from '../components/ui/Button'
 import { Spinner } from '../components/ui/Spinner'
@@ -6,7 +7,7 @@ import { Spinner } from '../components/ui/Spinner'
 const VIEWS = { SIGN_IN: 'sign_in', SIGN_UP: 'sign_up', FORGOT: 'forgot' }
 
 export default function Login() {
-  const { signInWithEmail, signUpWithEmail, signInWithGoogle, resetPassword } = useAuth()
+  const { session, loading, signInWithEmail, signUpWithEmail, signInWithGoogle, resetPassword } = useAuth()
   const [view, setView] = useState(VIEWS.SIGN_IN)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -71,6 +72,16 @@ export default function Login() {
     [VIEWS.SIGN_UP]: 'Create Account',
     [VIEWS.FORGOT]: 'Reset Password',
   }[view]
+
+  if (loading) {
+    return (
+      <div className="min-h-dvh bg-retro-bg flex items-center justify-center">
+        <Spinner />
+      </div>
+    )
+  }
+
+  if (session) return <Navigate to="/" replace />
 
   return (
     <div className="min-h-dvh bg-retro-bg flex flex-col items-center justify-center px-4">
