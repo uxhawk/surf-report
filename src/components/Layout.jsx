@@ -6,7 +6,7 @@ import { CornerUpLeft } from 'pixelarticons/react/CornerUpLeft.js'
 import { Logout } from 'pixelarticons/react/Logout.js'
 
 const PAGE_TITLES = {
-  '/': '🏄 Surf Tracker',
+  '/': 'Surf Tracker',
   '/log': 'Log Session',
   '/profile/locations': 'Profile',
   '/profile/boards': 'Profile',

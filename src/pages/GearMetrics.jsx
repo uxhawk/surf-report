@@ -8,6 +8,11 @@ import { computeDashboardStats, parseLocalDate, formatDate, formatTimeSince } fr
 import { SurfChart } from '../components/dashboard/SurfChart'
 import { StatCard } from '../components/dashboard/StatCard'
 import { Spinner } from '../components/ui/Spinner'
+import { Bookmark } from 'pixelarticons/react/Bookmark.js'
+import { Calendar2 } from 'pixelarticons/react/Calendar2.js'
+import { Anchor } from 'pixelarticons/react/Anchor.js'
+import { MapPin } from 'pixelarticons/react/MapPin.js'
+import { SpeedSlow } from 'pixelarticons/react/SpeedSlow.js'
 
 function computeWaveSizes(sessions) {
   const counts = {}
@@ -101,13 +106,13 @@ export default function GearMetrics({ type }) {
 
       <div className="p-4 flex flex-col gap-6">
         <div className="grid grid-cols-2 gap-3">
-          <StatCard label="Total Surfs" value={filtered.length} color="neon-pink" icon="🌊" />
+          <StatCard label="Total Surfs" value={filtered.length} color="neon-pink" icon={Bookmark} />
           {type !== 'location' && (
             <StatCard
               label="Locations"
               value={stats.byLocation.length}
               color="neon-purple"
-              icon="📍"
+              icon={MapPin}
             />
           )}
           {type !== 'board' && (
@@ -115,7 +120,7 @@ export default function GearMetrics({ type }) {
               label="Boards Used"
               value={stats.byBoard.length}
               color="neon-cyan"
-              icon="🏄"
+              icon={SpeedSlow}
             />
           )}
           {type !== 'fin' && (
@@ -123,7 +128,7 @@ export default function GearMetrics({ type }) {
               label="Fin Setups"
               value={stats.byFinType.length}
               color="neon-yellow"
-              icon="🔱"
+              icon={Anchor}
             />
           )}
           <StatCard
@@ -131,7 +136,7 @@ export default function GearMetrics({ type }) {
             value={lastSurf ? formatDate(lastSurf) : '—'}
             subtitle={lastSurf ? (formatTimeSince(lastSurf) === 'Today' ? 'Today' : `${formatTimeSince(lastSurf)} ago`) : ''}
             color="neon-purple"
-            icon="🗓️"
+            icon={Calendar2}
           />
         </div>
 

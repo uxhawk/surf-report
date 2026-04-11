@@ -11,6 +11,10 @@ import { FilterBar } from '../components/dashboard/FilterBar'
 import { SessionsTable } from '../components/dashboard/SessionsTable'
 import { Spinner } from '../components/ui/Spinner'
 import { EmptyState } from '../components/ui/EmptyState'
+import { Bookmark } from 'pixelarticons/react/Bookmark.js'
+import { Fire } from 'pixelarticons/react/Fire.js'
+import { Calendar2 } from 'pixelarticons/react/Calendar2.js'
+import { Trophy } from 'pixelarticons/react/Trophy.js'
 
 const DEFAULT_FILTERS = {
   year: String(new Date().getFullYear()),
@@ -104,28 +108,28 @@ export default function Dashboard() {
             label="Total Surfs"
             value={stats.total}
             color="neon-pink"
-            icon="🌊"
+            icon={Bookmark}
           />
           <StatCard
             label="Active Streak"
             value={streak.count ? `${streak.count}d` : '—'}
             subtitle={streak.range}
             color="neon-yellow"
-            icon="🔥"
+            icon={Fire}
           />
           <StatCard
             label="Last Surf"
             value={lastSurf ? formatMonthDay(lastSurf) : '—'}
             subtitle={lastSurf ? (formatTimeSince(lastSurf) === 'Today' ? 'Today' : `${formatTimeSince(lastSurf)} ago`) : ''}
             color="neon-purple"
-            icon="🗓️"
+            icon={Calendar2}
           />
           <StatCard
             label="Longest Streak"
             value={longestStreak.count ? `${longestStreak.count}d` : '—'}
             subtitle={longestStreak.range}
             color="neon-cyan"
-            icon="🏆"
+            icon={Trophy}
           />
         </div>
 
