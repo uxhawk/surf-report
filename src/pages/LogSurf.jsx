@@ -10,6 +10,8 @@ import { FormField } from '../components/ui/FormField'
 import { Button } from '../components/ui/Button'
 import { Spinner } from '../components/ui/Spinner'
 import { useToast } from '../components/ui/Toast'
+import { Send } from 'pixelarticons/react/Send.js'
+import { Angry } from 'pixelarticons/react/Angry.js'
 
 function validate(form) {
   const errors = {}
@@ -199,7 +201,7 @@ export default function LogSurf() {
             className="flex-1"
             onClick={() => navigate(-1)}
           >
-            Cancel
+            <Angry className="w-4 h-4" /> Cancel
           </Button>
           <Button
             type="submit"
@@ -207,7 +209,7 @@ export default function LogSurf() {
             className="flex-1"
             disabled={submitting}
           >
-            {submitting ? 'Saving…' : 'Log Session'}
+            {submitting ? 'Saving…' : <><Send className="w-4 h-4" /> Log Session</>}
           </Button>
         </div>
       </form>

@@ -10,6 +10,8 @@ import { FormField } from '../components/ui/FormField'
 import { Button } from '../components/ui/Button'
 import { Spinner } from '../components/ui/Spinner'
 import { useToast } from '../components/ui/Toast'
+import { Send } from 'pixelarticons/react/Send.js'
+import { Angry } from 'pixelarticons/react/Angry.js'
 
 function validate(form) {
   const errors = {}
@@ -185,10 +187,10 @@ export default function EditSession() {
 
         <div className="flex gap-3 pt-2">
           <Button type="button" variant="ghost" className="flex-1" onClick={() => navigate(-1)}>
-            Cancel
+            <Angry className="w-4 h-4" /> Cancel
           </Button>
           <Button type="submit" variant="primary" className="flex-1" disabled={submitting}>
-            {submitting ? 'Saving…' : 'Save Changes'}
+            {submitting ? 'Saving…' : <><Send className="w-4 h-4" /> Save Changes</>}
           </Button>
         </div>
       </form>

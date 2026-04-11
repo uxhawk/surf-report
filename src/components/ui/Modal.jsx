@@ -1,5 +1,7 @@
 import { useEffect } from 'react'
 import { Button } from './Button'
+import { Angry } from 'pixelarticons/react/Angry.js'
+import { Delete } from 'pixelarticons/react/Delete.js'
 
 export function Modal({ open, title, message, confirmLabel = 'Delete', onConfirm, onCancel }) {
   // Trap focus / prevent body scroll
@@ -32,10 +34,10 @@ export function Modal({ open, title, message, confirmLabel = 'Delete', onConfirm
         {message && <p className="text-white text-sm">{message}</p>}
         <div className="flex gap-3 justify-end">
           <Button variant="ghost" size="sm" onClick={onCancel}>
-            Cancel
+            <Angry className="w-4 h-4" /> Cancel
           </Button>
-          <Button variant="danger" size="sm" onClick={onConfirm}>
-            {confirmLabel}
+          <Button variant="primary" size="sm" onClick={onConfirm}>
+            <Delete className="w-4 h-4" /> {confirmLabel}
           </Button>
         </div>
       </div>

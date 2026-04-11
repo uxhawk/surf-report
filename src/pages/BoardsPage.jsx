@@ -13,6 +13,8 @@ import { SegmentedControl } from '../components/ui/SegmentedControl'
 import { KebabMenu } from '../components/ui/KebabMenu'
 import { PlusBox } from 'pixelarticons/react/PlusBox.js'
 import { Database } from 'pixelarticons/react/Database.js'
+import { Send } from 'pixelarticons/react/Send.js'
+import { Angry } from 'pixelarticons/react/Angry.js'
 import { Archive } from 'pixelarticons/react/Archive.js'
 import { ImageNew } from 'pixelarticons/react/ImageNew.js'
 
@@ -268,9 +270,9 @@ export default function BoardsPage() {
           {saveError && <p className="text-neon-pink text-xs">{saveError}</p>}
 
           <div className="flex gap-3">
-            <Button type="button" variant="ghost" className="flex-1" onClick={closeForm}>Cancel</Button>
+            <Button type="button" variant="ghost" className="flex-1" onClick={closeForm}><Angry className="w-4 h-4" /> Cancel</Button>
             <Button type="submit" variant="primary" className="flex-1" disabled={saving}>
-              {saving ? 'Saving…' : editingId ? 'Save' : 'Add Board'}
+              {saving ? 'Saving…' : <><Send className="w-4 h-4" /> {editingId ? 'Save' : 'Add Board'}</>}
             </Button>
           </div>
         </form>

@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import BottomNav from './BottomNav'
 import { Button } from './ui/Button'
-import { ArrowLeft } from 'pixelarticons/react/ArrowLeft.js'
+import { CornerUpLeft } from 'pixelarticons/react/CornerUpLeft.js'
 import { Logout } from 'pixelarticons/react/Logout.js'
 
 const PAGE_TITLES = {
@@ -46,7 +46,7 @@ export default function Layout({ children }) {
       <div className="sticky top-0 z-40">
         <header className="bg-retro-bg border-b border-retro-border px-4 py-3 flex items-center gap-3">
           {hasBack && (
-            <Button size="sm" variant="ghost" onClick={() => navigate(-1)}><ArrowLeft className="w-4 h-4" /> Back</Button>
+            <Button size="sm" variant="ghost" onClick={() => navigate(-1)}><CornerUpLeft className="w-4 h-4" /> Back</Button>
           )}
           <h1 className="font-display text-neon-yellow text-[10px] leading-none flex-1 truncate">
             {title}

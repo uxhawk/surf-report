@@ -3,6 +3,7 @@ import { ChevronDown } from 'pixelarticons/react/ChevronDown.js'
 import { ChevronUp } from 'pixelarticons/react/ChevronUp.js'
 import { Settings2 } from 'pixelarticons/react/Settings2.js'
 import { ZapOff } from 'pixelarticons/react/ZapOff.js'
+import { Calendar2 } from 'pixelarticons/react/Calendar2.js'
 import { MONTHS } from '../../lib/constants'
 import { Button } from '../ui/Button'
 
@@ -24,6 +25,11 @@ export function FilterBar({ filters, onChange, locations, boards, fins }) {
       <div className="flex items-center justify-between px-4 py-3">
         <p className="flex items-center gap-1.5 text-retro-muted text-xs font-display uppercase"><Settings2 className="w-4 h-4" /> Filter</p>
         <div className="flex items-center gap-1.5">
+          {!hasFilters && (
+            <Button size="sm" variant="ghost" onClick={() => onChange({ year: String(new Date().getFullYear()), month: '', locationId: '', boardId: '', finsId: '' })}>
+              <Calendar2 className="w-4 h-4" /> This Year
+            </Button>
+          )}
           <Button size="sm" variant="ghost" disabled={!hasFilters} onClick={clearAll}>
             <ZapOff className="w-4 h-4" /> Clear Filters
           </Button>
