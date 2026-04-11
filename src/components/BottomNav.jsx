@@ -3,7 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: '📊', exact: true },
   { to: '/log', label: 'Log Surf', icon: '🌊' },
-  { to: '/gear', label: 'Gear', icon: '🏄' },
+  { to: '/gear', label: 'Profile', icon: '🏄' },
 ]
 
 export default function BottomNav() {

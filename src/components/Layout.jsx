@@ -8,9 +8,9 @@ import { Logout } from 'pixelarticons/react/Logout.js'
 const PAGE_TITLES = {
   '/': '🏄 Surf Tracker',
   '/log': 'Log Session',
-  '/gear/locations': 'Gear',
-  '/gear/boards': 'Gear',
-  '/gear/fins': 'Gear',
+  '/gear/locations': 'Profile',
+  '/gear/boards': 'Profile',
+  '/gear/fins': 'Profile',
 }
 
 function getTitle(pathname, state) {
