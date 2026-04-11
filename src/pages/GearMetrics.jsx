@@ -12,7 +12,7 @@ import { Bookmark } from 'pixelarticons/react/Bookmark.js'
 import { Calendar2 } from 'pixelarticons/react/Calendar2.js'
 import { Anchor } from 'pixelarticons/react/Anchor.js'
 import { MapPin } from 'pixelarticons/react/MapPin.js'
-import { SpeedSlow } from 'pixelarticons/react/SpeedSlow.js'
+import { SpeedFast } from 'pixelarticons/react/SpeedFast.js'
 
 function computeWaveSizes(sessions) {
   const counts = {}
@@ -120,7 +120,7 @@ export default function GearMetrics({ type }) {
               label="Boards Used"
               value={stats.byBoard.length}
               color="neon-cyan"
-              icon={SpeedSlow}
+              icon={SpeedFast}
             />
           )}
           {type !== 'fin' && (
