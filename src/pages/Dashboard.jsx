@@ -143,7 +143,6 @@ export default function Dashboard() {
 
         {/* Charts */}
         <SurfChart title="Surfs by Month" data={visibleMonths} color="#00CFFF" />
-        <SurfChart title="Median Water Temp by Month" data={visibleWaterTemp} color="#00CFFF" unit="°F" />
         {stats.byBoard.length > 0 && (
           <SurfChart title="Surfs by Board" data={stats.byBoard} color="#BF00FF" multiColor logScale onBarClick={handleBoardClick} />
         )}
@@ -154,6 +153,7 @@ export default function Dashboard() {
           <SurfChart title="Surfs by Location" data={stats.byLocation} color="#FFE600" multiColor logScale onBarClick={handleLocationClick} />
         )}
         <SurfChart title="Surfs by Day of Week" data={stats.byDayOfWeek} color="#FF2D78" />
+        <SurfChart title="Median Water Temp by Month" data={visibleWaterTemp} color="#00CFFF" unit="°F" />
 
         {/* Sessions table */}
         <div>
