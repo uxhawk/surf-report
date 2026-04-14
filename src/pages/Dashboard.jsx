@@ -4,7 +4,7 @@ import { useSessions } from '../hooks/useSessions'
 import { useLocations } from '../hooks/useLocations'
 import { useBoards } from '../hooks/useBoards'
 import { useFins } from '../hooks/useFins'
-import { computeDashboardStats, calculateStreak, calculateLongestStreak, formatDate, formatTimeSince, parseLocalDate, formatMonthDay } from '../lib/utils'
+import { computeDashboardStats, computeMedianWaterTempByMonth, calculateStreak, calculateLongestStreak, formatDate, formatTimeSince, parseLocalDate, formatMonthDay } from '../lib/utils'
 import { StatCard } from '../components/dashboard/StatCard'
 import { SurfChart } from '../components/dashboard/SurfChart'
 import { FilterBar } from '../components/dashboard/FilterBar'
@@ -59,6 +59,14 @@ export default function Dashboard() {
     }
     return stats.byMonth
   }, [stats.byMonth, filters.year])
+
+  const waterTempByMonth = useMemo(() => computeMedianWaterTempByMonth(filtered), [filtered])
+  const visibleWaterTemp = useMemo(() => {
+    if (Number(filters.year) === new Date().getFullYear()) {
+      return waterTempByMonth.slice(0, new Date().getMonth() + 1)
+    }
+    return waterTempByMonth
+  }, [waterTempByMonth, filters.year])
 
   const lastSurf = sessions[0]?.date
 
@@ -135,6 +143,7 @@ export default function Dashboard() {
 
         {/* Charts */}
         <SurfChart title="Surfs by Month" data={visibleMonths} color="#00CFFF" />
+        <SurfChart title="Median Water Temp by Month" data={visibleWaterTemp} color="#00CFFF" unit="°F" />
         {stats.byBoard.length > 0 && (
           <SurfChart title="Surfs by Board" data={stats.byBoard} color="#BF00FF" multiColor logScale onBarClick={handleBoardClick} />
         )}

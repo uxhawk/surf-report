@@ -133,6 +133,24 @@ export function calculateLongestStreak(sessions) {
   return { count: best.count, range }
 }
 
+export function computeMedianWaterTempByMonth(sessions) {
+  const buckets = MONTHS.map(() => [])
+  sessions.forEach(s => {
+    if (s.water_temp_c == null) return
+    const month = parseLocalDate(s.date).getMonth()
+    buckets[month].push(s.water_temp_c)
+  })
+  return MONTHS.map((name, i) => {
+    const temps = buckets[i].sort((a, b) => a - b)
+    if (!temps.length) return { name, count: null }
+    const mid = Math.floor(temps.length / 2)
+    const medianC = temps.length % 2 === 0
+      ? (temps[mid - 1] + temps[mid]) / 2
+      : temps[mid]
+    return { name, count: Math.round(medianC * 9 / 5 + 32) }
+  })
+}
+
 export function computeDashboardStats(sessions) {
   if (!sessions?.length) {
     return {

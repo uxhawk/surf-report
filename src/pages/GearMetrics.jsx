@@ -4,7 +4,7 @@ import { useSessions } from '../hooks/useSessions'
 import { useBoards } from '../hooks/useBoards'
 import { useFins } from '../hooks/useFins'
 import { useLocations } from '../hooks/useLocations'
-import { computeDashboardStats, parseLocalDate, formatDate, formatTimeSince } from '../lib/utils'
+import { computeDashboardStats, computeMedianWaterTempByMonth, parseLocalDate, formatDate, formatTimeSince } from '../lib/utils'
 import { SurfChart } from '../components/dashboard/SurfChart'
 import { StatCard } from '../components/dashboard/StatCard'
 import { Spinner } from '../components/ui/Spinner'
@@ -52,6 +52,13 @@ export default function GearMetrics({ type }) {
 
   const stats = useMemo(() => computeDashboardStats(filtered), [filtered])
   const byWaveSize = useMemo(() => computeWaveSizes(filtered), [filtered])
+  const waterTempByMonth = useMemo(() => computeMedianWaterTempByMonth(filtered), [filtered])
+  const visibleWaterTemp = useMemo(() => {
+    if (Number(year) === new Date().getFullYear()) {
+      return waterTempByMonth.slice(0, new Date().getMonth() + 1)
+    }
+    return waterTempByMonth
+  }, [waterTempByMonth, year])
   const lastSurf = filtered[0]?.date
 
   const name = useMemo(() => {
@@ -140,8 +147,9 @@ export default function GearMetrics({ type }) {
           />
         </div>
 
-        {/* Location metrics: board, wave size, fin setup, month, day of week */}
+        {/* Location metrics: water temp, board, wave size, fin setup, month, day of week */}
         {type === 'location' && (<>
+          <SurfChart title="Median Water Temp by Month" data={visibleWaterTemp} color="#00CFFF" unit="°F" />
           {stats.byBoard.length > 0 && <SurfChart title="By Board" data={stats.byBoard} color="#BF00FF" multiColor logScale />}
           <SurfChart title="By Wave Size" data={byWaveSize} color="#FF2D78" logScale />
           {stats.byFinType.length > 0 && <SurfChart title="By Fin Setup" data={stats.byFinType} color="#FF2D78" multiColor logScale />}
