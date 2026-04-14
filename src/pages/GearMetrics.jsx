@@ -183,7 +183,17 @@ export default function GearMetrics({ type }) {
         )}
 
         {type === 'location' && (<>
-          <SurfChart title="Water Temp (Avg)" data={visibleWaterTemp} color="#00CFFF" unit="°F" />
+          <SurfChart
+            title="Water Temp"
+            data={visibleWaterTemp.map(d => ({ name: d.name, count: d.avg, min: d.min, max: d.max }))}
+            color="#00CFFF"
+            unit="°F"
+            tooltipKeys={[
+              { key: 'max', color: '#FF2D78', label: 'Max' },
+              { key: 'min', color: '#00CFFF', label: 'Min' },
+              { key: 'count', color: '#FFE600', label: 'Avg' },
+            ]}
+          />
           {stats.byBoard.length > 0 && <SurfChart title="Boards" data={stats.byBoard} color="#BF00FF" multiColor logScale />}
           <SurfChart title="Wave Height (Observed)" data={byWaveSize} color="#FF2D78" />
           {stats.bySwellSize.length > 0 && <SurfChart title="Wave Height (API)" data={stats.bySwellSize} color="#BF00FF" />}

@@ -5,8 +5,21 @@ import {
 const COLORS = ['#FF2D78', '#00CFFF', '#FFE600', '#BF00FF']
 const MAX_LABEL_LEN = 14
 
-function CustomTooltip({ active, payload, label, unit }) {
+function CustomTooltip({ active, payload, label, unit, tooltipKeys }) {
   if (!active || !payload?.length) return null
+  if (tooltipKeys && payload[0]?.payload) {
+    const row = payload[0].payload
+    return (
+      <div className="bg-retro-surface2 border border-retro-border rounded-lg px-3 py-2">
+        <p className="text-retro-muted text-xs mb-1">{label}</p>
+        {tooltipKeys.map(tk => (
+          <p key={tk.key} className="text-sm font-semibold" style={{ color: tk.color }}>
+            {tk.label}: {row[tk.key] != null ? `${row[tk.key]}${unit ?? ''}` : '—'}
+          </p>
+        ))}
+      </div>
+    )
+  }
   if (payload.length === 1) {
     const val = payload[0].value
     return (
@@ -50,7 +63,7 @@ function RotatedTick({ x, y, payload }) {
   )
 }
 
-export function SurfChart({ title, data, color = '#FF2D78', multiColor = false, logScale = false, onBarClick, unit, bars }) {
+export function SurfChart({ title, data, color = '#FF2D78', multiColor = false, logScale = false, onBarClick, unit, bars, tooltipKeys }) {
   if (!data?.length) return null
 
   const primaryKey = bars ? bars[0].key : 'count'
@@ -95,7 +108,7 @@ export function SurfChart({ title, data, color = '#FF2D78', multiColor = false, 
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip content={<CustomTooltip unit={unit} />} cursor={{ fill: 'rgba(255,45,120,0.08)' }} />
+          <Tooltip content={<CustomTooltip unit={unit} tooltipKeys={tooltipKeys} />} cursor={{ fill: 'rgba(255,45,120,0.08)' }} />
           {bars ? (
             bars.map(b => (
               <Bar key={b.key} dataKey={b.key} name={b.label} fill={b.color} radius={[3, 3, 0, 0]}>

@@ -161,11 +161,14 @@ export function computeWaterTempByMonth(sessions) {
     const month = parseLocalDate(s.date).getMonth()
     buckets[month].push(s.water_temp_c)
   })
+  const toF = c => Math.round(c * 9 / 5 + 32)
   return MONTHS.map((name, i) => {
     const temps = buckets[i]
-    if (!temps.length) return { name, count: null }
+    if (!temps.length) return { name, avg: null, min: null, max: null }
     const avgC = temps.reduce((sum, t) => sum + t, 0) / temps.length
-    return { name, count: Math.round(avgC * 9 / 5 + 32) }
+    const minC = Math.min(...temps)
+    const maxC = Math.max(...temps)
+    return { name, avg: toF(avgC), min: toF(minC), max: toF(maxC) }
   })
 }
 
