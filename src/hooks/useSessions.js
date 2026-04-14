@@ -6,8 +6,12 @@ const SESSION_QUERY = `
   date,
   waves,
   notes,
+  swell_height,
+  swell_period,
+  swell_direction,
+  water_temp_c,
   created_at,
-  location:locations(id, name),
+  location:locations(id, name, latitude, longitude),
   board:boards(id, brand, model, length_inches),
   fins:fins(id, brand, model, setup)
 `

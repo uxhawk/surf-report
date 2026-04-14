@@ -6,6 +6,7 @@ import { useBoards } from '../hooks/useBoards'
 import { useFins } from '../hooks/useFins'
 import { WAVE_SIZES } from '../lib/constants'
 import { todayStr } from '../lib/utils'
+import { fetchSwellData, degreesToCompass } from '../lib/openmeteo'
 import { FormField } from '../components/ui/FormField'
 import { Button } from '../components/ui/Button'
 import { Spinner } from '../components/ui/Spinner'
@@ -39,10 +40,16 @@ export default function LogSurf() {
     fins_id: '',
     waves: '',
     notes: '',
+    swell_height: null,
+    swell_period: null,
+    swell_direction: null,
+    water_temp_c: null,
   })
   const [errors, setErrors] = useState({})
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState(null)
+  const [swellLoading, setSwellLoading] = useState(false)
+  const [swellError, setSwellError] = useState(null)
 
   const activeLocations = useMemo(() => locations.filter(l => !l.archived), [locations])
 
@@ -51,6 +58,43 @@ export default function LogSurf() {
     const oceanside = activeLocations.find(l => l.name.toLowerCase() === 'oceanside')
     if (oceanside) setForm(prev => ({ ...prev, location_id: oceanside.id }))
   }, [activeLocations])
+
+  useEffect(() => {
+    if (!form.date || !form.location_id) return
+    const loc = locations.find(l => l.id === form.location_id)
+    if (!loc?.latitude || !loc?.longitude) {
+      setSwellError(null)
+      setForm(prev => ({ ...prev, swell_height: null, swell_period: null, swell_direction: null, water_temp_c: null }))
+      return
+    }
+
+    let cancelled = false
+    setSwellLoading(true)
+    setSwellError(null)
+
+    fetchSwellData(loc.latitude, loc.longitude, form.date)
+      .then(data => {
+        if (cancelled) return
+        if (data) {
+          setForm(prev => ({
+            ...prev,
+            swell_height: data.swellHeight,
+            swell_period: data.swellPeriod,
+            swell_direction: data.swellDirection,
+            water_temp_c: data.waterTempC,
+          }))
+        } else {
+          setSwellError('No swell data available for this date.')
+          setForm(prev => ({ ...prev, swell_height: null, swell_period: null, swell_direction: null, water_temp_c: null }))
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setSwellError('Could not fetch swell data.')
+      })
+      .finally(() => { if (!cancelled) setSwellLoading(false) })
+
+    return () => { cancelled = true }
+  }, [form.date, form.location_id, locations])
   const activeBoards = useMemo(() => boards.filter(b => !b.archived), [boards])
   const activeFins = useMemo(() => fins.filter(f => !f.archived), [fins])
 
@@ -178,6 +222,36 @@ export default function LogSurf() {
             ))}
           </select>
         </FormField>
+
+        {(swellLoading || form.swell_height != null || swellError) && (
+          <div className="gradient-border rounded-xl p-4 bg-retro-surface flex flex-col gap-2">
+            <h3 className="text-neon-cyan font-display text-[9px] uppercase">Ocean Conditions</h3>
+            {swellLoading ? (
+              <p className="text-retro-muted text-xs animate-pulse">Fetching ocean data…</p>
+            ) : swellError ? (
+              <p className="text-retro-muted text-xs">{swellError}</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-retro-muted text-[10px] uppercase">Height</p>
+                  <p className="text-white text-sm font-semibold">{form.swell_height != null ? `${form.swell_height} ft` : '—'}</p>
+                </div>
+                <div>
+                  <p className="text-retro-muted text-[10px] uppercase">Period</p>
+                  <p className="text-white text-sm font-semibold">{form.swell_period != null ? `${form.swell_period}s` : '—'}</p>
+                </div>
+                <div>
+                  <p className="text-retro-muted text-[10px] uppercase">Direction</p>
+                  <p className="text-white text-sm font-semibold">{form.swell_direction != null ? `${degreesToCompass(form.swell_direction)} (${Math.round(form.swell_direction)}°)` : '—'}</p>
+                </div>
+                <div>
+                  <p className="text-retro-muted text-[10px] uppercase">Water Temp</p>
+                  <p className="text-white text-sm font-semibold">{form.water_temp_c != null ? `${Math.round(form.water_temp_c * 9 / 5 + 32)}°F` : '—'}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <FormField label="Notes" required error={errors.notes}>
           <textarea

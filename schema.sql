@@ -9,6 +9,8 @@ create table if not exists locations (
   user_id     uuid        not null default auth.uid() references auth.users(id),
   name        text        not null,
   description text,
+  latitude    double precision,
+  longitude   double precision,
   archived    boolean     not null default false,
   created_at  timestamptz default now()
 );
@@ -42,15 +44,19 @@ create table if not exists fins (
 
 -- SESSIONS
 create table if not exists sessions (
-  id          uuid        default gen_random_uuid() primary key,
-  user_id     uuid        not null default auth.uid() references auth.users(id),
-  date        date        not null,
-  location_id uuid        not null references locations(id) on delete restrict,
-  board_id    uuid        not null references boards(id)    on delete restrict,
-  fins_id     uuid        not null references fins(id)      on delete restrict,
-  waves       text        not null,
-  notes       text        not null,
-  created_at  timestamptz default now()
+  id              uuid        default gen_random_uuid() primary key,
+  user_id         uuid        not null default auth.uid() references auth.users(id),
+  date            date        not null,
+  location_id     uuid        not null references locations(id) on delete restrict,
+  board_id        uuid        not null references boards(id)    on delete restrict,
+  fins_id         uuid        not null references fins(id)      on delete restrict,
+  waves           text        not null,
+  notes           text        not null,
+  swell_height    double precision,
+  swell_period    double precision,
+  swell_direction double precision,
+  water_temp_c    double precision,
+  created_at      timestamptz default now()
 );
 
 -- ============================================================

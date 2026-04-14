@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLocations } from '../hooks/useLocations'
+import { geocodeLocation } from '../lib/openmeteo'
 import { FormField } from '../components/ui/FormField'
 import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
@@ -20,7 +21,7 @@ import { AArrowUp } from 'pixelarticons/react/AArrowUp.js'
 import { AArrowDown } from 'pixelarticons/react/AArrowDown.js'
 import { LOCATION_TYPES, LOCATION_TYPE_COLORS } from '../lib/constants'
 
-const EMPTY_FORM = { name: '', description: '', types: [], picture_url: '', archived: false }
+const EMPTY_FORM = { name: '', description: '', types: [], picture_url: '', archived: false, latitude: null, longitude: null }
 
 function validate(form) {
   const errors = {}
@@ -43,20 +44,81 @@ export default function LocationsPage() {
   const [deleteError, setDeleteError] = useState(null)
   const [view, setView] = useState('active')
   const [sortAsc, setSortAsc] = useState(true)
+  const [geoQuery, setGeoQuery] = useState('')
+  const [geoResults, setGeoResults] = useState([])
+  const [geoLoading, setGeoLoading] = useState(false)
+  const [geoError, setGeoError] = useState(null)
+  const [geoMatch, setGeoMatch] = useState(null)
+  const [geoOpen, setGeoOpen] = useState(false)
+  const geoDebounce = useRef(null)
+  const geoRequestId = useRef(0)
+
+  function handleGeoSearch(value) {
+    setGeoQuery(value)
+    setGeoMatch(null)
+    setGeoError(null)
+
+    clearTimeout(geoDebounce.current)
+    if (!value.trim() || value.trim().length < 2) {
+      setGeoResults([])
+      setGeoOpen(false)
+      return
+    }
+
+    geoDebounce.current = setTimeout(async () => {
+      const reqId = ++geoRequestId.current
+      setGeoLoading(true)
+      try {
+        const results = await geocodeLocation(value)
+        if (reqId !== geoRequestId.current) return
+        setGeoResults(results)
+        setGeoOpen(results.length > 0)
+        if (results.length === 0) {
+          setGeoError('No location found. Try a nearby city or more specific name.')
+        }
+      } catch {
+        if (reqId !== geoRequestId.current) return
+        setGeoError('Could not look up coordinates.')
+        setGeoResults([])
+        setGeoOpen(false)
+      } finally {
+        if (reqId === geoRequestId.current) setGeoLoading(false)
+      }
+    }, 350)
+  }
+
+  function selectGeoResult(result) {
+    setForm(prev => ({ ...prev, latitude: result.latitude, longitude: result.longitude }))
+    setGeoMatch(result)
+    setGeoQuery('')
+    setGeoResults([])
+    setGeoOpen(false)
+  }
+
+  function resetGeoState() {
+    setGeoQuery('')
+    setGeoResults([])
+    setGeoError(null)
+    setGeoMatch(null)
+    setGeoOpen(false)
+    clearTimeout(geoDebounce.current)
+  }
 
   function openAdd() {
     setEditingId(null)
     setForm(EMPTY_FORM)
     setErrors({})
     setSaveError(null)
+    resetGeoState()
     setShowForm(true)
   }
 
   function openEdit(location) {
     setEditingId(location.id)
-    setForm({ name: location.name, description: location.description ?? '', types: location.types ?? [], picture_url: location.picture_url ?? '', archived: location.archived ?? false })
+    setForm({ name: location.name, description: location.description ?? '', types: location.types ?? [], picture_url: location.picture_url ?? '', archived: location.archived ?? false, latitude: location.latitude ?? null, longitude: location.longitude ?? null })
     setErrors({})
     setSaveError(null)
+    resetGeoState()
     setShowForm(true)
   }
 
@@ -90,7 +152,7 @@ export default function LocationsPage() {
     setSaving(true)
     setSaveError(null)
 
-    const payload = { name: form.name.trim(), description: form.description.trim() || null, types: form.types, picture_url: form.picture_url || null, archived: form.archived }
+    const payload = { name: form.name.trim(), description: form.description.trim() || null, types: form.types, picture_url: form.picture_url || null, archived: form.archived, latitude: form.latitude, longitude: form.longitude }
     const { error } = editingId
       ? await updateLocation(editingId, payload)
       : await createLocation(payload)
@@ -154,9 +216,63 @@ export default function LocationsPage() {
               type="text"
               value={form.name}
               onChange={e => set('name', e.target.value)}
-              placeholder="e.g. Trestles, Rincon…"
+              placeholder="e.g. Church, Trestles, Rincon…"
               autoFocus
             />
+          </FormField>
+
+          <FormField label="Location Search" hint="Search for the spot to set coordinates">
+            {form.latitude != null && form.longitude != null ? (
+              <div className="flex flex-col gap-1 rounded-lg border border-neon-cyan/20 bg-neon-cyan/5 px-3 py-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-neon-cyan text-xs font-semibold truncate">
+                    📍 {geoMatch ? geoMatch.displayName : 'Coordinates set'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => { setForm(prev => ({ ...prev, latitude: null, longitude: null })); resetGeoState() }}
+                    className="text-retro-muted/60 text-xs hover:text-neon-pink transition-colors shrink-0"
+                  >
+                    clear
+                  </button>
+                </div>
+                <span className="text-retro-muted text-[11px]">
+                  {form.latitude.toFixed(4)}°, {form.longitude.toFixed(4)}°
+                </span>
+              </div>
+            ) : (
+              <div className="relative">
+                <input
+                  type="text"
+                  value={geoQuery}
+                  onChange={e => handleGeoSearch(e.target.value)}
+                  placeholder="e.g. Church San Onofre, Rincon Santa Barbara…"
+                  autoComplete="off"
+                />
+                {geoLoading && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-retro-muted text-xs animate-pulse">
+                    searching…
+                  </span>
+                )}
+                {geoOpen && geoResults.length > 0 && (
+                  <div className="absolute z-20 left-0 right-0 top-full mt-1 rounded-lg border border-retro-border bg-retro-surface shadow-lg max-h-60 overflow-y-auto">
+                    {geoResults.map((r, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onMouseDown={e => e.preventDefault()}
+                        onClick={() => selectGeoResult(r)}
+                        className="w-full text-left px-3 py-2.5 flex flex-col gap-0.5 hover:bg-neon-cyan/10 transition-colors border-b border-retro-border last:border-b-0"
+                      >
+                        <span className="text-white text-sm">{r.name}</span>
+                        <span className="text-retro-muted text-xs leading-snug">{r.displayName}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {geoError && !geoOpen && <p className="text-neon-pink text-xs mt-1">{geoError}</p>}
+              </div>
+            )}
           </FormField>
 
           <FormField label="Description">
@@ -249,6 +365,9 @@ export default function LocationsPage() {
                 </div>
                 <KebabMenu onEdit={() => openEdit(location)} onDelete={() => { setDeletingId(location.id); setDeleteError(null) }} />
               </div>
+              {location.latitude != null && location.longitude != null && (
+                <p className="text-retro-muted/60 text-[10px]">📍 {location.latitude.toFixed(4)}°, {location.longitude.toFixed(4)}°</p>
+              )}
               {location.description && (
                 <p className="text-retro-muted text-xs">{location.description}</p>
               )}
