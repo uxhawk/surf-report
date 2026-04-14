@@ -1,5 +1,7 @@
 import { DAYS_OF_WEEK, MONTHS } from './constants'
 
+const YEAR_COLORS = ['#00CFFF', '#FF2D78', '#FFE600', '#BF00FF']
+
 // Parse a YYYY-MM-DD date string as local time (avoids UTC offset shifting the day)
 export function parseLocalDate(dateStr) {
   return new Date(dateStr + 'T12:00:00')
@@ -133,7 +135,26 @@ export function calculateLongestStreak(sessions) {
   return { count: best.count, range }
 }
 
-export function computeMedianWaterTempByMonth(sessions) {
+export function computeMonthlyByYear(sessions, { years, maxMonth }) {
+  const counts = {}
+  years.forEach(y => { counts[y] = new Array(12).fill(0) })
+  sessions.forEach(s => {
+    const d = parseLocalDate(s.date)
+    const y = d.getFullYear()
+    if (counts[y]) counts[y][d.getMonth()]++
+  })
+
+  const monthSlice = maxMonth != null ? MONTHS.slice(0, maxMonth + 1) : MONTHS
+  const data = monthSlice.map((name, i) => {
+    const row = { name }
+    years.forEach(y => { row[y] = counts[y][i] })
+    return row
+  })
+  const bars = years.map((y, i) => ({ key: String(y), color: YEAR_COLORS[i % YEAR_COLORS.length], label: String(y) }))
+  return { data, bars }
+}
+
+export function computeWaterTempByMonth(sessions) {
   const buckets = MONTHS.map(() => [])
   sessions.forEach(s => {
     if (s.water_temp_c == null) return
@@ -141,13 +162,10 @@ export function computeMedianWaterTempByMonth(sessions) {
     buckets[month].push(s.water_temp_c)
   })
   return MONTHS.map((name, i) => {
-    const temps = buckets[i].sort((a, b) => a - b)
+    const temps = buckets[i]
     if (!temps.length) return { name, count: null }
-    const mid = Math.floor(temps.length / 2)
-    const medianC = temps.length % 2 === 0
-      ? (temps[mid - 1] + temps[mid]) / 2
-      : temps[mid]
-    return { name, count: Math.round(medianC * 9 / 5 + 32) }
+    const avgC = temps.reduce((sum, t) => sum + t, 0) / temps.length
+    return { name, count: Math.round(avgC * 9 / 5 + 32) }
   })
 }
 

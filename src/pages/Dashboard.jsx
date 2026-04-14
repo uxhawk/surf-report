@@ -4,7 +4,7 @@ import { useSessions } from '../hooks/useSessions'
 import { useLocations } from '../hooks/useLocations'
 import { useBoards } from '../hooks/useBoards'
 import { useFins } from '../hooks/useFins'
-import { computeDashboardStats, computeMedianWaterTempByMonth, calculateStreak, calculateLongestStreak, formatDate, formatTimeSince, parseLocalDate, formatMonthDay } from '../lib/utils'
+import { computeDashboardStats, computeMonthlyByYear, computeWaterTempByMonth, calculateStreak, calculateLongestStreak, formatDate, formatTimeSince, parseLocalDate, formatMonthDay } from '../lib/utils'
 import { StatCard } from '../components/dashboard/StatCard'
 import { SurfChart } from '../components/dashboard/SurfChart'
 import { FilterBar } from '../components/dashboard/FilterBar'
@@ -60,7 +60,18 @@ export default function Dashboard() {
     return stats.byMonth
   }, [stats.byMonth, filters.year])
 
-  const waterTempByMonth = useMemo(() => computeMedianWaterTempByMonth(filtered), [filtered])
+  const monthlyByYear = useMemo(() => {
+    const currentYear = new Date().getFullYear()
+    if (!filters.year) {
+      return computeMonthlyByYear(sessions, { years: [currentYear - 1, currentYear], maxMonth: null })
+    }
+    if (Number(filters.year) === currentYear) {
+      return computeMonthlyByYear(sessions, { years: [currentYear - 1, currentYear], maxMonth: new Date().getMonth() })
+    }
+    return null
+  }, [sessions, filters.year])
+
+  const waterTempByMonth = useMemo(() => computeWaterTempByMonth(filtered), [filtered])
   const visibleWaterTemp = useMemo(() => {
     if (Number(filters.year) === new Date().getFullYear()) {
       return waterTempByMonth.slice(0, new Date().getMonth() + 1)
@@ -142,7 +153,10 @@ export default function Dashboard() {
         </div>
 
         {/* Charts */}
-        <SurfChart title="Monthly Breakdown" data={visibleMonths} color="#00CFFF" />
+        {monthlyByYear
+          ? <SurfChart title="Monthly Breakdown" data={monthlyByYear.data} bars={monthlyByYear.bars} />
+          : <SurfChart title="Monthly Breakdown" data={visibleMonths} color="#00CFFF" />
+        }
         {stats.byBoard.length > 0 && (
           <SurfChart title="Boards" data={stats.byBoard} color="#BF00FF" multiColor logScale onBarClick={handleBoardClick} />
         )}
@@ -159,7 +173,7 @@ export default function Dashboard() {
           <SurfChart title="Wave Height (API)" data={stats.bySwellSize} color="#BF00FF" />
         )}
         <SurfChart title="Days of Week" data={stats.byDayOfWeek} color="#FF2D78" />
-        <SurfChart title="Water Temp (Median)" data={visibleWaterTemp} color="#00CFFF" unit="°F" />
+        <SurfChart title="Water Temp (Avg)" data={visibleWaterTemp} color="#00CFFF" unit="°F" />
 
         {/* Sessions table */}
         <div>

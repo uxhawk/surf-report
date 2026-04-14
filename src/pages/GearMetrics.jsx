@@ -4,7 +4,7 @@ import { useSessions } from '../hooks/useSessions'
 import { useBoards } from '../hooks/useBoards'
 import { useFins } from '../hooks/useFins'
 import { useLocations } from '../hooks/useLocations'
-import { computeDashboardStats, computeMedianWaterTempByMonth, parseLocalDate, formatDate, formatTimeSince } from '../lib/utils'
+import { computeDashboardStats, computeWaterTempByMonth, parseLocalDate, formatDate, formatTimeSince } from '../lib/utils'
 import { SurfChart } from '../components/dashboard/SurfChart'
 import { StatCard } from '../components/dashboard/StatCard'
 import { Spinner } from '../components/ui/Spinner'
@@ -52,7 +52,7 @@ export default function GearMetrics({ type }) {
 
   const stats = useMemo(() => computeDashboardStats(filtered), [filtered])
   const byWaveSize = useMemo(() => computeWaveSizes(filtered), [filtered])
-  const waterTempByMonth = useMemo(() => computeMedianWaterTempByMonth(filtered), [filtered])
+  const waterTempByMonth = useMemo(() => computeWaterTempByMonth(filtered), [filtered])
   const visibleWaterTemp = useMemo(() => {
     if (Number(year) === new Date().getFullYear()) {
       return waterTempByMonth.slice(0, new Date().getMonth() + 1)
@@ -148,7 +148,7 @@ export default function GearMetrics({ type }) {
         </div>
 
         {type === 'location' && (<>
-          <SurfChart title="Water Temp (Median)" data={visibleWaterTemp} color="#00CFFF" unit="°F" />
+          <SurfChart title="Water Temp (Avg)" data={visibleWaterTemp} color="#00CFFF" unit="°F" />
           {stats.byBoard.length > 0 && <SurfChart title="Boards" data={stats.byBoard} color="#BF00FF" multiColor logScale />}
           <SurfChart title="Wave Height (Observed)" data={byWaveSize} color="#FF2D78" />
           {stats.bySwellSize.length > 0 && <SurfChart title="Wave Height (API)" data={stats.bySwellSize} color="#BF00FF" />}
