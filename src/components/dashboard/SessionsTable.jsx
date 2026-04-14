@@ -8,12 +8,14 @@ import { Button } from '../ui/Button'
 import { Modal } from '../ui/Modal'
 
 
-const SORT_FIELDS = ['date', 'location', 'waves']
-
 function getValue(s, field) {
   if (field === 'date') return s.date
   if (field === 'location') return s.location?.name ?? ''
   if (field === 'waves') return Number(s.waves) || 0
+  if (field === 'swell') return s.swell_height ?? -1
+  if (field === 'period') return s.swell_period ?? -1
+  if (field === 'direction') return s.swell_direction ?? -1
+  if (field === 'temp') return s.water_temp_c ?? -999
   return ''
 }
 
@@ -108,6 +110,10 @@ export function SessionsTable({ sessions, onDelete }) {
             <option value="date">Date</option>
             <option value="location">Location</option>
             <option value="waves">Waves</option>
+            <option value="swell">Swell</option>
+            <option value="period">Period</option>
+            <option value="direction">Direction</option>
+            <option value="temp">Water Temp</option>
           </select>
           <button
             type="button"
@@ -177,9 +183,12 @@ export function SessionsTable({ sessions, onDelete }) {
                   <th className="text-left px-4 py-3 font-medium">Board</th>
                   <th className="text-left px-4 py-3 font-medium">Fins</th>
                   <SortHeader label="Waves" field="waves" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
-                  <th className="text-left px-4 py-3 font-medium">Swell</th>
-                  <th className="text-left px-4 py-3 font-medium">Notes</th>
-                  <th className="px-4 py-3" />
+                  <SortHeader label="Swell" field="swell" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                  <SortHeader label="Period" field="period" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                  <SortHeader label="Dir" field="direction" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                  <SortHeader label="Temp" field="temp" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                  <th className="text-left align-middle px-4 py-3 font-medium">Notes</th>
+                  <th className="align-middle px-4 py-3" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-retro-border">
@@ -197,11 +206,10 @@ export function SessionsTable({ sessions, onDelete }) {
                       {s.fins ? `${s.fins.brand} ${s.fins.model}` : '—'}
                     </td>
                     <td className="px-4 py-3 text-retro-muted">{s.waves} ft</td>
-                    <td className="px-4 py-3 text-neon-cyan/80 whitespace-nowrap text-xs">
-                      {s.swell_height != null
-                        ? `${s.swell_height}ft · ${s.swell_period ?? '—'}s · ${degreesToCompass(s.swell_direction)}${s.water_temp_c != null ? ` · ${Math.round(s.water_temp_c * 9 / 5 + 32)}°F` : ''}`
-                        : '—'}
-                    </td>
+                    <td className="px-4 py-3 text-neon-cyan/80 whitespace-nowrap text-xs">{s.swell_height != null ? `${s.swell_height} ft` : '—'}</td>
+                    <td className="px-4 py-3 text-neon-cyan/80 whitespace-nowrap text-xs">{s.swell_period != null ? `${s.swell_period}s` : '—'}</td>
+                    <td className="px-4 py-3 text-neon-cyan/80 whitespace-nowrap text-xs">{s.swell_direction != null ? degreesToCompass(s.swell_direction) : '—'}</td>
+                    <td className="px-4 py-3 text-neon-cyan/80 whitespace-nowrap text-xs">{s.water_temp_c != null ? `${Math.round(s.water_temp_c * 9 / 5 + 32)}°F` : '—'}</td>
                     <td className="px-4 py-3 text-retro-muted max-w-xs">
                       {s.notes && (
                         <div>
