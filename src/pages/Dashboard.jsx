@@ -5,6 +5,7 @@ import { useLocations } from '../hooks/useLocations'
 import { useBoards } from '../hooks/useBoards'
 import { useFins } from '../hooks/useFins'
 import { computeDashboardStats, computeMonthlyByYear, computeWaterTempByMonth, calculateStreak, calculateLongestStreak, formatDate, formatTimeSince, parseLocalDate, formatMonthDay } from '../lib/utils'
+import { degreesToCompass } from '../lib/openmeteo'
 import { StatCard } from '../components/dashboard/StatCard'
 import { SurfChart } from '../components/dashboard/SurfChart'
 import { FilterBar } from '../components/dashboard/FilterBar'
@@ -15,6 +16,8 @@ import { Bookmark } from 'pixelarticons/react/Bookmark.js'
 import { Fire } from 'pixelarticons/react/Fire.js'
 import { Calendar2 } from 'pixelarticons/react/Calendar2.js'
 import { Trophy } from 'pixelarticons/react/Trophy.js'
+import { Thermometer } from 'pixelarticons/react/Thermometer.js'
+import { Sparkle } from 'pixelarticons/react/Sparkle.js'
 
 const DEFAULT_FILTERS = {
   year: String(new Date().getFullYear()),
@@ -71,6 +74,21 @@ export default function Dashboard() {
     return null
   }, [sessions, filters.year])
 
+  const tempExtremes = useMemo(() => {
+    const withTemp = filtered.filter(s => s.water_temp_c != null)
+    if (!withTemp.length) return null
+    const toF = c => Math.round(c * 9 / 5 + 32)
+    let max = withTemp[0], min = withTemp[0]
+    withTemp.forEach(s => {
+      if (s.water_temp_c > max.water_temp_c) max = s
+      if (s.water_temp_c < min.water_temp_c) min = s
+    })
+    return {
+      max: { temp: toF(max.water_temp_c), date: max.date },
+      min: { temp: toF(min.water_temp_c), date: min.date },
+    }
+  }, [filtered])
+
   const waterTempByMonth = useMemo(() => computeWaterTempByMonth(filtered), [filtered])
   const visibleWaterTemp = useMemo(() => {
     if (Number(filters.year) === new Date().getFullYear()) {
@@ -79,7 +97,8 @@ export default function Dashboard() {
     return waterTempByMonth
   }, [waterTempByMonth, filters.year])
 
-  const lastSurf = sessions[0]?.date
+  const lastSession = sessions[0]
+  const lastSurf = lastSession?.date
 
   const navigate = useNavigate()
 
@@ -139,7 +158,13 @@ export default function Dashboard() {
           <StatCard
             label="Last Surf"
             value={lastSurf ? formatMonthDay(lastSurf) : '—'}
-            subtitle={lastSurf ? (formatTimeSince(lastSurf) === 'Today' ? 'Today' : `${formatTimeSince(lastSurf)} ago`) : ''}
+            subtitle={lastSession ? [
+              formatTimeSince(lastSurf) === 'Today' ? 'Today' : `${formatTimeSince(lastSurf)} ago`,
+              lastSession.swell_height != null ? `${lastSession.swell_height}ft` : null,
+              lastSession.swell_period != null ? `${lastSession.swell_period}s` : null,
+              lastSession.swell_direction != null ? degreesToCompass(lastSession.swell_direction) : null,
+              lastSession.water_temp_c != null ? `${Math.round(lastSession.water_temp_c * 9 / 5 + 32)}°F` : null,
+            ].filter(Boolean).join(' · ') : ''}
             color="neon-purple"
             icon={Calendar2}
           />
@@ -151,6 +176,25 @@ export default function Dashboard() {
             icon={Trophy}
           />
         </div>
+
+        {tempExtremes && (
+          <div className="grid grid-cols-2 gap-3">
+            <StatCard
+              label="Warmest"
+              value={`${tempExtremes.max.temp}°F`}
+              subtitle={formatDate(tempExtremes.max.date)}
+              color="neon-pink"
+              icon={Thermometer}
+            />
+            <StatCard
+              label="Coldest"
+              value={`${tempExtremes.min.temp}°F`}
+              subtitle={formatDate(tempExtremes.min.date)}
+              color="neon-cyan"
+              icon={Sparkle}
+            />
+          </div>
+        )}
 
         {/* Charts */}
         {monthlyByYear
@@ -171,6 +215,9 @@ export default function Dashboard() {
         )}
         {stats.bySwellSize.length > 0 && (
           <SurfChart title="Wave Height (API)" data={stats.bySwellSize} color="#BF00FF" />
+        )}
+        {stats.byPeriod.length > 0 && (
+          <SurfChart title="Swell Period" data={stats.byPeriod} color="#FFE600" />
         )}
         <SurfChart title="Days of Week" data={stats.byDayOfWeek} color="#FF2D78" />
         <SurfChart title="Water Temp (Avg)" data={visibleWaterTemp} color="#00CFFF" unit="°F" />

@@ -177,6 +177,7 @@ export function computeDashboardStats(sessions) {
       byMonth: MONTHS.map(name => ({ name, count: 0 })),
       byWaveSize: [],
       bySwellSize: [],
+      byPeriod: [],
       byLocation: [],
       byBoard: [],
       byFinType: [],
@@ -225,6 +226,18 @@ export function computeDashboardStats(sessions) {
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
 
+  // By swell period
+  const periodBuckets = { 'Short (<10s)': 0, 'Medium (10-13s)': 0, 'Long / Groundswell (≥14s)': 0 }
+  sessions.forEach(s => {
+    if (s.swell_period == null) return
+    if (s.swell_period < 10) periodBuckets['Short (<10s)']++
+    else if (s.swell_period <= 13) periodBuckets['Medium (10-13s)']++
+    else periodBuckets['Long / Groundswell (≥14s)']++
+  })
+  const byPeriod = Object.entries(periodBuckets)
+    .filter(([, count]) => count > 0)
+    .map(([name, count]) => ({ name, count }))
+
   // By location
   const locationCounts = {}
   sessions.forEach(s => {
@@ -265,6 +278,7 @@ export function computeDashboardStats(sessions) {
     byMonth,
     byWaveSize,
     bySwellSize,
+    byPeriod,
     byLocation,
     byBoard,
     byFinType,

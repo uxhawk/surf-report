@@ -13,6 +13,8 @@ import { Calendar2 } from 'pixelarticons/react/Calendar2.js'
 import { Anchor } from 'pixelarticons/react/Anchor.js'
 import { MapPin } from 'pixelarticons/react/MapPin.js'
 import { SpeedFast } from 'pixelarticons/react/SpeedFast.js'
+import { Thermometer } from 'pixelarticons/react/Thermometer.js'
+import { Sparkle } from 'pixelarticons/react/Sparkle.js'
 
 function computeWaveSizes(sessions) {
   const counts = {}
@@ -52,6 +54,20 @@ export default function GearMetrics({ type }) {
 
   const stats = useMemo(() => computeDashboardStats(filtered), [filtered])
   const byWaveSize = useMemo(() => computeWaveSizes(filtered), [filtered])
+  const tempExtremes = useMemo(() => {
+    const withTemp = filtered.filter(s => s.water_temp_c != null)
+    if (!withTemp.length) return null
+    const toF = c => Math.round(c * 9 / 5 + 32)
+    let max = withTemp[0], min = withTemp[0]
+    withTemp.forEach(s => {
+      if (s.water_temp_c > max.water_temp_c) max = s
+      if (s.water_temp_c < min.water_temp_c) min = s
+    })
+    return {
+      max: { temp: toF(max.water_temp_c), date: max.date },
+      min: { temp: toF(min.water_temp_c), date: min.date },
+    }
+  }, [filtered])
   const waterTempByMonth = useMemo(() => computeWaterTempByMonth(filtered), [filtered])
   const visibleWaterTemp = useMemo(() => {
     if (Number(year) === new Date().getFullYear()) {
@@ -147,11 +163,31 @@ export default function GearMetrics({ type }) {
           />
         </div>
 
+        {tempExtremes && (
+          <div className="grid grid-cols-2 gap-3">
+            <StatCard
+              label="Warmest"
+              value={`${tempExtremes.max.temp}°F`}
+              subtitle={formatDate(tempExtremes.max.date)}
+              color="neon-pink"
+              icon={Thermometer}
+            />
+            <StatCard
+              label="Coldest"
+              value={`${tempExtremes.min.temp}°F`}
+              subtitle={formatDate(tempExtremes.min.date)}
+              color="neon-cyan"
+              icon={Sparkle}
+            />
+          </div>
+        )}
+
         {type === 'location' && (<>
           <SurfChart title="Water Temp (Avg)" data={visibleWaterTemp} color="#00CFFF" unit="°F" />
           {stats.byBoard.length > 0 && <SurfChart title="Boards" data={stats.byBoard} color="#BF00FF" multiColor logScale />}
           <SurfChart title="Wave Height (Observed)" data={byWaveSize} color="#FF2D78" />
           {stats.bySwellSize.length > 0 && <SurfChart title="Wave Height (API)" data={stats.bySwellSize} color="#BF00FF" />}
+          {stats.byPeriod.length > 0 && <SurfChart title="Swell Period" data={stats.byPeriod} color="#FFE600" />}
           {stats.byFinType.length > 0 && <SurfChart title="Fins" data={stats.byFinType} color="#FF2D78" multiColor logScale />}
           <SurfChart title="Monthly Breakdown" data={stats.byMonth} color="#FFE600" />
           <SurfChart title="Days of Week" data={stats.byDayOfWeek} color="#00CFFF" />
@@ -160,6 +196,7 @@ export default function GearMetrics({ type }) {
         {type === 'board' && (<>
           <SurfChart title="Wave Height (Observed)" data={byWaveSize} color="#FF2D78" />
           {stats.bySwellSize.length > 0 && <SurfChart title="Wave Height (API)" data={stats.bySwellSize} color="#BF00FF" />}
+          {stats.byPeriod.length > 0 && <SurfChart title="Swell Period" data={stats.byPeriod} color="#FFE600" />}
           {stats.byFinType.length > 0 && <SurfChart title="Fins" data={stats.byFinType} color="#FF2D78" multiColor logScale />}
           <SurfChart title="Monthly Breakdown" data={stats.byMonth} color="#FFE600" />
           <SurfChart title="Days of Week" data={stats.byDayOfWeek} color="#00CFFF" />
@@ -168,6 +205,7 @@ export default function GearMetrics({ type }) {
         {type === 'fin' && (<>
           <SurfChart title="Wave Height (Observed)" data={byWaveSize} color="#FF2D78" />
           {stats.bySwellSize.length > 0 && <SurfChart title="Wave Height (API)" data={stats.bySwellSize} color="#BF00FF" />}
+          {stats.byPeriod.length > 0 && <SurfChart title="Swell Period" data={stats.byPeriod} color="#FFE600" />}
           {stats.byBoard.length > 0 && <SurfChart title="Boards" data={stats.byBoard} color="#BF00FF" multiColor logScale />}
           {stats.byLocation.length > 0 && <SurfChart title="Locations" data={stats.byLocation} color="#00CFFF" multiColor logScale />}
           <SurfChart title="Monthly Breakdown" data={stats.byMonth} color="#FFE600" />
