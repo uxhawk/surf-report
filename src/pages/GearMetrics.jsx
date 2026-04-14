@@ -147,32 +147,31 @@ export default function GearMetrics({ type }) {
           />
         </div>
 
-        {/* Location metrics: water temp, board, wave size, fin setup, month, day of week */}
         {type === 'location' && (<>
-          <SurfChart title="Median Water Temp by Month" data={visibleWaterTemp} color="#00CFFF" unit="°F" />
-          {stats.byBoard.length > 0 && <SurfChart title="By Board" data={stats.byBoard} color="#BF00FF" multiColor logScale />}
-          <SurfChart title="By Wave Size" data={byWaveSize} color="#FF2D78" logScale />
-          {stats.byFinType.length > 0 && <SurfChart title="By Fin Setup" data={stats.byFinType} color="#FF2D78" multiColor logScale />}
-          <SurfChart title="By Month" data={stats.byMonth} color="#FFE600" />
-          <SurfChart title="By Day of Week" data={stats.byDayOfWeek} color="#00CFFF" />
+          <SurfChart title="Water Temp (Median)" data={visibleWaterTemp} color="#00CFFF" unit="°F" />
+          {stats.byBoard.length > 0 && <SurfChart title="Boards" data={stats.byBoard} color="#BF00FF" multiColor logScale />}
+          <SurfChart title="Wave Height (Observed)" data={byWaveSize} color="#FF2D78" />
+          {stats.bySwellSize.length > 0 && <SurfChart title="Wave Height (API)" data={stats.bySwellSize} color="#BF00FF" />}
+          {stats.byFinType.length > 0 && <SurfChart title="Fins" data={stats.byFinType} color="#FF2D78" multiColor logScale />}
+          <SurfChart title="Monthly Breakdown" data={stats.byMonth} color="#FFE600" />
+          <SurfChart title="Days of Week" data={stats.byDayOfWeek} color="#00CFFF" />
         </>)}
 
-        {/* Board metrics: location, wave size, fin setup, month, day of week */}
         {type === 'board' && (<>
-          {stats.byLocation.length > 0 && <SurfChart title="By Location" data={stats.byLocation} color="#00CFFF" multiColor logScale />}
-          <SurfChart title="By Wave Size" data={byWaveSize} color="#FF2D78" logScale />
-          {stats.byFinType.length > 0 && <SurfChart title="By Fin Setup" data={stats.byFinType} color="#FF2D78" multiColor logScale />}
-          <SurfChart title="By Month" data={stats.byMonth} color="#FFE600" />
-          <SurfChart title="By Day of Week" data={stats.byDayOfWeek} color="#00CFFF" />
+          <SurfChart title="Wave Height (Observed)" data={byWaveSize} color="#FF2D78" />
+          {stats.bySwellSize.length > 0 && <SurfChart title="Wave Height (API)" data={stats.bySwellSize} color="#BF00FF" />}
+          {stats.byFinType.length > 0 && <SurfChart title="Fins" data={stats.byFinType} color="#FF2D78" multiColor logScale />}
+          <SurfChart title="Monthly Breakdown" data={stats.byMonth} color="#FFE600" />
+          <SurfChart title="Days of Week" data={stats.byDayOfWeek} color="#00CFFF" />
         </>)}
 
-        {/* Fin metrics: wave size, board, location, month, day of week */}
         {type === 'fin' && (<>
-          <SurfChart title="By Wave Size" data={byWaveSize} color="#FF2D78" logScale />
-          {stats.byBoard.length > 0 && <SurfChart title="By Board" data={stats.byBoard} color="#BF00FF" multiColor logScale />}
-          {stats.byLocation.length > 0 && <SurfChart title="By Location" data={stats.byLocation} color="#00CFFF" multiColor logScale />}
-          <SurfChart title="By Month" data={stats.byMonth} color="#FFE600" />
-          <SurfChart title="By Day of Week" data={stats.byDayOfWeek} color="#00CFFF" />
+          <SurfChart title="Wave Height (Observed)" data={byWaveSize} color="#FF2D78" />
+          {stats.bySwellSize.length > 0 && <SurfChart title="Wave Height (API)" data={stats.bySwellSize} color="#BF00FF" />}
+          {stats.byBoard.length > 0 && <SurfChart title="Boards" data={stats.byBoard} color="#BF00FF" multiColor logScale />}
+          {stats.byLocation.length > 0 && <SurfChart title="Locations" data={stats.byLocation} color="#00CFFF" multiColor logScale />}
+          <SurfChart title="Monthly Breakdown" data={stats.byMonth} color="#FFE600" />
+          <SurfChart title="Days of Week" data={stats.byDayOfWeek} color="#00CFFF" />
         </>)}
       </div>
     </div>

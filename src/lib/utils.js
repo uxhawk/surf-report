@@ -157,6 +157,8 @@ export function computeDashboardStats(sessions) {
       total: 0,
       byDayOfWeek: DAYS_OF_WEEK.map(name => ({ name, count: 0 })),
       byMonth: MONTHS.map(name => ({ name, count: 0 })),
+      byWaveSize: [],
+      bySwellSize: [],
       byLocation: [],
       byBoard: [],
       byFinType: [],
@@ -176,6 +178,34 @@ export function computeDashboardStats(sessions) {
     const month = parseLocalDate(s.date).getMonth()
     byMonth[month].count++
   })
+
+  // By wave size (self-reported + API swell bucketed into the same ranges)
+  const waveCounts = {}
+  sessions.forEach(s => {
+    if (s.waves) waveCounts[s.waves] = (waveCounts[s.waves] ?? 0) + 1
+  })
+  const byWaveSize = Object.entries(waveCounts)
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
+
+  const waveRanges = byWaveSize.map(({ name }) => {
+    const m = name.match(/^(\d+)-(\d+)(\+)?$/)
+    if (!m) return { label: name, min: 0, max: Infinity, span: Infinity }
+    return { label: name, min: Number(m[1]), max: m[3] ? Infinity : Number(m[2]), span: m[3] ? Infinity : Number(m[2]) - Number(m[1]) }
+  })
+  const swellCounts = Object.fromEntries(byWaveSize.map(d => [d.name, 0]))
+  sessions.forEach(s => {
+    if (s.swell_height == null) return
+    const h = s.swell_height
+    const matches = waveRanges.filter(r => h >= r.min && h <= r.max)
+    if (!matches.length) return
+    matches.sort((a, b) => a.span - b.span)
+    swellCounts[matches[0].label]++
+  })
+  const bySwellSize = Object.entries(swellCounts)
+    .filter(([, count]) => count > 0)
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
 
   // By location
   const locationCounts = {}
@@ -215,6 +245,8 @@ export function computeDashboardStats(sessions) {
     total: sessions.length,
     byDayOfWeek,
     byMonth,
+    byWaveSize,
+    bySwellSize,
     byLocation,
     byBoard,
     byFinType,

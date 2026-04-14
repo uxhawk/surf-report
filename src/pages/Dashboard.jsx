@@ -142,18 +142,24 @@ export default function Dashboard() {
         </div>
 
         {/* Charts */}
-        <SurfChart title="Surfs by Month" data={visibleMonths} color="#00CFFF" />
+        <SurfChart title="Monthly Breakdown" data={visibleMonths} color="#00CFFF" />
         {stats.byBoard.length > 0 && (
-          <SurfChart title="Surfs by Board" data={stats.byBoard} color="#BF00FF" multiColor logScale onBarClick={handleBoardClick} />
+          <SurfChart title="Boards" data={stats.byBoard} color="#BF00FF" multiColor logScale onBarClick={handleBoardClick} />
         )}
         {stats.byFinType.length > 0 && (
-          <SurfChart title="Surfs by Fin Type" data={stats.byFinType} color="#FF2D78" multiColor logScale onBarClick={handleFinClick} />
+          <SurfChart title="Fins" data={stats.byFinType} color="#FF2D78" multiColor logScale onBarClick={handleFinClick} />
         )}
         {stats.byLocation.length > 0 && (
-          <SurfChart title="Surfs by Location" data={stats.byLocation} color="#FFE600" multiColor logScale onBarClick={handleLocationClick} />
+          <SurfChart title="Locations" data={stats.byLocation} color="#FFE600" multiColor logScale onBarClick={handleLocationClick} />
         )}
-        <SurfChart title="Surfs by Day of Week" data={stats.byDayOfWeek} color="#FF2D78" />
-        <SurfChart title="Median Water Temp by Month" data={visibleWaterTemp} color="#00CFFF" unit="°F" />
+        {stats.byWaveSize.length > 0 && (
+          <SurfChart title="Wave Height (Observed)" data={stats.byWaveSize} color="#00CFFF" />
+        )}
+        {stats.bySwellSize.length > 0 && (
+          <SurfChart title="Wave Height (API)" data={stats.bySwellSize} color="#BF00FF" />
+        )}
+        <SurfChart title="Days of Week" data={stats.byDayOfWeek} color="#FF2D78" />
+        <SurfChart title="Water Temp (Median)" data={visibleWaterTemp} color="#00CFFF" unit="°F" />
 
         {/* Sessions table */}
         <div>
