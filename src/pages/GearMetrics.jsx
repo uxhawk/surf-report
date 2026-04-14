@@ -64,8 +64,8 @@ export default function GearMetrics({ type }) {
       if (s.water_temp_c < min.water_temp_c) min = s
     })
     return {
-      max: { temp: toF(max.water_temp_c), date: max.date },
-      min: { temp: toF(min.water_temp_c), date: min.date },
+      max: { temp: toF(max.water_temp_c), date: max.date, location: max.location?.name },
+      min: { temp: toF(min.water_temp_c), date: min.date, location: min.location?.name },
     }
   }, [filtered])
   const waterTempByMonth = useMemo(() => computeWaterTempByMonth(filtered), [filtered])
@@ -168,14 +168,14 @@ export default function GearMetrics({ type }) {
             <StatCard
               label="Warmest"
               value={`${tempExtremes.max.temp}°F`}
-              subtitle={formatDate(tempExtremes.max.date)}
+              subtitle={[formatDate(tempExtremes.max.date), tempExtremes.max.location].filter(Boolean).join(' · ')}
               color="neon-pink"
               icon={Thermometer}
             />
             <StatCard
               label="Coldest"
               value={`${tempExtremes.min.temp}°F`}
-              subtitle={formatDate(tempExtremes.min.date)}
+              subtitle={[formatDate(tempExtremes.min.date), tempExtremes.min.location].filter(Boolean).join(' · ')}
               color="neon-cyan"
               icon={Sparkle}
             />
