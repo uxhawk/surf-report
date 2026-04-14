@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Delete } from 'pixelarticons/react/Delete.js'
 import { MagicEdit } from 'pixelarticons/react/MagicEdit.js'
 import { formatDate, parseLocalDate } from '../../lib/utils'
+import { degreesToCompass } from '../../lib/openmeteo'
 import { Button } from '../ui/Button'
 import { Modal } from '../ui/Modal'
 
@@ -143,6 +144,14 @@ export function SessionsTable({ sessions, onDelete }) {
                   {s.board ? `${s.board.brand} ${s.board.model}` : '—'} ·{' '}
                   {s.fins ? `${s.fins.brand} ${s.fins.model}` : '—'}
                 </div>
+                {s.swell_height != null && (
+                  <div className="flex gap-3 text-[10px] text-neon-cyan/80">
+                    <span>{s.swell_height} ft</span>
+                    <span>{s.swell_period != null ? `${s.swell_period}s` : ''}</span>
+                    <span>{s.swell_direction != null ? degreesToCompass(s.swell_direction) : ''}</span>
+                    {s.water_temp_c != null && <span>{Math.round(s.water_temp_c * 9 / 5 + 32)}°F</span>}
+                  </div>
+                )}
                 {s.notes && (
                   <div>
                     <p className={`text-retro-muted text-xs ${expandedIds.has(s.id) ? '' : 'line-clamp-2'}`}>{s.notes}</p>
@@ -168,6 +177,7 @@ export function SessionsTable({ sessions, onDelete }) {
                   <th className="text-left px-4 py-3 font-medium">Board</th>
                   <th className="text-left px-4 py-3 font-medium">Fins</th>
                   <SortHeader label="Waves" field="waves" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                  <th className="text-left px-4 py-3 font-medium">Swell</th>
                   <th className="text-left px-4 py-3 font-medium">Notes</th>
                   <th className="px-4 py-3" />
                 </tr>
@@ -187,6 +197,11 @@ export function SessionsTable({ sessions, onDelete }) {
                       {s.fins ? `${s.fins.brand} ${s.fins.model}` : '—'}
                     </td>
                     <td className="px-4 py-3 text-retro-muted">{s.waves} ft</td>
+                    <td className="px-4 py-3 text-neon-cyan/80 whitespace-nowrap text-xs">
+                      {s.swell_height != null
+                        ? `${s.swell_height}ft · ${s.swell_period ?? '—'}s · ${degreesToCompass(s.swell_direction)}${s.water_temp_c != null ? ` · ${Math.round(s.water_temp_c * 9 / 5 + 32)}°F` : ''}`
+                        : '—'}
+                    </td>
                     <td className="px-4 py-3 text-retro-muted max-w-xs">
                       {s.notes && (
                         <div>
