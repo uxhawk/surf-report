@@ -270,6 +270,7 @@ export default function Dashboard() {
                     lastSession.water_temp_c != null
                       ? `${Math.round((lastSession.water_temp_c * 9) / 5 + 32)}°F`
                       : null,
+                    lastSession.location?.name ?? null,
                   ]
                     .filter(Boolean)
                     .join(" · ")
