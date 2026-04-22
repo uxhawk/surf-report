@@ -2,15 +2,31 @@ import { useState } from 'react'
 import { ChevronDown } from 'pixelarticons/react/ChevronDown.js'
 import { ChevronUp } from 'pixelarticons/react/ChevronUp.js'
 import { Settings2 } from 'pixelarticons/react/Settings2.js'
+import { ZapOff } from 'pixelarticons/react/ZapOff.js'
 import { MONTHS } from '../../lib/constants'
 import { Button } from '../ui/Button'
 
 export function FilterBar({ filters, onChange, locations, boards, fins }) {
   const [open, setOpen] = useState(false)
   const years = [2026, 2025]
+  const hasSecondaryFilters =
+    filters.month !== '' ||
+    filters.locationId !== '' ||
+    filters.boardId !== '' ||
+    filters.finsId !== ''
 
   function set(key, value) {
     onChange({ ...filters, [key]: value })
+  }
+
+  function clearSecondaryFilters() {
+    onChange({
+      ...filters,
+      month: '',
+      locationId: '',
+      boardId: '',
+      finsId: '',
+    })
   }
 
   return (
@@ -36,9 +52,16 @@ export function FilterBar({ filters, onChange, locations, boards, fins }) {
 
       <div className="flex items-center justify-between px-4 py-2">
         <p className="flex items-center gap-1.5 text-retro-muted text-xs font-display uppercase"><Settings2 className="w-4 h-4" /> Filter</p>
-        <Button size="sm" variant="ghost" onClick={() => setOpen(prev => !prev)}>
-          {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-        </Button>
+        <div className="flex items-center gap-1.5">
+          {hasSecondaryFilters && (
+            <Button type="button" size="sm" variant="ghost" onClick={clearSecondaryFilters}>
+              <ZapOff className="w-4 h-4" /> Clear filters
+            </Button>
+          )}
+          <Button size="sm" variant="ghost" onClick={() => setOpen(prev => !prev)} aria-expanded={open} aria-label={open ? 'Collapse filters' : 'Expand filters'}>
+            {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </Button>
+        </div>
       </div>
 
       <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
