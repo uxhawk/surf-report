@@ -11,6 +11,7 @@ import { useToast } from '../components/ui/Toast'
 import { SegmentedControl } from '../components/ui/SegmentedControl'
 import { PhotoUpload } from '../components/ui/PhotoUpload'
 import { KebabMenu } from '../components/ui/KebabMenu'
+import { ExpandableDescription } from '../components/ui/ExpandableDescription'
 import { PlusBox } from 'pixelarticons/react/PlusBox.js'
 import { Database } from 'pixelarticons/react/Database.js'
 import { Send } from 'pixelarticons/react/Send.js'
@@ -369,7 +370,7 @@ export default function LocationsPage() {
                 <p className="text-retro-muted/60 text-[10px]">📍 {location.latitude.toFixed(4)}°, {location.longitude.toFixed(4)}°</p>
               )}
               {location.description && (
-                <p className="text-retro-muted text-xs">{location.description}</p>
+                <ExpandableDescription text={location.description} />
               )}
             </div>
             </div>

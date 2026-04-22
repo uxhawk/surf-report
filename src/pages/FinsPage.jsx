@@ -11,6 +11,7 @@ import { PhotoUpload } from '../components/ui/PhotoUpload'
 import { useToast } from '../components/ui/Toast'
 import { SegmentedControl } from '../components/ui/SegmentedControl'
 import { KebabMenu } from '../components/ui/KebabMenu'
+import { ExpandableDescription } from '../components/ui/ExpandableDescription'
 import { PlusBox } from 'pixelarticons/react/PlusBox.js'
 import { Database } from 'pixelarticons/react/Database.js'
 import { Send } from 'pixelarticons/react/Send.js'
@@ -253,7 +254,7 @@ export default function FinsPage() {
                   <KebabMenu onEdit={() => openEdit(fin)} onDelete={() => { setDeletingId(fin.id); setDeleteError(null) }} />
                 </div>
                 {fin.description && (
-                  <p className="text-retro-muted text-xs">{fin.description}</p>
+                  <ExpandableDescription text={fin.description} />
                 )}
               </div>
             </div>

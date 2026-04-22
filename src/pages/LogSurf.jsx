@@ -105,15 +105,32 @@ export default function LogSurf() {
     return activeFins.filter(f => board.fin_configurations.includes(f.setup))
   }, [form.board_id, activeBoards, activeFins])
 
+  const LOCATION_BOARD_DEFAULTS = {
+    'san onofre': 'rad nose rider',
+  }
+
+  function applyBoardDefault(next, boardId) {
+    const board = activeBoards.find(b => b.id === boardId)
+    const matching = board?.fin_configurations?.length
+      ? activeFins.filter(f => board.fin_configurations.includes(f.setup))
+      : activeFins
+    next.board_id = boardId
+    next.fins_id = matching.length === 1 ? matching[0].id : ''
+  }
+
   function set(field, value) {
     setForm(prev => {
       const next = { ...prev, [field]: value }
+      if (field === 'location_id') {
+        const loc = activeLocations.find(l => l.id === value)
+        const defaultModel = loc && LOCATION_BOARD_DEFAULTS[loc.name.toLowerCase()]
+        if (defaultModel) {
+          const board = activeBoards.find(b => b.model.toLowerCase() === defaultModel)
+          if (board) applyBoardDefault(next, board.id)
+        }
+      }
       if (field === 'board_id') {
-        const board = activeBoards.find(b => b.id === value)
-        const matching = board?.fin_configurations?.length
-          ? activeFins.filter(f => board.fin_configurations.includes(f.setup))
-          : activeFins
-        next.fins_id = matching.length === 1 ? matching[0].id : ''
+        applyBoardDefault(next, value)
       }
       return next
     })

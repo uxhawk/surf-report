@@ -11,6 +11,7 @@ import { PhotoUpload } from '../components/ui/PhotoUpload'
 import { useToast } from '../components/ui/Toast'
 import { SegmentedControl } from '../components/ui/SegmentedControl'
 import { KebabMenu } from '../components/ui/KebabMenu'
+import { ExpandableDescription } from '../components/ui/ExpandableDescription'
 import { PlusBox } from 'pixelarticons/react/PlusBox.js'
 import { Database } from 'pixelarticons/react/Database.js'
 import { Send } from 'pixelarticons/react/Send.js'
@@ -76,7 +77,7 @@ function BoardCard({ board, onEdit, onDelete, onMetrics }) {
           <KebabMenu onEdit={() => onEdit(board)} onDelete={() => onDelete(board.id)} />
         </div>
         {board.description && (
-          <p className="text-retro-muted text-xs">{board.description}</p>
+          <ExpandableDescription text={board.description} />
         )}
       </div>
     </div>
