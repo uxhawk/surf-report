@@ -68,6 +68,43 @@ export default function Dashboard() {
   }, [sessions, filters.year]);
 
   const stats = useMemo(() => computeDashboardStats(filtered), [filtered]);
+
+  const surfRate = useMemo(() => {
+    const uniqueDays = new Set(filtered.map((s) => s.date)).size;
+    if (!uniqueDays) return null;
+
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const selectedYear = filters.year ? Number(filters.year) : null;
+    const selectedMonth = filters.month ? Number(filters.month) : null;
+
+    let totalDays;
+    if (selectedYear && selectedMonth) {
+      const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+      if (selectedYear === currentYear && selectedMonth === now.getMonth() + 1) {
+        totalDays = now.getDate();
+      } else {
+        totalDays = daysInMonth;
+      }
+    } else if (selectedYear) {
+      if (selectedYear === currentYear) {
+        const startOfYear = new Date(currentYear, 0, 1);
+        totalDays = Math.floor((now - startOfYear) / 86_400_000) + 1;
+      } else {
+        const isLeap = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+        totalDays = isLeap(selectedYear) ? 366 : 365;
+      }
+    } else {
+      const dates = filtered.map((s) => parseLocalDate(s.date));
+      const earliest = new Date(Math.min(...dates));
+      const startOfDay = new Date(earliest.getFullYear(), earliest.getMonth(), earliest.getDate());
+      totalDays = Math.floor((now - startOfDay) / 86_400_000) + 1;
+    }
+
+    const pct = Math.round((uniqueDays / totalDays) * 100);
+    return `${pct}% · ${totalDays} days`;
+  }, [filtered, filters.year, filters.month]);
+
   const streak = useMemo(() => calculateStreak(sessions), [sessions]);
   const longestStreak = useMemo(
     () => calculateLongestStreak(yearFiltered),
@@ -201,6 +238,7 @@ export default function Dashboard() {
           <StatCard
             label="Total Surfs"
             value={stats.total}
+            subtitle={surfRate}
             color="neon-pink"
             icon={Bookmark}
           />
