@@ -109,3 +109,7 @@ create policy "Users delete own sessions" on sessions for delete using (auth.uid
 -- create policy "Public gear photos" on storage.objects
 --   for all using (bucket_id = 'gear-photos')
 --   with check (bucket_id = 'gear-photos');
+
+-- Default gear (optional): run after fins + boards tables exist.
+alter table boards add column if not exists default_fins_id uuid references fins(id) on delete set null;
+alter table locations add column if not exists default_board_id uuid references boards(id) on delete set null;

@@ -1,6 +1,7 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLocations } from '../hooks/useLocations'
+import { useBoards } from '../hooks/useBoards'
 import { geocodeLocation } from '../lib/openmeteo'
 import { FormField } from '../components/ui/FormField'
 import { Button } from '../components/ui/Button'
@@ -22,7 +23,7 @@ import { AArrowUp } from 'pixelarticons/react/AArrowUp.js'
 import { AArrowDown } from 'pixelarticons/react/AArrowDown.js'
 import { LOCATION_TYPES, LOCATION_TYPE_COLORS } from '../lib/constants'
 
-const EMPTY_FORM = { name: '', description: '', types: [], picture_url: '', archived: false, latitude: null, longitude: null }
+const EMPTY_FORM = { name: '', description: '', types: [], default_board_id: '', picture_url: '', archived: false, latitude: null, longitude: null }
 
 function validate(form) {
   const errors = {}
@@ -34,6 +35,7 @@ export default function LocationsPage() {
   const navigate = useNavigate()
   const showToast = useToast()
   const { locations, loading, createLocation, updateLocation, deleteLocation } = useLocations()
+  const { boards, loading: boardsLoading } = useBoards()
 
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -116,7 +118,7 @@ export default function LocationsPage() {
 
   function openEdit(location) {
     setEditingId(location.id)
-    setForm({ name: location.name, description: location.description ?? '', types: location.types ?? [], picture_url: location.picture_url ?? '', archived: location.archived ?? false, latitude: location.latitude ?? null, longitude: location.longitude ?? null })
+    setForm({ name: location.name, description: location.description ?? '', types: location.types ?? [], default_board_id: location.default_board_id ?? '', picture_url: location.picture_url ?? '', archived: location.archived ?? false, latitude: location.latitude ?? null, longitude: location.longitude ?? null })
     setErrors({})
     setSaveError(null)
     resetGeoState()
@@ -153,7 +155,7 @@ export default function LocationsPage() {
     setSaving(true)
     setSaveError(null)
 
-    const payload = { name: form.name.trim(), description: form.description.trim() || null, types: form.types, picture_url: form.picture_url || null, archived: form.archived, latitude: form.latitude, longitude: form.longitude }
+    const payload = { name: form.name.trim(), description: form.description.trim() || null, types: form.types, default_board_id: form.default_board_id || null, picture_url: form.picture_url || null, archived: form.archived, latitude: form.latitude, longitude: form.longitude }
     const { error } = editingId
       ? await updateLocation(editingId, payload)
       : await createLocation(payload)
@@ -172,7 +174,12 @@ export default function LocationsPage() {
     setDeletingId(null)
   }
 
-  if (loading) return <Spinner />
+  const activeBoardsSorted = useMemo(
+    () => boards.filter(b => !b.archived).sort((a, b) => `${a.brand} ${a.model}`.localeCompare(`${b.brand} ${b.model}`)),
+    [boards],
+  )
+
+  if (loading || boardsLoading) return <Spinner />
 
   const deletingLocation = locations.find(l => l.id === deletingId)
   const visible = locations
@@ -285,6 +292,18 @@ export default function LocationsPage() {
             />
           </FormField>
 
+          <FormField
+            label="Default board"
+            hint="When you log a session at this spot, board and fins fill from this board (and its default fins, if set)."
+          >
+            <select value={form.default_board_id} onChange={e => set('default_board_id', e.target.value)}>
+              <option value="">None</option>
+              {activeBoardsSorted.map(b => (
+                <option key={b.id} value={b.id}>{b.brand} {b.model}</option>
+              ))}
+            </select>
+          </FormField>
+
           <FormField label="Type">
             <div className="flex flex-wrap gap-3 pt-1">
               {LOCATION_TYPES.map(type => (
@@ -339,7 +358,11 @@ export default function LocationsPage() {
         />
       ) : (
         <div className="flex flex-col gap-3">
-          {visible.map(location => (
+          {visible.map(location => {
+            const defaultBoard = location.default_board_id
+              ? boards.find(b => b.id === location.default_board_id)
+              : null
+            return (
             <div key={location.id} className="gradient-border rounded-xl bg-retro-surface overflow-hidden">
               {location.picture_url && (
                 <img
@@ -369,12 +392,18 @@ export default function LocationsPage() {
               {location.latitude != null && location.longitude != null && (
                 <p className="text-retro-muted/60 text-[10px]">📍 {location.latitude.toFixed(4)}°, {location.longitude.toFixed(4)}°</p>
               )}
+              {defaultBoard && (
+                <p className="text-retro-muted/80 text-[10px]">
+                  Default board: {defaultBoard.brand} {defaultBoard.model}
+                </p>
+              )}
               {location.description && (
                 <ExpandableDescription text={location.description} />
               )}
             </div>
             </div>
-          ))}
+            )
+          })}
         </div>
       )}
 

@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useBoards } from '../hooks/useBoards'
+import { useFins } from '../hooks/useFins'
 import { FIN_CONFIGS } from '../lib/constants'
 import { FormField } from '../components/ui/FormField'
 import { Button } from '../components/ui/Button'
@@ -29,7 +30,7 @@ function formatBoardLength(inches) {
 
 const EMPTY_FORM = {
   brand: '', model: '', length_inches: '', volume: '',
-  description: '', fin_configurations: [], picture_url: '', archived: false,
+  description: '', fin_configurations: [], default_fins_id: '', picture_url: '', archived: false,
 }
 
 function validate(form) {
@@ -42,7 +43,8 @@ function validate(form) {
   return errors
 }
 
-function BoardCard({ board, onEdit, onDelete, onMetrics }) {
+function BoardCard({ board, fins, onEdit, onDelete, onMetrics }) {
+  const defaultFin = board.default_fins_id ? fins.find(f => f.id === board.default_fins_id) : null
   return (
     <div className="gradient-border rounded-xl bg-retro-surface overflow-hidden">
       {board.picture_url && (
@@ -79,6 +81,11 @@ function BoardCard({ board, onEdit, onDelete, onMetrics }) {
         {board.description && (
           <ExpandableDescription text={board.description} />
         )}
+        {defaultFin && (
+          <p className="text-retro-muted/80 text-[10px]">
+            Default fins: {defaultFin.brand} {defaultFin.model} ({defaultFin.setup})
+          </p>
+        )}
       </div>
     </div>
   )
@@ -88,6 +95,7 @@ export default function BoardsPage() {
   const navigate = useNavigate()
   const showToast = useToast()
   const { boards, loading, createBoard, updateBoard, deleteBoard } = useBoards()
+  const { fins, loading: finsLoading } = useFins()
 
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -117,6 +125,7 @@ export default function BoardsPage() {
       volume: board.volume != null ? String(board.volume) : '',
       description: board.description ?? '',
       fin_configurations: board.fin_configurations ?? [],
+      default_fins_id: board.default_fins_id ?? '',
       picture_url: board.picture_url ?? '',
       archived: board.archived ?? false,
     })
@@ -138,12 +147,24 @@ export default function BoardsPage() {
     if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }))
   }
 
+  const activeFins = useMemo(() => fins.filter(f => !f.archived), [fins])
+
+  const defaultFinOptions = useMemo(() => {
+    if (!form.fin_configurations?.length) return activeFins
+    return activeFins.filter(f => form.fin_configurations.includes(f.setup))
+  }, [form.fin_configurations, activeFins])
+
   function toggleFinConfig(config) {
     setForm(prev => {
       const configs = prev.fin_configurations.includes(config)
         ? prev.fin_configurations.filter(c => c !== config)
         : [...prev.fin_configurations, config]
-      return { ...prev, fin_configurations: configs }
+      const matching = configs.length
+        ? activeFins.filter(f => configs.includes(f.setup))
+        : activeFins
+      let default_fins_id = prev.default_fins_id
+      if (default_fins_id && !matching.some(f => f.id === default_fins_id)) default_fins_id = ''
+      return { ...prev, fin_configurations: configs, default_fins_id }
     })
     if (errors.fin_configurations) setErrors(prev => ({ ...prev, fin_configurations: undefined }))
   }
@@ -156,6 +177,12 @@ export default function BoardsPage() {
     setSaving(true)
     setSaveError(null)
 
+    const defaultFinsPayload = (() => {
+      const id = form.default_fins_id || null
+      if (!id) return null
+      return defaultFinOptions.some(f => f.id === id) ? id : null
+    })()
+
     const payload = {
       brand: form.brand.trim(),
       model: form.model.trim(),
@@ -163,6 +190,7 @@ export default function BoardsPage() {
       volume: form.volume ? Number(form.volume) : null,
       description: form.description.trim() || null,
       fin_configurations: form.fin_configurations,
+      default_fins_id: defaultFinsPayload,
       picture_url: form.picture_url || null,
       archived: form.archived,
     }
@@ -185,7 +213,7 @@ export default function BoardsPage() {
     setDeletingId(null)
   }
 
-  if (loading) return <Spinner />
+  if (loading || finsLoading) return <Spinner />
 
   const deletingBoard = boards.find(b => b.id === deletingId)
   const visible = boards
@@ -261,6 +289,21 @@ export default function BoardsPage() {
             </div>
           </FormField>
 
+          <FormField
+            label="Default fins"
+            hint="Optional. Only active fins that match the fin setups above. Used when you pick this board while logging a session."
+          >
+            <select
+              value={defaultFinOptions.some(f => f.id === form.default_fins_id) ? form.default_fins_id : ''}
+              onChange={e => set('default_fins_id', e.target.value)}
+            >
+              <option value="">None</option>
+              {defaultFinOptions.map(f => (
+                <option key={f.id} value={f.id}>{f.brand} {f.model} ({f.setup})</option>
+              ))}
+            </select>
+          </FormField>
+
           <FormField label="Description">
             <textarea value={form.description} onChange={e => set('description', e.target.value)} placeholder="Any notes about this board…" rows={2} />
           </FormField>
@@ -305,6 +348,7 @@ export default function BoardsPage() {
             <BoardCard
               key={board.id}
               board={board}
+              fins={fins}
               onEdit={openEdit}
               onDelete={(id) => { setDeletingId(id); setDeleteError(null) }}
               onMetrics={b => navigate(`/profile/boards/${b.id}/metrics`, { state: { name: `${b.brand} ${b.model}` } })}

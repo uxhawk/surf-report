@@ -25,6 +25,48 @@ function validate(form) {
   return errors
 }
 
+const LOCATION_BOARD_DEFAULTS = {
+  'san onofre': 'rad nose rider',
+}
+
+function applyBoardDefaultToForm(next, boardId, activeBoards, activeFins) {
+  const board = activeBoards.find(b => b.id === boardId)
+  if (!board) {
+    next.board_id = boardId
+    next.fins_id = ''
+    return
+  }
+  const matching = board.fin_configurations?.length
+    ? activeFins.filter(f => board.fin_configurations.includes(f.setup))
+    : activeFins
+  next.board_id = boardId
+  const defId = board.default_fins_id
+  if (defId && matching.some(f => f.id === defId)) {
+    next.fins_id = defId
+  } else {
+    next.fins_id = matching.length === 1 ? matching[0].id : ''
+  }
+}
+
+function applyLocationGearDefaults(loc, next, activeBoards, activeFins) {
+  if (!loc) return
+  let applied = false
+  if (loc.default_board_id) {
+    const board = activeBoards.find(b => b.id === loc.default_board_id)
+    if (board) {
+      applyBoardDefaultToForm(next, board.id, activeBoards, activeFins)
+      applied = true
+    }
+  }
+  if (!applied) {
+    const defaultModel = LOCATION_BOARD_DEFAULTS[loc.name.toLowerCase()]
+    if (defaultModel) {
+      const board = activeBoards.find(b => b.model.toLowerCase() === defaultModel)
+      if (board) applyBoardDefaultToForm(next, board.id, activeBoards, activeFins)
+    }
+  }
+}
+
 export default function LogSurf() {
   const navigate = useNavigate()
   const showToast = useToast()
@@ -52,12 +94,20 @@ export default function LogSurf() {
   const [swellError, setSwellError] = useState(null)
 
   const activeLocations = useMemo(() => locations.filter(l => !l.archived), [locations])
+  const activeBoards = useMemo(() => boards.filter(b => !b.archived), [boards])
+  const activeFins = useMemo(() => fins.filter(f => !f.archived), [fins])
 
   useEffect(() => {
     if (!activeLocations.length || form.location_id) return
     const oceanside = activeLocations.find(l => l.name.toLowerCase() === 'oceanside')
-    if (oceanside) setForm(prev => ({ ...prev, location_id: oceanside.id }))
-  }, [activeLocations])
+    if (!oceanside) return
+    setForm(prev => {
+      if (prev.location_id) return prev
+      const next = { ...prev, location_id: oceanside.id }
+      applyLocationGearDefaults(oceanside, next, activeBoards, activeFins)
+      return next
+    })
+  }, [activeLocations, activeBoards, activeFins, form.location_id])
 
   useEffect(() => {
     if (!form.date || !form.location_id) return
@@ -95,8 +145,6 @@ export default function LogSurf() {
 
     return () => { cancelled = true }
   }, [form.date, form.location_id, locations])
-  const activeBoards = useMemo(() => boards.filter(b => !b.archived), [boards])
-  const activeFins = useMemo(() => fins.filter(f => !f.archived), [fins])
 
   // Filter fins to match the selected board's fin configurations
   const availableFins = useMemo(() => {
@@ -105,32 +153,15 @@ export default function LogSurf() {
     return activeFins.filter(f => board.fin_configurations.includes(f.setup))
   }, [form.board_id, activeBoards, activeFins])
 
-  const LOCATION_BOARD_DEFAULTS = {
-    'san onofre': 'rad nose rider',
-  }
-
-  function applyBoardDefault(next, boardId) {
-    const board = activeBoards.find(b => b.id === boardId)
-    const matching = board?.fin_configurations?.length
-      ? activeFins.filter(f => board.fin_configurations.includes(f.setup))
-      : activeFins
-    next.board_id = boardId
-    next.fins_id = matching.length === 1 ? matching[0].id : ''
-  }
-
   function set(field, value) {
     setForm(prev => {
       const next = { ...prev, [field]: value }
       if (field === 'location_id') {
         const loc = activeLocations.find(l => l.id === value)
-        const defaultModel = loc && LOCATION_BOARD_DEFAULTS[loc.name.toLowerCase()]
-        if (defaultModel) {
-          const board = activeBoards.find(b => b.model.toLowerCase() === defaultModel)
-          if (board) applyBoardDefault(next, board.id)
-        }
+        applyLocationGearDefaults(loc, next, activeBoards, activeFins)
       }
       if (field === 'board_id') {
-        applyBoardDefault(next, value)
+        applyBoardDefaultToForm(next, value, activeBoards, activeFins)
       }
       return next
     })
