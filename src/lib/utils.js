@@ -1,4 +1,5 @@
 import { DAYS_OF_WEEK, MONTHS } from './constants'
+import { degreesToCompass } from './openmeteo'
 
 const YEAR_COLORS = ['#00CFFF', '#FF2D78', '#FFE600', '#BF00FF']
 
@@ -67,6 +68,34 @@ export function formatTimeSince(dateStr) {
   if (parts.length === 1) return parts[0]
   if (parts.length === 2) return `${parts[0]} and ${parts[1]}`
   return `${parts.slice(0, -1).join(', ')}, and ${parts[parts.length - 1]}`
+}
+
+/**
+ * Subtitle for “last surf” cards: time, swell, period, compass, °F, then optional tail.
+ * @param {{ omitLocation?: boolean, appendBoard?: boolean }} [options] — `omitLocation`: drop spot name (e.g. location metrics). `appendBoard`: add brand/model (after location when shown; alone on location metrics).
+ */
+export function formatLastSurfSessionSubtitle(session, dateStr, options = {}) {
+  if (!session || !dateStr) return ''
+  const { omitLocation = false, appendBoard = false } = options
+  const relative = formatTimeSince(dateStr)
+  const core = [
+    relative === 'Today' ? 'Today' : `${relative} ago`,
+    session.swell_height != null ? `${session.swell_height}ft` : null,
+    session.swell_period != null ? `${session.swell_period}s` : null,
+    session.swell_direction != null ? degreesToCompass(session.swell_direction) : null,
+    session.water_temp_c != null
+      ? `${Math.round((session.water_temp_c * 9) / 5 + 32)}°F`
+      : null,
+  ].filter(Boolean)
+
+  const tail = []
+  if (!omitLocation && session.location?.name) tail.push(session.location.name)
+  if (appendBoard && session.board) {
+    const boardLabel = `${session.board.brand ?? ''} ${session.board.model ?? ''}`.trim()
+    if (boardLabel) tail.push(boardLabel)
+  }
+
+  return [...core, ...tail].filter(Boolean).join(' · ')
 }
 
 export function formatShortDate(dateStr) {

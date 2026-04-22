@@ -11,11 +11,10 @@ import {
   calculateStreak,
   calculateLongestStreak,
   formatDate,
-  formatTimeSince,
   parseLocalDate,
   formatMonthDay,
+  formatLastSurfSessionSubtitle,
 } from "../lib/utils";
-import { degreesToCompass } from "../lib/openmeteo";
 import { StatCard } from "../components/dashboard/StatCard";
 import { SurfChart } from "../components/dashboard/SurfChart";
 import { FilterBar } from "../components/dashboard/FilterBar";
@@ -252,30 +251,7 @@ export default function Dashboard() {
           <StatCard
             label="Last Surf"
             value={lastSurf ? formatMonthDay(lastSurf) : "—"}
-            subtitle={
-              lastSession
-                ? [
-                    formatTimeSince(lastSurf) === "Today"
-                      ? "Today"
-                      : `${formatTimeSince(lastSurf)} ago`,
-                    lastSession.swell_height != null
-                      ? `${lastSession.swell_height}ft`
-                      : null,
-                    lastSession.swell_period != null
-                      ? `${lastSession.swell_period}s`
-                      : null,
-                    lastSession.swell_direction != null
-                      ? degreesToCompass(lastSession.swell_direction)
-                      : null,
-                    lastSession.water_temp_c != null
-                      ? `${Math.round((lastSession.water_temp_c * 9) / 5 + 32)}°F`
-                      : null,
-                    lastSession.location?.name ?? null,
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")
-                : ""
-            }
+            subtitle={formatLastSurfSessionSubtitle(lastSession, lastSurf, { appendBoard: true })}
             color="neon-purple"
             icon={Calendar2}
           />

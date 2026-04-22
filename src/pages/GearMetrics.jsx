@@ -4,7 +4,7 @@ import { useSessions } from '../hooks/useSessions'
 import { useBoards } from '../hooks/useBoards'
 import { useFins } from '../hooks/useFins'
 import { useLocations } from '../hooks/useLocations'
-import { computeDashboardStats, computeWaterTempByMonth, parseLocalDate, formatDate, formatTimeSince } from '../lib/utils'
+import { computeDashboardStats, computeWaterTempByMonth, parseLocalDate, formatDate, formatMonthDay, formatLastSurfSessionSubtitle } from '../lib/utils'
 import { SurfChart } from '../components/dashboard/SurfChart'
 import { StatCard } from '../components/dashboard/StatCard'
 import { Spinner } from '../components/ui/Spinner'
@@ -75,7 +75,8 @@ export default function GearMetrics({ type }) {
     }
     return waterTempByMonth
   }, [waterTempByMonth, year])
-  const lastSurf = filtered[0]?.date
+  const lastSession = filtered[0]
+  const lastSurf = lastSession?.date
 
   const name = useMemo(() => {
     if (itemName) return itemName
@@ -156,8 +157,11 @@ export default function GearMetrics({ type }) {
           )}
           <StatCard
             label="Last Surf"
-            value={lastSurf ? formatDate(lastSurf) : '—'}
-            subtitle={lastSurf ? (formatTimeSince(lastSurf) === 'Today' ? 'Today' : `${formatTimeSince(lastSurf)} ago`) : ''}
+            value={lastSurf ? formatMonthDay(lastSurf) : '—'}
+            subtitle={formatLastSurfSessionSubtitle(lastSession, lastSurf, {
+              omitLocation: type === 'location',
+              appendBoard: type === 'fin' || type === 'location',
+            })}
             color="neon-purple"
             icon={Calendar2}
           />
@@ -168,14 +172,22 @@ export default function GearMetrics({ type }) {
             <StatCard
               label="Warmest"
               value={`${tempExtremes.max.temp}°F`}
-              subtitle={[formatDate(tempExtremes.max.date), tempExtremes.max.location].filter(Boolean).join(' · ')}
+              subtitle={
+                type === 'location'
+                  ? formatDate(tempExtremes.max.date)
+                  : [formatDate(tempExtremes.max.date), tempExtremes.max.location].filter(Boolean).join(' · ')
+              }
               color="neon-pink"
               icon={Thermometer}
             />
             <StatCard
               label="Coldest"
               value={`${tempExtremes.min.temp}°F`}
-              subtitle={[formatDate(tempExtremes.min.date), tempExtremes.min.location].filter(Boolean).join(' · ')}
+              subtitle={
+                type === 'location'
+                  ? formatDate(tempExtremes.min.date)
+                  : [formatDate(tempExtremes.min.date), tempExtremes.min.location].filter(Boolean).join(' · ')
+              }
               color="neon-cyan"
               icon={Sparkle}
             />
