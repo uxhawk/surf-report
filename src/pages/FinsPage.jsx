@@ -245,7 +245,7 @@ export default function FinsPage() {
                   <p className="text-white font-display text-[10px]">
                     {fin.brand} {fin.model}
                   </p>
-                  <Button size="sm" variant="ghost" onClick={() => navigate(`/profile/fins/${fin.id}/metrics`, { state: { name: `${fin.brand} ${fin.model} · ${fin.setup}` } })}><Database className="w-4 h-4" /> View Metrics</Button>
+                  <Button size="sm" variant="ghost" onClick={() => navigate(`/quiver/fins/${fin.id}/metrics`, { state: { name: `${fin.brand} ${fin.model} · ${fin.setup}` } })}><Database className="w-4 h-4" /> View Metrics</Button>
                 </div>
                 <div className="flex items-center justify-between gap-2">
                   <span className={`text-[9px] font-display border rounded px-1.5 py-0.5 ${SETUP_COLORS[fin.setup] ?? 'text-retro-muted border-retro-border'}`}>

@@ -1,18 +1,16 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 
 const TABS = [
-  { to: '/profile/locations', label: 'Locations' },
-  { to: '/profile/boards', label: 'Boards' },
-  { to: '/profile/fins', label: 'Fins' },
+  { to: '/quiver/boards', label: 'Boards' },
+  { to: '/quiver/fins', label: 'Fins' },
 ]
 
-export default function GearLayout() {
+export default function QuiverLayout() {
   const location = useLocation()
 
   return (
     <div>
-      {/* Gear sub-tabs */}
-      <nav className="flex border-b border-retro-border bg-retro-surface" aria-label="Gear sections">
+      <nav className="flex border-b border-retro-border bg-retro-surface" aria-label="Quiver sections">
         {TABS.map(tab => {
           const active = location.pathname === tab.to
           return (

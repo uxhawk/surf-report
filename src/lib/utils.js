@@ -76,14 +76,14 @@ export function formatTimeSince(dateStr) {
  */
 export function formatLastSurfSessionSubtitle(session, dateStr, options = {}) {
   if (!session || !dateStr) return ''
-  const { omitLocation = false, appendBoard = false } = options
+  const { omitLocation = false, appendBoard = false, compact = false } = options
   const relative = formatTimeSince(dateStr)
   const core = [
     relative === 'Today' ? 'Today' : `${relative} ago`,
     session.swell_height != null ? `${session.swell_height}ft` : null,
-    session.swell_period != null ? `${session.swell_period}s` : null,
-    session.swell_direction != null ? degreesToCompass(session.swell_direction) : null,
-    session.water_temp_c != null
+    !compact && session.swell_period != null ? `${session.swell_period}s` : null,
+    !compact && session.swell_direction != null ? degreesToCompass(session.swell_direction) : null,
+    !compact && session.water_temp_c != null
       ? `${Math.round((session.water_temp_c * 9) / 5 + 32)}°F`
       : null,
   ].filter(Boolean)

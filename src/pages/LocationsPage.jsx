@@ -198,7 +198,7 @@ export default function LocationsPage() {
           <Button size="sm" variant="ghost" onClick={() => setSortAsc(prev => !prev)}>
             {sortAsc ? <AArrowUp className="w-4 h-4" /> : <AArrowDown className="w-4 h-4" />}
           </Button>
-          <Button size="sm" onClick={openAdd}><PlusBox className="w-4 h-4" /> Add Location</Button>
+          <Button size="sm" onClick={openAdd}><PlusBox className="w-4 h-4" /> Add Spot</Button>
         </div>
       </div>
 
@@ -343,7 +343,7 @@ export default function LocationsPage() {
           <div className="flex gap-3">
             <Button type="button" variant="ghost" className="flex-1" onClick={closeForm}><Angry className="w-4 h-4" /> Cancel</Button>
             <Button type="submit" variant="primary" className="flex-1" disabled={saving}>
-              {saving ? 'Saving…' : <><Send className="w-4 h-4" /> {editingId ? 'Save' : 'Add Location'}</>}
+              {saving ? 'Saving…' : <><Send className="w-4 h-4" /> {editingId ? 'Save' : 'Add Spot'}</>}
             </Button>
           </div>
         </form>
@@ -374,7 +374,7 @@ export default function LocationsPage() {
             <div className="p-4 flex flex-col gap-2">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-white font-display text-[10px]">{location.name}</p>
-                <Button size="sm" variant="ghost" onClick={() => navigate(`/profile/locations/${location.id}/metrics`, { state: { name: location.name } })}><Database className="w-4 h-4" /> View Metrics</Button>
+                <Button size="sm" variant="ghost" onClick={() => navigate(`/spots/${location.id}/metrics`, { state: { name: location.name } })}><Database className="w-4 h-4" /> View Metrics</Button>
               </div>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex flex-wrap gap-1">
