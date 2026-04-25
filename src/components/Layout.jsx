@@ -27,16 +27,11 @@ function showsBackButton(pathname) {
   return pathname.startsWith("/sessions/") || pathname.includes("/metrics");
 }
 
-function isMetricsPage(pathname) {
-  return pathname.includes("/metrics");
-}
-
 export default function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const title = getTitle(location.pathname, location.state);
   const hasBack = showsBackButton(location.pathname);
-  const hideNav = isMetricsPage(location.pathname);
 
   return (
     <div className="min-h-dvh bg-retro-bg flex flex-col max-w-2xl mx-auto">
@@ -53,14 +48,12 @@ export default function Layout({ children }) {
       </header>
 
       {/* Page content */}
-      <main className={`flex-1 ${hideNav ? "" : "pb-20"}`}>{children}</main>
+      <main className="flex-1 pb-20">{children}</main>
 
       {/* Sticky bottom nav */}
-      {!hideNav && (
-        <div className="sticky bottom-0 z-40">
-          <BottomNav />
-        </div>
-      )}
+      <div className="sticky bottom-0 z-40">
+        <BottomNav />
+      </div>
     </div>
   );
 }
