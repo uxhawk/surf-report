@@ -39,6 +39,20 @@ VITE_SUPABASE_URL=https://your-project-id.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
+### Supabase redirect URLs (local dev, phone on LAN)
+
+After auth (Google OAuth, sign-up email, password reset), Supabase only redirects to URLs on your project’s **Redirect URLs** list. If the requested URL is not allowed, the user is sent to the **Site URL** (often your live GitHub Pages app).
+
+1. In Supabase: **Authentication** → **URL Configuration**.
+2. Under **Redirect URLs**, add at least:
+   - `http://localhost:5173/**` and `http://127.0.0.1:5173/**` (path must match your Vite `base` in `vite.config.js`, e.g. `http://localhost:5173/surf-report/**` if the app is under `/surf-report/`).
+3. For a **phone on the same Wi‑Fi**, add your computer’s URL explicitly, e.g. `http://192.168.1.20:5173/surf-report/**` (use your real LAN IP and repo `base` path). Raw LAN IPs are easy to miss in the list; that is the usual reason you get kicked to production.
+4. If you still have trouble, use a hostname instead of a raw IP: e.g. [nip.io](https://nip.io) `http://192-168-1-20.nip.io:5173/surf-report/` and add that pattern to **Redirect URLs**, then in `.env.local` set:
+   ```
+   VITE_AUTH_REDIRECT_TO=http://192-168-1-20.nip.io:5173/surf-report
+   ```
+   Open the app on the phone with that same host in the address bar (not the numeric IP).
+
 ## 6. Run Locally
 
 ```bash

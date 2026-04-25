@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+import { getAuthRedirectBaseUrl } from '../lib/authRedirect'
 import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext(null)
@@ -31,7 +32,7 @@ export function AuthProvider({ children }) {
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin + window.location.pathname,
+        emailRedirectTo: getAuthRedirectBaseUrl(),
       },
     })
     return { data, error }
@@ -41,7 +42,7 @@ export function AuthProvider({ children }) {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin + window.location.pathname,
+        redirectTo: getAuthRedirectBaseUrl(),
       },
     })
     return { data, error }
@@ -49,7 +50,7 @@ export function AuthProvider({ children }) {
 
   async function resetPassword(email) {
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + window.location.pathname + '#/reset-password',
+      redirectTo: `${getAuthRedirectBaseUrl().replace(/\/$/, '')}/#/reset-password`,
     })
     return { data, error }
   }
