@@ -351,7 +351,7 @@ export default function BoardsPage() {
               fins={fins}
               onEdit={openEdit}
               onDelete={(id) => { setDeletingId(id); setDeleteError(null) }}
-              onMetrics={b => navigate(`/profile/boards/${b.id}/metrics`, { state: { name: `${b.brand} ${b.model}` } })}
+              onMetrics={b => navigate(`/quiver/boards/${b.id}/metrics`, { state: { name: `${b.brand} ${b.model}` } })}
             />
           ))}
         </div>

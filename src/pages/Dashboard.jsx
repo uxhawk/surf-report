@@ -178,7 +178,7 @@ export default function Dashboard() {
     (entry) => {
       const board = boards.find((b) => `${b.brand} ${b.model}` === entry.name);
       if (board)
-        navigate(`/profile/boards/${board.id}/metrics`, {
+        navigate(`/quiver/boards/${board.id}/metrics`, {
           state: { name: `${board.brand} ${board.model}` },
         });
     },
@@ -191,7 +191,7 @@ export default function Dashboard() {
         (f) => `${f.brand} ${f.model} ${f.setup}` === entry.name,
       );
       if (fin)
-        navigate(`/profile/fins/${fin.id}/metrics`, {
+        navigate(`/quiver/fins/${fin.id}/metrics`, {
           state: { name: `${fin.brand} ${fin.model} · ${fin.setup}` },
         });
     },
@@ -202,7 +202,7 @@ export default function Dashboard() {
     (entry) => {
       const location = locations.find((l) => l.name === entry.name);
       if (location)
-        navigate(`/profile/locations/${location.id}/metrics`, {
+        navigate(`/spots/${location.id}/metrics`, {
           state: { name: location.name },
         });
     },
@@ -251,7 +251,7 @@ export default function Dashboard() {
           <StatCard
             label="Last Surf"
             value={lastSurf ? formatMonthDay(lastSurf) : "—"}
-            subtitle={formatLastSurfSessionSubtitle(lastSession, lastSurf, { appendBoard: true })}
+            subtitle={formatLastSurfSessionSubtitle(lastSession, lastSurf, { appendBoard: true, compact: true })}
             color="neon-purple"
             icon={Calendar2}
           />
