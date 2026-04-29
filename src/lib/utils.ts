@@ -1,14 +1,15 @@
 import { DAYS_OF_WEEK, MONTHS } from './constants'
 import { degreesToCompass } from './openmeteo'
+import { Session } from '../types/db'
 
 const YEAR_COLORS = ['#00CFFF', '#FF2D78', '#FFE600', '#BF00FF']
 
 // Parse a YYYY-MM-DD date string as local time (avoids UTC offset shifting the day)
-export function parseLocalDate(dateStr) {
+export function parseLocalDate(dateStr: string) {
   return new Date(dateStr + 'T12:00:00')
 }
 
-export function formatDate(dateStr) {
+export function formatDate(dateStr: string | null | undefined) {
   if (!dateStr) return ''
   return parseLocalDate(dateStr).toLocaleDateString('en-US', {
     month: 'short',
@@ -17,7 +18,7 @@ export function formatDate(dateStr) {
   })
 }
 
-export function formatMonthDay(dateStr) {
+export function formatMonthDay(dateStr: string) {
   if (!dateStr) return ''
   return parseLocalDate(dateStr).toLocaleDateString('en-US', {
     month: 'short',
@@ -30,13 +31,13 @@ export function todayStr() {
   return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-')
 }
 
-function offsetDayStr(days) {
+function offsetDayStr(days: number) {
   const d = new Date()
   d.setDate(d.getDate() + days)
   return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-')
 }
 
-export function formatTimeSince(dateStr) {
+export function formatTimeSince(dateStr: string) {
   if (!dateStr) return ''
   const past = parseLocalDate(dateStr)
   const now = new Date()
@@ -74,7 +75,7 @@ export function formatTimeSince(dateStr) {
  * Subtitle for “last surf” cards: time, swell, period, compass, °F, then optional tail.
  * @param {{ omitLocation?: boolean, appendBoard?: boolean }} [options] — `omitLocation`: drop spot name (e.g. location metrics). `appendBoard`: add brand/model (after location when shown; alone on location metrics).
  */
-export function formatLastSurfSessionSubtitle(session, dateStr, options = {}) {
+export function formatLastSurfSessionSubtitle(session: Session, dateStr: string, options: { appendBoard?: boolean, compact?: boolean, omitLocation?: boolean } = {}) {
   if (!session || !dateStr) return ''
   const { omitLocation = false, appendBoard = false, compact = false } = options
   const relative = formatTimeSince(dateStr)
@@ -98,12 +99,12 @@ export function formatLastSurfSessionSubtitle(session, dateStr, options = {}) {
   return [...core, ...tail].filter(Boolean).join(' · ')
 }
 
-export function formatShortDate(dateStr) {
+export function formatShortDate(dateStr: string) {
   if (!dateStr) return ''
   return parseLocalDate(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
-function streakRange(dates, count) {
+function streakRange(dates: string[], count: number) {
   const end = dates[0]
   const start = dates[count - 1]
   return start === end ? formatShortDate(start) : `${formatShortDate(start)} – ${formatShortDate(end)}`
@@ -111,7 +112,12 @@ function streakRange(dates, count) {
 
 // Calculate the current active streak (consecutive days with at least one surf)
 // Returns { count, range }
-export function calculateStreak(sessions) {
+
+export interface StreakResult {
+  count: number;
+  range: string | null
+}
+export function calculateStreak(sessions: Session[]): StreakResult {
   if (!sessions?.length) return { count: 0, range: null }
 
   const dates = [...new Set(sessions.map(s => s.date))].sort().reverse()
@@ -135,7 +141,7 @@ export function calculateStreak(sessions) {
 
 // Calculate the longest streak ever
 // Returns { count, range }
-export function calculateLongestStreak(sessions) {
+export function calculateLongestStreak(sessions: Session[]) {
   if (!sessions?.length) return { count: 0, range: null }
 
   const dates = [...new Set(sessions.map(s => s.date))].sort() // ascending
@@ -164,8 +170,14 @@ export function calculateLongestStreak(sessions) {
   return { count: best.count, range }
 }
 
-export function computeMonthlyByYear(sessions, { years, maxMonth }) {
+interface MonthlyByYearOpts {
+  years: number[];
+  maxMonth?: number | null
+}
+
+export function computeMonthlyByYear(sessions: Session[], opts: MonthlyByYearOpts) {
   const counts = {}
+  const { years, maxMonth } = opts
   years.forEach(y => { counts[y] = new Array(12).fill(0) })
   sessions.forEach(s => {
     const d = parseLocalDate(s.date)
@@ -183,7 +195,7 @@ export function computeMonthlyByYear(sessions, { years, maxMonth }) {
   return { data, bars }
 }
 
-export function computeWaterTempByMonth(sessions) {
+export function computeWaterTempByMonth(sessions: Session[]) {
   const buckets = MONTHS.map(() => [])
   sessions.forEach(s => {
     if (s.water_temp_c == null) return
@@ -201,7 +213,24 @@ export function computeWaterTempByMonth(sessions) {
   })
 }
 
-export function computeDashboardStats(sessions) {
+interface NamedCount {
+  name: string;
+  count: number
+}
+
+export interface DashboardStats {
+  total: number;
+  byDayOfWeek: NamedCount[];
+  byMonth: NamedCount[];
+  byWaveSize: NamedCount[];
+  bySwellSize: NamedCount[];
+  byPeriod: NamedCount[];
+  byLocation: NamedCount[];
+  byBoard: NamedCount[];
+  byFinType: NamedCount[];
+}
+
+export function computeDashboardStats(sessions: Session[]): DashboardStats {
   if (!sessions?.length) {
     return {
       total: 0,
