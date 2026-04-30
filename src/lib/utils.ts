@@ -61,7 +61,7 @@ export function formatTimeSince(dateStr: string | null | undefined): string {
     return `${days} ${days === 1 ? 'day' : 'days'}`
   }
 
-  const parts = []
+  const parts: string[] = []
   if (years > 0) parts.push(`${years} ${years === 1 ? 'year' : 'years'}`)
   if (months > 0) parts.push(`${months} ${months === 1 ? 'month' : 'months'}`)
   if (days > 0) parts.push(`${days} ${days === 1 ? 'day' : 'days'}`)
@@ -75,7 +75,15 @@ export function formatTimeSince(dateStr: string | null | undefined): string {
  * Subtitle for “last surf” cards: time, swell, period, compass, °F, then optional tail.
  * @param {{ omitLocation?: boolean, appendBoard?: boolean }} [options] — `omitLocation`: drop spot name (e.g. location metrics). `appendBoard`: add brand/model (after location when shown; alone on location metrics).
  */
-export function formatLastSurfSessionSubtitle(session: Session, dateStr: string, options: { appendBoard?: boolean, compact?: boolean, omitLocation?: boolean } = {}) {
+export function formatLastSurfSessionSubtitle(
+  session: Session | null | undefined,
+  dateStr: string | null | undefined,
+  options: {
+    appendBoard?: boolean,
+    compact?: boolean,
+    omitLocation?: boolean
+  } = {}
+): string {
   if (!session || !dateStr) return ''
   const { omitLocation = false, appendBoard = false, compact = false } = options
   const relative = formatTimeSince(dateStr)
@@ -89,7 +97,7 @@ export function formatLastSurfSessionSubtitle(session: Session, dateStr: string,
       : null,
   ].filter(Boolean)
 
-  const tail = []
+  const tail: string[] = []
   if (!omitLocation && session.location?.name) tail.push(session.location.name)
   if (appendBoard && session.board) {
     const boardLabel = `${session.board.brand ?? ''} ${session.board.model ?? ''}`.trim()
@@ -99,12 +107,12 @@ export function formatLastSurfSessionSubtitle(session: Session, dateStr: string,
   return [...core, ...tail].filter(Boolean).join(' · ')
 }
 
-export function formatShortDate(dateStr: string) {
+export function formatShortDate(dateStr: string | null | undefined): string {
   if (!dateStr) return ''
   return parseLocalDate(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
-function streakRange(dates: string[], count: number) {
+function streakRange(dates: string[], count: number): string {
   const end = dates[0]
   const start = dates[count - 1]
   return start === end ? formatShortDate(start) : `${formatShortDate(start)} – ${formatShortDate(end)}`
@@ -141,7 +149,7 @@ export function calculateStreak(sessions: Session[]): StreakResult {
 
 // Calculate the longest streak ever
 // Returns { count, range }
-export function calculateLongestStreak(sessions: Session[]) {
+export function calculateLongestStreak(sessions: Session[]): StreakResult {
   if (!sessions?.length) return { count: 0, range: null }
 
   const dates = [...new Set(sessions.map(s => s.date))].sort() // ascending
@@ -176,7 +184,7 @@ interface MonthlyByYearOpts {
 }
 
 export function computeMonthlyByYear(sessions: Session[], opts: MonthlyByYearOpts) {
-  const counts = {}
+  const counts: Record<number, number[]> = {}
   const { years, maxMonth } = opts
   years.forEach(y => { counts[y] = new Array(12).fill(0) })
   sessions.forEach(s => {
@@ -187,8 +195,9 @@ export function computeMonthlyByYear(sessions: Session[], opts: MonthlyByYearOpt
 
   const monthSlice = maxMonth != null ? MONTHS.slice(0, maxMonth + 1) : MONTHS
   const data = monthSlice.map((name, i) => {
-    const row = { name }
+    const row: { name: string;[year: number]: number } = { name }
     years.forEach(y => { row[y] = counts[y][i] })
+    console.log(counts)
     return row
   })
   const bars = years.map((y, i) => ({ key: String(y), color: YEAR_COLORS[i % YEAR_COLORS.length], label: String(y) }))
