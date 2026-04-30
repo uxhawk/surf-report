@@ -183,7 +183,23 @@ interface MonthlyByYearOpts {
   maxMonth?: number | null
 }
 
-export function computeMonthlyByYear(sessions: Session[], opts: MonthlyByYearOpts) {
+interface YearBar {
+  key: string;
+  color: string;
+  label: string;
+}
+
+interface MonthlyRow {
+  name: string,
+  [year: number]: number
+}
+
+interface MonthlyByYear {
+  data: MonthlyRow[],
+  bars: YearBar[]
+}
+
+export function computeMonthlyByYear(sessions: Session[], opts: MonthlyByYearOpts): MonthlyByYear {
   const counts: Record<number, number[]> = {}
   const { years, maxMonth } = opts
   years.forEach(y => { counts[y] = new Array(12).fill(0) })
@@ -195,9 +211,8 @@ export function computeMonthlyByYear(sessions: Session[], opts: MonthlyByYearOpt
 
   const monthSlice = maxMonth != null ? MONTHS.slice(0, maxMonth + 1) : MONTHS
   const data = monthSlice.map((name, i) => {
-    const row: { name: string;[year: number]: number } = { name }
+    const row: MonthlyRow = { name }
     years.forEach(y => { row[y] = counts[y][i] })
-    console.log(counts)
     return row
   })
   const bars = years.map((y, i) => ({ key: String(y), color: YEAR_COLORS[i % YEAR_COLORS.length], label: String(y) }))
