@@ -5,11 +5,11 @@ import { Session } from '../types/db'
 const YEAR_COLORS = ['#00CFFF', '#FF2D78', '#FFE600', '#BF00FF']
 
 // Parse a YYYY-MM-DD date string as local time (avoids UTC offset shifting the day)
-export function parseLocalDate(dateStr: string) {
+export function parseLocalDate(dateStr: string): Date {
   return new Date(dateStr + 'T12:00:00')
 }
 
-export function formatDate(dateStr: string | null | undefined) {
+export function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return ''
   return parseLocalDate(dateStr).toLocaleDateString('en-US', {
     month: 'short',
@@ -18,7 +18,7 @@ export function formatDate(dateStr: string | null | undefined) {
   })
 }
 
-export function formatMonthDay(dateStr: string) {
+export function formatMonthDay(dateStr: string | null | undefined): string {
   if (!dateStr) return ''
   return parseLocalDate(dateStr).toLocaleDateString('en-US', {
     month: 'short',
@@ -26,18 +26,18 @@ export function formatMonthDay(dateStr: string) {
   })
 }
 
-export function todayStr() {
+export function todayStr(): string {
   const d = new Date()
   return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-')
 }
 
-function offsetDayStr(days: number) {
+function offsetDayStr(days: number): string {
   const d = new Date()
   d.setDate(d.getDate() + days)
   return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-')
 }
 
-export function formatTimeSince(dateStr: string) {
+export function formatTimeSince(dateStr: string | null | undefined): string {
   if (!dateStr) return ''
   const past = parseLocalDate(dateStr)
   const now = new Date()
@@ -130,8 +130,8 @@ export function calculateStreak(sessions: Session[]): StreakResult {
 
   let streak = 1
   for (let i = 0; i < dates.length - 1; i++) {
-    const curr = parseLocalDate(dates[i])
-    const prev = parseLocalDate(dates[i + 1])
+    const curr = parseLocalDate(dates[i]).getTime()
+    const prev = parseLocalDate(dates[i + 1]).getTime()
     const diffDays = Math.round((curr - prev) / (1000 * 60 * 60 * 24))
     if (diffDays === 1) streak++
     else break
@@ -152,8 +152,8 @@ export function calculateLongestStreak(sessions: Session[]) {
   let curCount = 1
 
   for (let i = 1; i < dates.length; i++) {
-    const prev = parseLocalDate(dates[i - 1])
-    const curr = parseLocalDate(dates[i])
+    const prev = parseLocalDate(dates[i - 1]).getTime()
+    const curr = parseLocalDate(dates[i]).getTime()
     const diffDays = Math.round((curr - prev) / (1000 * 60 * 60 * 24))
     if (diffDays === 1) {
       curCount++
@@ -214,8 +214,8 @@ export function computeWaterTempByMonth(sessions: Session[]) {
 }
 
 interface NamedCount {
-  name: string;
-  count: number
+  name?: string;
+  count?: number
 }
 
 export interface DashboardStats {
@@ -260,7 +260,7 @@ export function computeDashboardStats(sessions: Session[]): DashboardStats {
   })
 
   // By wave size (self-reported + API swell bucketed into the same ranges)
-  const waveCounts = {}
+  const waveCounts: NamedCount = {}
   sessions.forEach(s => {
     if (s.waves) waveCounts[s.waves] = (waveCounts[s.waves] ?? 0) + 1
   })
@@ -282,7 +282,7 @@ export function computeDashboardStats(sessions: Session[]): DashboardStats {
     matches.sort((a, b) => a.span - b.span)
     swellCounts[matches[0].label]++
   })
-  const bySwellSize = Object.entries(swellCounts)
+  const bySwellSize: NamedCount[] = Object.entries(swellCounts)
     .filter(([, count]) => count > 0)
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
@@ -295,12 +295,12 @@ export function computeDashboardStats(sessions: Session[]): DashboardStats {
     else if (s.swell_period <= 13) periodBuckets['Medium (10-13s)']++
     else periodBuckets['Long / Groundswell (≥14s)']++
   })
-  const byPeriod = Object.entries(periodBuckets)
+  const byPeriod: NamedCount[] = Object.entries(periodBuckets)
     .filter(([, count]) => count > 0)
     .map(([name, count]) => ({ name, count }))
 
   // By location
-  const locationCounts = {}
+  const locationCounts: NamedCount = {}
   sessions.forEach(s => {
     const name = s.location?.name ?? 'Unknown'
     locationCounts[name] = (locationCounts[name] ?? 0) + 1
@@ -310,19 +310,19 @@ export function computeDashboardStats(sessions: Session[]): DashboardStats {
     .sort((a, b) => b.count - a.count)
 
   // By board
-  const boardCounts = {}
+  const boardCounts: NamedCount = {}
   sessions.forEach(s => {
     if (s.board) {
       const name = `${s.board.brand} ${s.board.model}`
       boardCounts[name] = (boardCounts[name] ?? 0) + 1
     }
   })
-  const byBoard = Object.entries(boardCounts)
+  const byBoard: NamedCount[] = Object.entries(boardCounts)
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count)
 
   // By fin setup (brand + model + setup as key, e.g. "Rob Machado Quad")
-  const finTypeCounts = {}
+  const finTypeCounts: NamedCount = {}
   sessions.forEach(s => {
     if (s.fins?.setup) {
       const name = `${s.fins.brand} ${s.fins.model} ${s.fins.setup}`
