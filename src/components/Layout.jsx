@@ -36,7 +36,7 @@ export default function Layout({ children }) {
   return (
     <div className="min-h-dvh bg-retro-bg flex flex-col max-w-2xl mx-auto">
       {/* Sticky title bar */}
-      <header className="sticky top-0 z-40 bg-retro-bg border-b border-retro-border px-4 pb-3 pt-[calc(0.25rem+env(safe-area-inset-top,0px))] flex items-center gap-3">
+      <header className="sticky top-0 z-40 bg-retro-bg border-b border-retro-border px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] flex items-center gap-3">
         {hasBack && (
           <Button size="sm" variant="ghost" onClick={() => navigate(-1)}>
             <CornerUpLeft className="w-4 h-4" /> Back
