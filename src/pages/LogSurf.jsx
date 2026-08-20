@@ -98,6 +98,9 @@ export default function LogSurf() {
   const activeFins = useMemo(() => fins.filter(f => !f.archived), [fins])
 
   useEffect(() => {
+    // Locations, boards, and fins load in parallel; defaults can only be
+    // resolved once all three are present, so wait out the stragglers.
+    if (locLoading || boardLoading || finsLoading) return
     if (!activeLocations.length || form.location_id) return
     const oceanside = activeLocations.find(l => l.name.toLowerCase() === 'oceanside')
     if (!oceanside) return
@@ -107,7 +110,7 @@ export default function LogSurf() {
       applyLocationGearDefaults(oceanside, next, activeBoards, activeFins)
       return next
     })
-  }, [activeLocations, activeBoards, activeFins, form.location_id])
+  }, [locLoading, boardLoading, finsLoading, activeLocations, activeBoards, activeFins, form.location_id])
 
   useEffect(() => {
     if (!form.date || !form.location_id) return
