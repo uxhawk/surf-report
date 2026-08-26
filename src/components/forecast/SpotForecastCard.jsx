@@ -8,8 +8,10 @@ import { DirectionArrow } from './DirectionArrow'
 /**
  * At-a-glance forecast card for one spot: today's rating, size range,
  * dominant swell, current wind, water temp, and a 48h size sparkline.
+ * `framed: false` drops the card chrome so a parent (e.g. the sortable
+ * wrapper on the Forecast tab) can provide its own.
  */
-export function SpotForecastCard({ name, latitude, longitude, faces = DEFAULT_FACES, onClick }) {
+export function SpotForecastCard({ name, latitude, longitude, faces = DEFAULT_FACES, onClick, framed = true }) {
   const { forecast, loading, error } = useForecast(latitude, longitude)
 
   const today = useMemo(
@@ -34,7 +36,7 @@ export function SpotForecastCard({ name, latitude, longitude, faces = DEFAULT_FA
     <button
       type="button"
       onClick={onClick}
-      className="gradient-border rounded-xl bg-retro-surface p-4 w-full text-left transition-transform duration-150 active:scale-[0.99]"
+      className={`${framed ? 'gradient-border rounded-xl bg-retro-surface ' : ''}p-4 w-full text-left transition-transform duration-150 active:scale-[0.99]`}
     >
       <div className="flex items-center justify-between gap-2 mb-2">
         <p className="text-white font-display text-[10px] truncate">{name}</p>

@@ -94,6 +94,9 @@ export default function ForecastDetail() {
               <span className={`text-[9px] font-display uppercase ${active ? 'text-neon-pink' : 'text-retro-muted'}`}>
                 {dayLabel(d.date, { short: true })}
               </span>
+              <span className={`text-[9px] ${active ? 'text-neon-pink/70' : 'text-retro-muted/60'}`}>
+                {Number(d.date.slice(5, 7))}/{Number(d.date.slice(8, 10))}
+              </span>
               <span className="text-white text-xs font-semibold">
                 {a?.range?.max != null ? `${a.range.max}ft` : '—'}
               </span>

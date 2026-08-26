@@ -11,6 +11,7 @@ export interface Location {
   longitude: number | null;
   default_board_id: string | null;
   faces_degrees: number | null;
+  sort_order: number | null;
 }
 
 export interface Board {

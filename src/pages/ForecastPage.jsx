@@ -1,26 +1,30 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLocations } from '../hooks/useLocations'
 import { geocodeLocation } from '../lib/openmeteo'
 import { SURF_REGIONS } from '../lib/surfSpots'
-import { SpotForecastCard } from '../components/forecast/SpotForecastCard'
+import { SortableSpotList } from '../components/forecast/SortableSpotList'
 import { Spinner } from '../components/ui/Spinner'
 import { EmptyState } from '../components/ui/EmptyState'
+import { useToast } from '../components/ui/Toast'
 import { ChevronDown } from 'pixelarticons/react/ChevronDown.js'
 import { ChevronUp } from 'pixelarticons/react/ChevronUp.js'
 import { MapPin } from 'pixelarticons/react/MapPin.js'
 
 export default function ForecastPage() {
   const navigate = useNavigate()
-  const { locations, loading } = useLocations()
+  const showToast = useToast()
+  const { locations, loading, updateLocation } = useLocations()
 
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [searching, setSearching] = useState(false)
   const [searchError, setSearchError] = useState(null)
   const [openRegion, setOpenRegion] = useState(null)
+  const [sessionOrder, setSessionOrder] = useState(null)
   const debounceRef = useRef(null)
   const requestRef = useRef(0)
+  const orderWarnedRef = useRef(false)
 
   function openDetail({ name, latitude, longitude, faces, spotId }) {
     const params = new URLSearchParams({
@@ -59,9 +63,36 @@ export default function ForecastPage() {
     }, 350)
   }
 
+  const spots = useMemo(() => {
+    const withCoords = locations
+      .filter(l => !l.archived && l.latitude != null && l.longitude != null)
+      .sort((a, b) => {
+        const ao = a.sort_order ?? Infinity
+        const bo = b.sort_order ?? Infinity
+        return ao - bo || a.name.localeCompare(b.name)
+      })
+    if (!sessionOrder) return withCoords
+    // Session order wins while it exists; spots it doesn't know about
+    // (newly added) go to the end.
+    const byId = new Map(withCoords.map(s => [s.id, s]))
+    const ordered = sessionOrder.map(id => byId.get(id)).filter(Boolean)
+    const known = new Set(sessionOrder)
+    return [...ordered, ...withCoords.filter(s => !known.has(s.id))]
+  }, [locations, sessionOrder])
+
+  async function handleReorder(newList) {
+    setSessionOrder(newList.map(s => s.id))
+    const results = await Promise.all(
+      newList.map((s, i) => s.sort_order === i ? { error: null } : updateLocation(s.id, { sort_order: i })),
+    )
+    if (results.some(r => r.error) && !orderWarnedRef.current) {
+      orderWarnedRef.current = true
+      showToast('Order kept for this session — run supabase-forecast-spot-order.sql to save it.')
+    }
+  }
+
   if (loading) return <Spinner />
 
-  const spots = locations.filter(l => !l.archived && l.latitude != null && l.longitude != null)
   const missingCoords = locations.filter(l => !l.archived && (l.latitude == null || l.longitude == null))
 
   return (
@@ -76,24 +107,17 @@ export default function ForecastPage() {
             message="Add coordinates to your spots (Spots tab → edit → location search) to see their forecasts here."
           />
         ) : (
-          <div className="flex flex-col gap-3">
-            {spots.map(spot => (
-              <SpotForecastCard
-                key={spot.id}
-                name={spot.name}
-                latitude={spot.latitude}
-                longitude={spot.longitude}
-                faces={spot.faces_degrees ?? undefined}
-                onClick={() => openDetail({
-                  name: spot.name,
-                  latitude: spot.latitude,
-                  longitude: spot.longitude,
-                  faces: spot.faces_degrees,
-                  spotId: spot.id,
-                })}
-              />
-            ))}
-          </div>
+          <SortableSpotList
+            spots={spots}
+            onReorder={handleReorder}
+            onOpen={spot => openDetail({
+              name: spot.name,
+              latitude: spot.latitude,
+              longitude: spot.longitude,
+              faces: spot.faces_degrees,
+              spotId: spot.id,
+            })}
+          />
         )}
         {missingCoords.length > 0 && spots.length > 0 && (
           <p className="text-retro-muted/60 text-[10px] mt-2">
