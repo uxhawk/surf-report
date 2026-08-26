@@ -253,16 +253,16 @@ export default function Dashboard() {
           {pace && (
             <>
               <StatCard
-                label="Surfs to Date"
-                value={pace.toDate}
-                subtitle={`${pace.prevToDate} in ${pace.prevYear} · ${
+                label="This Time Last Year"
+                value={`${
                   pace.toDate - pace.prevToDate >= 0 ? "+" : ""
                 }${pace.toDate - pace.prevToDate}`}
+                subtitle={`${pace.prevToDate} in ${pace.prevYear}`}
                 color="neon-cyan"
                 icon={Chart}
               />
               <StatCard
-                label={`To Eclipse ${pace.prevYear}`}
+                label="To Eclipse Last Year"
                 value={
                   pace.remaining === 0
                     ? "0/wk"

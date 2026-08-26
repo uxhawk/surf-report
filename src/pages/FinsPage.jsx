@@ -5,17 +5,16 @@ import { FIN_SETUPS } from '../lib/constants'
 import { FormField } from '../components/ui/FormField'
 import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
+import { FormSheet } from '../components/ui/FormSheet'
 import { EmptyState } from '../components/ui/EmptyState'
 import { Spinner } from '../components/ui/Spinner'
 import { PhotoUpload } from '../components/ui/PhotoUpload'
 import { useToast } from '../components/ui/Toast'
 import { SegmentedControl } from '../components/ui/SegmentedControl'
-import { KebabMenu } from '../components/ui/KebabMenu'
+import { CardActions } from '../components/ui/CardActions'
 import { ExpandableDescription } from '../components/ui/ExpandableDescription'
 import { PlusBox } from 'pixelarticons/react/PlusBox.js'
 import { Database } from 'pixelarticons/react/Database.js'
-import { Send } from 'pixelarticons/react/Send.js'
-import { Angry } from 'pixelarticons/react/Angry.js'
 import { Archive } from 'pixelarticons/react/Archive.js'
 import { ImageNew } from 'pixelarticons/react/ImageNew.js'
 import { AArrowUp } from 'pixelarticons/react/AArrowUp.js'
@@ -158,16 +157,15 @@ export default function FinsPage() {
         </p>
       )}
 
-      {showForm && (
-        <form
-          onSubmit={handleSubmit}
-          noValidate
-          className="gradient-border rounded-xl p-4 bg-retro-surface flex flex-col gap-4"
-        >
-          <h2 className="text-neon-yellow font-display text-[9px]">
-            {editingId ? 'Edit Fins' : 'New Fins'}
-          </h2>
-
+      <FormSheet
+        open={showForm}
+        title={editingId ? 'Edit Fins' : 'New Fins'}
+        submitLabel={editingId ? 'Save' : 'Add Fins'}
+        saving={saving}
+        error={saveError}
+        onSubmit={handleSubmit}
+        onCancel={closeForm}
+      >
           <div className="grid grid-cols-2 gap-4">
             <FormField label="Brand" required error={errors.brand}>
               <input type="text" value={form.brand} onChange={e => set('brand', e.target.value)} placeholder="e.g. FCS" />
@@ -212,16 +210,7 @@ export default function FinsPage() {
             </label>
           )}
 
-          {saveError && <p className="text-neon-pink text-xs">{saveError}</p>}
-
-          <div className="flex gap-3">
-            <Button type="button" variant="ghost" className="flex-1" onClick={closeForm}><Angry className="w-4 h-4" /> Cancel</Button>
-            <Button type="submit" variant="primary" className="flex-1" disabled={saving}>
-              {saving ? 'Saving…' : <><Send className="w-4 h-4" /> {editingId ? 'Save' : 'Add Fins'}</>}
-            </Button>
-          </div>
-        </form>
-      )}
+      </FormSheet>
 
       {visible.length === 0 && !showForm ? (
         <EmptyState
@@ -251,7 +240,7 @@ export default function FinsPage() {
                   <span className={`text-[9px] font-display border rounded px-1.5 py-0.5 ${SETUP_COLORS[fin.setup] ?? 'text-retro-muted border-retro-border'}`}>
                     {fin.setup}
                   </span>
-                  <KebabMenu onEdit={() => openEdit(fin)} onDelete={() => { setDeletingId(fin.id); setDeleteError(null) }} />
+                  <CardActions onEdit={() => openEdit(fin)} onDelete={() => { setDeletingId(fin.id); setDeleteError(null) }} />
                 </div>
                 {fin.description && (
                   <ExpandableDescription text={fin.description} />

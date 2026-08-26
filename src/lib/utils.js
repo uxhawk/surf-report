@@ -72,7 +72,7 @@ export function formatTimeSince(dateStr) {
 
 /**
  * Subtitle for “last surf” cards: time, swell, period, compass, °F, then optional tail.
- * @param {{ omitLocation?: boolean, appendBoard?: boolean }} [options] — `omitLocation`: drop spot name (e.g. location metrics). `appendBoard`: add brand/model (after location when shown; alone on location metrics).
+ * @param {{ omitLocation?: boolean, appendBoard?: boolean }} [options] — `omitLocation`: drop spot name (e.g. location metrics). `appendBoard`: add board model (after location when shown; alone on location metrics).
  */
 export function formatLastSurfSessionSubtitle(session, dateStr, options = {}) {
   if (!session || !dateStr) return ''
@@ -90,9 +90,8 @@ export function formatLastSurfSessionSubtitle(session, dateStr, options = {}) {
 
   const tail = []
   if (!omitLocation && session.location?.name) tail.push(session.location.name)
-  if (appendBoard && session.board) {
-    const boardLabel = `${session.board.brand ?? ''} ${session.board.model ?? ''}`.trim()
-    if (boardLabel) tail.push(boardLabel)
+  if (appendBoard && session.board?.model) {
+    tail.push(session.board.model)
   }
 
   return [...core, ...tail].filter(Boolean).join(' · ')
