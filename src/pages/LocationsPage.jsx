@@ -22,7 +22,13 @@ import { AArrowUp } from 'pixelarticons/react/AArrowUp.js'
 import { AArrowDown } from 'pixelarticons/react/AArrowDown.js'
 import { LOCATION_TYPES, LOCATION_TYPE_COLORS } from '../lib/constants'
 
-const EMPTY_FORM = { name: '', description: '', types: [], default_board_id: '', picture_url: '', archived: false, latitude: null, longitude: null }
+const EMPTY_FORM = { name: '', description: '', types: [], default_board_id: '', picture_url: '', archived: false, latitude: null, longitude: null, faces_degrees: '' }
+
+const FACES_OPTIONS = [
+  { label: 'N', value: 0 }, { label: 'NE', value: 45 }, { label: 'E', value: 90 },
+  { label: 'SE', value: 135 }, { label: 'S', value: 180 }, { label: 'SW', value: 225 },
+  { label: 'W', value: 270 }, { label: 'NW', value: 315 },
+]
 
 function validate(form) {
   const errors = {}
@@ -117,7 +123,7 @@ export default function LocationsPage() {
 
   function openEdit(location) {
     setEditingId(location.id)
-    setForm({ name: location.name, description: location.description ?? '', types: location.types ?? [], default_board_id: location.default_board_id ?? '', picture_url: location.picture_url ?? '', archived: location.archived ?? false, latitude: location.latitude ?? null, longitude: location.longitude ?? null })
+    setForm({ name: location.name, description: location.description ?? '', types: location.types ?? [], default_board_id: location.default_board_id ?? '', picture_url: location.picture_url ?? '', archived: location.archived ?? false, latitude: location.latitude ?? null, longitude: location.longitude ?? null, faces_degrees: location.faces_degrees ?? '' })
     setErrors({})
     setSaveError(null)
     resetGeoState()
@@ -155,6 +161,12 @@ export default function LocationsPage() {
     setSaveError(null)
 
     const payload = { name: form.name.trim(), description: form.description.trim() || null, types: form.types, default_board_id: form.default_board_id || null, picture_url: form.picture_url || null, archived: form.archived, latitude: form.latitude, longitude: form.longitude }
+    // Only send faces_degrees when it's in play, so saves keep working if the
+    // supabase-forecast-faces.sql migration hasn't been run yet.
+    const editing = editingId ? locations.find(l => l.id === editingId) : null
+    if (form.faces_degrees !== '' || editing?.faces_degrees != null) {
+      payload.faces_degrees = form.faces_degrees === '' ? null : Number(form.faces_degrees)
+    }
     const { error } = editingId
       ? await updateLocation(editingId, payload)
       : await createLocation(payload)
@@ -279,6 +291,15 @@ export default function LocationsPage() {
                 {geoError && !geoOpen && <p className="text-neon-pink text-xs mt-1">{geoError}</p>}
               </div>
             )}
+          </FormField>
+
+          <FormField label="Faces" hint="Direction the beach faces — used by the forecast to judge offshore vs onshore wind. Defaults to W.">
+            <select value={form.faces_degrees} onChange={e => set('faces_degrees', e.target.value)}>
+              <option value="">Default (W)</option>
+              {FACES_OPTIONS.map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
           </FormField>
 
           <FormField label="Description">

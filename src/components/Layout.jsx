@@ -12,25 +12,34 @@ const PAGE_TITLES = {
   "/you": "You",
 };
 
-function getTitle(pathname, state) {
+function getTitle(pathname, state, search) {
   if (pathname.startsWith("/sessions/")) return "Edit Session";
+  if (pathname === "/home/forecast/spot") {
+    if (state?.name) return state.name;
+    return new URLSearchParams(search).get("name") ?? "Forecast";
+  }
   if (pathname.includes("/metrics")) {
     if (state?.name) return `${state.name} Metrics`;
     if (pathname.startsWith("/quiver/boards/")) return "Board Metrics";
     if (pathname.startsWith("/quiver/fins/")) return "Fin Metrics";
     if (pathname.startsWith("/spots/")) return "Spot Metrics";
   }
+  if (pathname.startsWith("/home")) return "Surf Tracker";
   return PAGE_TITLES[pathname] ?? "Surf Tracker";
 }
 
 function showsBackButton(pathname) {
-  return pathname.startsWith("/sessions/") || pathname.includes("/metrics");
+  return (
+    pathname.startsWith("/sessions/") ||
+    pathname.includes("/metrics") ||
+    pathname === "/home/forecast/spot"
+  );
 }
 
 export default function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const title = getTitle(location.pathname, location.state);
+  const title = getTitle(location.pathname, location.state, location.search);
   const hasBack = showsBackButton(location.pathname);
 
   return (

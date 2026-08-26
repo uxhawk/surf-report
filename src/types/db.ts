@@ -10,6 +10,7 @@ export interface Location {
   latitude: number | null;
   longitude: number | null;
   default_board_id: string | null;
+  faces_degrees: number | null;
 }
 
 export interface Board {
