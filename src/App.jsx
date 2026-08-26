@@ -6,6 +6,9 @@ import Layout from './components/Layout'
 import Login from './pages/Login'
 import ResetPassword from './pages/ResetPassword'
 import Dashboard from './pages/Dashboard'
+import HomeLayout from './pages/HomeLayout'
+import ForecastPage from './pages/ForecastPage'
+import ForecastDetail from './pages/ForecastDetail'
 import LogSurf from './pages/LogSurf'
 import EditSession from './pages/EditSession'
 import QuiverLayout from './pages/QuiverLayout'
@@ -33,7 +36,12 @@ export default function App() {
                   <Layout>
                     <Routes>
                       <Route path="/" element={<Navigate to="/home" replace />} />
-                      <Route path="/home" element={<Dashboard />} />
+                      <Route path="/home" element={<HomeLayout />}>
+                        <Route index element={<Navigate to="data" replace />} />
+                        <Route path="data" element={<Dashboard />} />
+                        <Route path="forecast" element={<ForecastPage />} />
+                      </Route>
+                      <Route path="/home/forecast/spot" element={<ForecastDetail />} />
                       <Route path="/log" element={<LogSurf />} />
                       <Route path="/sessions/:id/edit" element={<EditSession />} />
                       <Route path="/spots" element={<LocationsPage />} />
