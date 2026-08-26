@@ -8,6 +8,7 @@ import {
   computeDashboardStats,
   computeMonthlyByYear,
   computeWaterTempByMonth,
+  computeYearPace,
   calculateStreak,
   calculateLongestStreak,
   formatDate,
@@ -27,6 +28,8 @@ import { Calendar2 } from "pixelarticons/react/Calendar2.js";
 import { Trophy } from "pixelarticons/react/Trophy.js";
 import { Thermometer } from "pixelarticons/react/Thermometer.js";
 import { Sparkle } from "pixelarticons/react/Sparkle.js";
+import { Chart } from "pixelarticons/react/Chart.js";
+import { Target } from "pixelarticons/react/Target.js";
 
 const DEFAULT_FILTERS = {
   year: String(new Date().getFullYear()),
@@ -105,6 +108,7 @@ export default function Dashboard() {
   }, [filtered, filters.year, filters.month]);
 
   const streak = useMemo(() => calculateStreak(sessions), [sessions]);
+  const pace = useMemo(() => computeYearPace(sessions), [sessions]);
   const longestStreak = useMemo(
     () => calculateLongestStreak(yearFiltered),
     [yearFiltered],
@@ -248,6 +252,34 @@ export default function Dashboard() {
             color="neon-yellow"
             icon={Fire}
           />
+          {pace && (
+            <>
+              <StatCard
+                label="Surfs to Date"
+                value={pace.toDate}
+                subtitle={`${pace.prevToDate} in ${pace.prevYear} · ${
+                  pace.toDate - pace.prevToDate >= 0 ? "+" : ""
+                }${pace.toDate - pace.prevToDate}`}
+                color="neon-cyan"
+                icon={Chart}
+              />
+              <StatCard
+                label={`To Eclipse ${pace.prevYear}`}
+                value={
+                  pace.remaining === 0
+                    ? "0/wk"
+                    : `${Math.max(pace.perWeek, 0.1).toFixed(1)}/wk`
+                }
+                subtitle={
+                  pace.remaining === 0
+                    ? `Beat ${pace.prevYear}'s ${pace.prevTotal}!`
+                    : `${pace.remaining} more · ${pace.prevTotal} in ${pace.prevYear}`
+                }
+                color="neon-purple"
+                icon={Target}
+              />
+            </>
+          )}
           <StatCard
             label="Last Surf"
             value={lastSurf ? formatMonthDay(lastSurf) : "—"}

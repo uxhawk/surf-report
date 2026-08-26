@@ -164,6 +164,41 @@ export function calculateLongestStreak(sessions) {
   return { count: best.count, range }
 }
 
+// Compare this year's surf count against the same date last year, and the
+// weekly pace needed for the rest of this year to eclipse last year's total.
+// Anchored to today, so it ignores dashboard filters (like the active streak).
+// Returns null when neither year has any sessions.
+export function computeYearPace(sessions) {
+  const now = new Date()
+  const year = now.getFullYear()
+  const prevYear = year - 1
+  const today = todayStr()
+  const prevCutoff = `${prevYear}${today.slice(4)}` // same month/day, last year
+
+  let toDate = 0
+  let prevToDate = 0
+  let prevTotal = 0
+  sessions.forEach(s => {
+    if (!s.date) return
+    const y = Number(s.date.slice(0, 4))
+    if (y === year && s.date <= today) toDate++
+    else if (y === prevYear) {
+      prevTotal++
+      if (s.date <= prevCutoff) prevToDate++
+    }
+  })
+
+  if (!toDate && !prevTotal) return null
+
+  const endOfYear = new Date(year, 11, 31, 12)
+  const todayNoon = new Date(year, now.getMonth(), now.getDate(), 12)
+  const daysLeft = Math.round((endOfYear - todayNoon) / 86_400_000) + 1 // includes today
+  const remaining = Math.max(prevTotal + 1 - toDate, 0)
+  const perWeek = remaining === 0 ? 0 : (remaining / daysLeft) * 7
+
+  return { year, prevYear, toDate, prevToDate, prevTotal, remaining, perWeek, daysLeft }
+}
+
 export function computeMonthlyByYear(sessions, { years, maxMonth }) {
   const counts = {}
   years.forEach(y => { counts[y] = new Array(12).fill(0) })
