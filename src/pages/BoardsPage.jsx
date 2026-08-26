@@ -12,7 +12,7 @@ import { Spinner } from '../components/ui/Spinner'
 import { PhotoUpload } from '../components/ui/PhotoUpload'
 import { useToast } from '../components/ui/Toast'
 import { SegmentedControl } from '../components/ui/SegmentedControl'
-import { KebabMenu } from '../components/ui/KebabMenu'
+import { CardActions } from '../components/ui/CardActions'
 import { ExpandableDescription } from '../components/ui/ExpandableDescription'
 import { PlusBox } from 'pixelarticons/react/PlusBox.js'
 import { Database } from 'pixelarticons/react/Database.js'
@@ -75,7 +75,7 @@ function BoardCard({ board, fins, onEdit, onDelete, onMetrics }) {
               </span>
             ))}
           </div>
-          <KebabMenu onEdit={() => onEdit(board)} onDelete={() => onDelete(board.id)} />
+          <CardActions onEdit={() => onEdit(board)} onDelete={() => onDelete(board.id)} />
         </div>
         {board.description && (
           <ExpandableDescription text={board.description} />

@@ -11,7 +11,7 @@ import { Spinner } from '../components/ui/Spinner'
 import { PhotoUpload } from '../components/ui/PhotoUpload'
 import { useToast } from '../components/ui/Toast'
 import { SegmentedControl } from '../components/ui/SegmentedControl'
-import { KebabMenu } from '../components/ui/KebabMenu'
+import { CardActions } from '../components/ui/CardActions'
 import { ExpandableDescription } from '../components/ui/ExpandableDescription'
 import { PlusBox } from 'pixelarticons/react/PlusBox.js'
 import { Database } from 'pixelarticons/react/Database.js'
@@ -240,7 +240,7 @@ export default function FinsPage() {
                   <span className={`text-[9px] font-display border rounded px-1.5 py-0.5 ${SETUP_COLORS[fin.setup] ?? 'text-retro-muted border-retro-border'}`}>
                     {fin.setup}
                   </span>
-                  <KebabMenu onEdit={() => openEdit(fin)} onDelete={() => { setDeletingId(fin.id); setDeleteError(null) }} />
+                  <CardActions onEdit={() => openEdit(fin)} onDelete={() => { setDeletingId(fin.id); setDeleteError(null) }} />
                 </div>
                 {fin.description && (
                   <ExpandableDescription text={fin.description} />

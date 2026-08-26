@@ -12,7 +12,7 @@ import { Spinner } from '../components/ui/Spinner'
 import { useToast } from '../components/ui/Toast'
 import { SegmentedControl } from '../components/ui/SegmentedControl'
 import { PhotoUpload } from '../components/ui/PhotoUpload'
-import { KebabMenu } from '../components/ui/KebabMenu'
+import { CardActions } from '../components/ui/CardActions'
 import { ExpandableDescription } from '../components/ui/ExpandableDescription'
 import { PlusBox } from 'pixelarticons/react/PlusBox.js'
 import { Database } from 'pixelarticons/react/Database.js'
@@ -374,7 +374,7 @@ export default function LocationsPage() {
                     </span>
                   ))}
                 </div>
-                <KebabMenu onEdit={() => openEdit(location)} onDelete={() => { setDeletingId(location.id); setDeleteError(null) }} />
+                <CardActions onEdit={() => openEdit(location)} onDelete={() => { setDeletingId(location.id); setDeleteError(null) }} />
               </div>
               {location.latitude != null && location.longitude != null && (
                 <p className="text-retro-muted/60 text-[10px]">📍 {location.latitude.toFixed(4)}°, {location.longitude.toFixed(4)}°</p>
