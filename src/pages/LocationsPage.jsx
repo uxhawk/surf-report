@@ -6,6 +6,7 @@ import { geocodeLocation } from '../lib/openmeteo'
 import { FormField } from '../components/ui/FormField'
 import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
+import { FormSheet } from '../components/ui/FormSheet'
 import { EmptyState } from '../components/ui/EmptyState'
 import { Spinner } from '../components/ui/Spinner'
 import { useToast } from '../components/ui/Toast'
@@ -15,8 +16,6 @@ import { KebabMenu } from '../components/ui/KebabMenu'
 import { ExpandableDescription } from '../components/ui/ExpandableDescription'
 import { PlusBox } from 'pixelarticons/react/PlusBox.js'
 import { Database } from 'pixelarticons/react/Database.js'
-import { Send } from 'pixelarticons/react/Send.js'
-import { Angry } from 'pixelarticons/react/Angry.js'
 import { Archive } from 'pixelarticons/react/Archive.js'
 import { ImageNew } from 'pixelarticons/react/ImageNew.js'
 import { AArrowUp } from 'pixelarticons/react/AArrowUp.js'
@@ -209,16 +208,15 @@ export default function LocationsPage() {
       )}
 
       {/* Add / Edit form */}
-      {showForm && (
-        <form
-          onSubmit={handleSubmit}
-          noValidate
-          className="gradient-border rounded-xl p-4 bg-retro-surface flex flex-col gap-4"
-        >
-          <h2 className="text-neon-yellow font-display text-[9px]">
-            {editingId ? 'Edit Location' : 'New Location'}
-          </h2>
-
+      <FormSheet
+        open={showForm}
+        title={editingId ? 'Edit Location' : 'New Surf Spot'}
+        submitLabel={editingId ? 'Save' : 'Add Spot'}
+        saving={saving}
+        error={saveError}
+        onSubmit={handleSubmit}
+        onCancel={closeForm}
+      >
           <FormField label="Name" required error={errors.name}>
             <input
               type="text"
@@ -336,18 +334,7 @@ export default function LocationsPage() {
             </label>
           )}
 
-          {saveError && (
-            <p className="text-neon-pink text-xs">{saveError}</p>
-          )}
-
-          <div className="flex gap-3">
-            <Button type="button" variant="ghost" className="flex-1" onClick={closeForm}><Angry className="w-4 h-4" /> Cancel</Button>
-            <Button type="submit" variant="primary" className="flex-1" disabled={saving}>
-              {saving ? 'Saving…' : <><Send className="w-4 h-4" /> {editingId ? 'Save' : 'Add Spot'}</>}
-            </Button>
-          </div>
-        </form>
-      )}
+      </FormSheet>
 
       {/* List */}
       {visible.length === 0 && !showForm ? (

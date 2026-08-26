@@ -6,6 +6,7 @@ import { FIN_CONFIGS } from '../lib/constants'
 import { FormField } from '../components/ui/FormField'
 import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
+import { FormSheet } from '../components/ui/FormSheet'
 import { EmptyState } from '../components/ui/EmptyState'
 import { Spinner } from '../components/ui/Spinner'
 import { PhotoUpload } from '../components/ui/PhotoUpload'
@@ -15,8 +16,6 @@ import { KebabMenu } from '../components/ui/KebabMenu'
 import { ExpandableDescription } from '../components/ui/ExpandableDescription'
 import { PlusBox } from 'pixelarticons/react/PlusBox.js'
 import { Database } from 'pixelarticons/react/Database.js'
-import { Send } from 'pixelarticons/react/Send.js'
-import { Angry } from 'pixelarticons/react/Angry.js'
 import { Archive } from 'pixelarticons/react/Archive.js'
 import { ImageNew } from 'pixelarticons/react/ImageNew.js'
 import { AArrowUp } from 'pixelarticons/react/AArrowUp.js'
@@ -246,16 +245,15 @@ export default function BoardsPage() {
         </p>
       )}
 
-      {showForm && (
-        <form
-          onSubmit={handleSubmit}
-          noValidate
-          className="gradient-border rounded-xl p-4 bg-retro-surface flex flex-col gap-4"
-        >
-          <h2 className="text-neon-yellow font-display text-[9px]">
-            {editingId ? 'Edit Board' : 'New Board'}
-          </h2>
-
+      <FormSheet
+        open={showForm}
+        title={editingId ? 'Edit Board' : 'New Board'}
+        submitLabel={editingId ? 'Save' : 'Add Board'}
+        saving={saving}
+        error={saveError}
+        onSubmit={handleSubmit}
+        onCancel={closeForm}
+      >
           <div className="grid grid-cols-2 gap-4">
             <FormField label="Brand" required error={errors.brand}>
               <input type="text" value={form.brand} onChange={e => set('brand', e.target.value)} placeholder="e.g. Channel Islands" />
@@ -325,16 +323,7 @@ export default function BoardsPage() {
             </label>
           )}
 
-          {saveError && <p className="text-neon-pink text-xs">{saveError}</p>}
-
-          <div className="flex gap-3">
-            <Button type="button" variant="ghost" className="flex-1" onClick={closeForm}><Angry className="w-4 h-4" /> Cancel</Button>
-            <Button type="submit" variant="primary" className="flex-1" disabled={saving}>
-              {saving ? 'Saving…' : <><Send className="w-4 h-4" /> {editingId ? 'Save' : 'Add Board'}</>}
-            </Button>
-          </div>
-        </form>
-      )}
+      </FormSheet>
 
       {visible.length === 0 && !showForm ? (
         <EmptyState
