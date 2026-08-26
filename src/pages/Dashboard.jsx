@@ -180,7 +180,7 @@ export default function Dashboard() {
 
   const handleBoardClick = useCallback(
     (entry) => {
-      const board = boards.find((b) => `${b.brand} ${b.model}` === entry.name);
+      const board = boards.find((b) => b.model === entry.name);
       if (board)
         navigate(`/quiver/boards/${board.id}/metrics`, {
           state: { name: `${board.brand} ${board.model}` },
@@ -191,9 +191,7 @@ export default function Dashboard() {
 
   const handleFinClick = useCallback(
     (entry) => {
-      const fin = fins.find(
-        (f) => `${f.brand} ${f.model} ${f.setup}` === entry.name,
-      );
+      const fin = fins.find((f) => f.model === entry.name);
       if (fin)
         navigate(`/quiver/fins/${fin.id}/metrics`, {
           state: { name: `${fin.brand} ${fin.model} · ${fin.setup}` },
