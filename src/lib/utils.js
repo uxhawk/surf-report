@@ -280,11 +280,11 @@ export function computeDashboardStats(sessions) {
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count)
 
-  // By board
+  // By board (model only — chart labels stay short)
   const boardCounts = {}
   sessions.forEach(s => {
-    if (s.board) {
-      const name = `${s.board.brand} ${s.board.model}`
+    if (s.board?.model) {
+      const name = s.board.model
       boardCounts[name] = (boardCounts[name] ?? 0) + 1
     }
   })
@@ -292,11 +292,11 @@ export function computeDashboardStats(sessions) {
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count)
 
-  // By fin setup (brand + model + setup as key, e.g. "Rob Machado Quad")
+  // By fin (model only — chart labels stay short)
   const finTypeCounts = {}
   sessions.forEach(s => {
-    if (s.fins?.setup) {
-      const name = `${s.fins.brand} ${s.fins.model} ${s.fins.setup}`
+    if (s.fins?.model) {
+      const name = s.fins.model
       finTypeCounts[name] = (finTypeCounts[name] ?? 0) + 1
     }
   })
