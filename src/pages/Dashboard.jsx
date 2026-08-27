@@ -14,7 +14,6 @@ import {
   formatDate,
   parseLocalDate,
   formatMonthDay,
-  formatNumericDate,
   formatLastSurfSessionSubtitle,
 } from "../lib/utils";
 import { StatCard } from "../components/dashboard/StatCard";
@@ -258,7 +257,7 @@ export default function Dashboard() {
                 value={`${
                   pace.toDate - pace.prevToDate >= 0 ? "+" : ""
                 }${pace.toDate - pace.prevToDate}`}
-                subtitle={`${pace.prevToDate} as of ${formatNumericDate(pace.prevCutoff)}`}
+                subtitle={`${pace.prevToDate} as of ${formatDate(pace.prevCutoff)}`}
                 color="neon-cyan"
                 icon={Chart}
               />
