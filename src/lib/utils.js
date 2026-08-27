@@ -102,13 +102,6 @@ export function formatShortDate(dateStr) {
   return parseLocalDate(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
-// MM/DD/YYYY
-export function formatNumericDate(dateStr) {
-  if (!dateStr) return ''
-  const [y, m, d] = dateStr.split('-')
-  return `${m}/${d}/${y}`
-}
-
 function streakRange(dates, count) {
   const end = dates[0]
   const start = dates[count - 1]
