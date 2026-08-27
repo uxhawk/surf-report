@@ -102,6 +102,13 @@ export function formatShortDate(dateStr) {
   return parseLocalDate(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
+// MM/DD/YYYY
+export function formatNumericDate(dateStr) {
+  if (!dateStr) return ''
+  const [y, m, d] = dateStr.split('-')
+  return `${m}/${d}/${y}`
+}
+
 function streakRange(dates, count) {
   const end = dates[0]
   const start = dates[count - 1]
@@ -195,7 +202,7 @@ export function computeYearPace(sessions) {
   const remaining = Math.max(prevTotal + 1 - toDate, 0)
   const perWeek = remaining === 0 ? 0 : (remaining / daysLeft) * 7
 
-  return { year, prevYear, toDate, prevToDate, prevTotal, remaining, perWeek, daysLeft }
+  return { year, prevYear, toDate, prevToDate, prevCutoff, prevTotal, remaining, perWeek, daysLeft }
 }
 
 export function computeMonthlyByYear(sessions, { years, maxMonth }) {
