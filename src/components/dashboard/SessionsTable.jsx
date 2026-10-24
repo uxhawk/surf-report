@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Delete } from 'pixelarticons/react/Delete.js'
 import { MagicEdit } from 'pixelarticons/react/MagicEdit.js'
-import { formatDate, parseLocalDate } from '../../lib/utils'
+import { formatDate } from '../../lib/utils'
 import { degreesToCompass } from '../../lib/openmeteo'
 import { Button } from '../ui/Button'
 import { Modal } from '../ui/Modal'
@@ -34,18 +34,20 @@ function SortHeader({ label, field, sortField, sortDir, onSort, className = '' }
   )
 }
 
-export function SessionsTable({ sessions, onDelete }) {
+export function SessionsTable({ sessions, onDelete, hideColumns = [] }) {
   const navigate = useNavigate()
   const [deletingId, setDeletingId] = useState(null)
   const [expandedIds, setExpandedIds] = useState(new Set())
   const [search, setSearch] = useState('')
   const [sortField, setSortField] = useState('date')
   const [sortDir, setSortDir] = useState('desc')
+  const show = col => !hideColumns.includes(col)
 
   function toggleExpand(id) {
     setExpandedIds(prev => {
       const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
       return next
     })
   }
@@ -108,7 +110,7 @@ export function SessionsTable({ sessions, onDelete }) {
             className="flex-1 text-xs"
           >
             <option value="date">Date</option>
-            <option value="location">Location</option>
+            {show('location') && <option value="location">Location</option>}
             <option value="waves">Waves</option>
             <option value="swell">Swell</option>
             <option value="period">Period</option>
@@ -145,11 +147,17 @@ export function SessionsTable({ sessions, onDelete }) {
                     <Button size="sm" variant="danger" onClick={() => setDeletingId(s.id)}><Delete className="w-4 h-4" /> Delete</Button>
                   </div>
                 </div>
-                <div className="text-white text-sm">{s.location?.name ?? '—'}</div>
-                <div className="text-retro-muted text-xs">
-                  {s.board ? `${s.board.brand} ${s.board.model}` : '—'} ·{' '}
-                  {s.fins ? `${s.fins.brand} ${s.fins.model}` : '—'}
-                </div>
+                {show('location') && (
+                  <div className="text-white text-sm">{s.location?.name ?? '—'}</div>
+                )}
+                {(show('board') || show('fins')) && (
+                  <div className="text-retro-muted text-xs">
+                    {[
+                      show('board') && (s.board ? `${s.board.brand} ${s.board.model}` : '—'),
+                      show('fins') && (s.fins ? `${s.fins.brand} ${s.fins.model}` : '—'),
+                    ].filter(Boolean).join(' · ')}
+                  </div>
+                )}
                 {s.swell_height != null && (
                   <div className="flex gap-3 text-[10px] text-neon-cyan/80">
                     <span>{s.swell_height} ft</span>
@@ -179,9 +187,9 @@ export function SessionsTable({ sessions, onDelete }) {
               <thead className="sticky top-0 z-10 bg-retro-surface">
                 <tr className="text-retro-muted text-xs uppercase border-b border-retro-border">
                   <SortHeader label="Date" field="date" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
-                  <SortHeader label="Location" field="location" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
-                  <th className="text-left px-4 py-3 font-medium">Board</th>
-                  <th className="text-left px-4 py-3 font-medium">Fins</th>
+                  {show('location') && <SortHeader label="Location" field="location" sortField={sortField} sortDir={sortDir} onSort={handleSort} />}
+                  {show('board') && <th className="text-left px-4 py-3 font-medium">Board</th>}
+                  {show('fins') && <th className="text-left px-4 py-3 font-medium">Fins</th>}
                   <SortHeader label="Waves" field="waves" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                   <SortHeader label="Swell" field="swell" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                   <SortHeader label="Period" field="period" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
@@ -198,13 +206,17 @@ export function SessionsTable({ sessions, onDelete }) {
                     className="hover:bg-retro-surface2 transition-colors"
                   >
                     <td className="px-4 py-3 text-neon-yellow whitespace-nowrap">{formatDate(s.date)}</td>
-                    <td className="px-4 py-3 text-white">{s.location?.name ?? '—'}</td>
-                    <td className="px-4 py-3 text-white whitespace-nowrap">
-                      {s.board ? `${s.board.brand} ${s.board.model}` : '—'}
-                    </td>
-                    <td className="px-4 py-3 text-white whitespace-nowrap">
-                      {s.fins ? `${s.fins.brand} ${s.fins.model}` : '—'}
-                    </td>
+                    {show('location') && <td className="px-4 py-3 text-white">{s.location?.name ?? '—'}</td>}
+                    {show('board') && (
+                      <td className="px-4 py-3 text-white whitespace-nowrap">
+                        {s.board ? `${s.board.brand} ${s.board.model}` : '—'}
+                      </td>
+                    )}
+                    {show('fins') && (
+                      <td className="px-4 py-3 text-white whitespace-nowrap">
+                        {s.fins ? `${s.fins.brand} ${s.fins.model}` : '—'}
+                      </td>
+                    )}
                     <td className="px-4 py-3 text-retro-muted">{s.waves} ft</td>
                     <td className="px-4 py-3 text-neon-cyan/80 whitespace-nowrap text-xs">{s.swell_height != null ? `${s.swell_height} ft` : '—'}</td>
                     <td className="px-4 py-3 text-neon-cyan/80 whitespace-nowrap text-xs">{s.swell_period != null ? `${s.swell_period}s` : '—'}</td>

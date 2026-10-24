@@ -7,6 +7,7 @@ import { useLocations } from '../hooks/useLocations'
 import { computeDashboardStats, computeWaterTempByMonth, parseLocalDate, formatDate, formatMonthDay, formatLastSurfSessionSubtitle } from '../lib/utils'
 import { SurfChart } from '../components/dashboard/SurfChart'
 import { StatCard } from '../components/dashboard/StatCard'
+import { SessionsTable } from '../components/dashboard/SessionsTable'
 import { Spinner } from '../components/ui/Spinner'
 import { Bookmark } from 'pixelarticons/react/Bookmark.js'
 import { Calendar2 } from 'pixelarticons/react/Calendar2.js'
@@ -26,6 +27,9 @@ function computeWaveSizes(sessions) {
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
 }
 
+// Each metric view is already scoped to one item, so its own column is redundant in the table
+const HIDDEN_COLUMNS = { board: ['board'], fin: ['fins'], location: ['location'] }
+
 export default function GearMetrics({ type }) {
   const { id } = useParams()
   const routerLocation = useLocation()
@@ -33,7 +37,7 @@ export default function GearMetrics({ type }) {
   const [year, setYear] = useState('')
   const years = [2026, 2025]
 
-  const { sessions, loading: sessionsLoading } = useSessions()
+  const { sessions, loading: sessionsLoading, deleteSession } = useSessions()
   const { boards, loading: boardsLoading } = useBoards()
   const { fins, loading: finsLoading } = useFins()
   const { locations, loading: locationsLoading } = useLocations()
@@ -233,6 +237,16 @@ export default function GearMetrics({ type }) {
           <SurfChart title="Monthly Breakdown" data={stats.byMonth} color="#FFE600" />
           <SurfChart title="Days of Week" data={stats.byDayOfWeek} color="#00CFFF" />
         </>)}
+
+        {/* Sessions table */}
+        <div>
+          <h2 className="text-neon-yellow font-display text-[9px] uppercase mb-3">
+            Sessions ({filtered.length})
+          </h2>
+          <div className="gradient-border rounded-xl overflow-hidden bg-retro-surface">
+            <SessionsTable sessions={filtered} onDelete={deleteSession} hideColumns={HIDDEN_COLUMNS[type] ?? []} />
+          </div>
+        </div>
       </div>
     </div>
   )
