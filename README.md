@@ -21,7 +21,7 @@ A personal log for surf sessions — what you rode, where, in what conditions, a
 - **react-router-dom 7** with `HashRouter`
 - **pixelarticons** for the icon set
 - **Open-Meteo Marine API** for swell + sea-surface temperature
-- **Nominatim** (OpenStreetMap) for location geocoding
+- **Surfline** spot taxonomy, bundled at build time, for the spot search — with **Nominatim** (OpenStreetMap) as the fallback
 
 ## Getting started
 
@@ -77,6 +77,7 @@ You also need a Storage bucket named `gear-photos` with public read access for b
 | `npm run lint` | ESLint + typescript-eslint |
 | `npm run typecheck` | TypeScript type-check (no emit) |
 | `npm run backfill-swell` | Backfill swell data on existing sessions from Open-Meteo |
+| `npm run build-spots` | Refresh `src/data/surflineSpots.json` from Surfline's spot taxonomy |
 
 ## Project structure
 
@@ -94,6 +95,7 @@ src/
 ├── lib/
 │   ├── supabase.js      Supabase client singleton
 │   ├── openmeteo.js     Geocoding + marine API helpers
+│   ├── surflineSpots.js Local search over the bundled Surfline spot list
 │   ├── utils.js         Date formatting, streak math, dashboard aggregations
 │   └── constants.js     Wave sizes, fin setups, location types, color maps
 ├── pages/               One file per route (Dashboard, LogSurf, EditSession, gear pages)
@@ -115,7 +117,7 @@ scripts/
 
 **Data layer.** All Supabase queries go through `lib/supabase.js` and the four hooks in `src/hooks/`. Each hook owns the list state for one resource and exposes `create / update / delete / refresh`. The `useSessions` hook is the only one that joins related rows (`location`, `board`, `fins`) — everything else is a flat query.
 
-**External APIs.** `lib/openmeteo.js` wraps two services. Nominatim handles location geocoding when you add a new spot — it knows beaches, points, and reefs, not just cities. Open-Meteo Marine returns daily swell (height, period, direction) and hourly sea-surface temperature; the form fetches both whenever date + location change.
+**External APIs.** `lib/openmeteo.js` wraps two services. Adding a spot searches a bundled list of ~9,000 Surfline surf spots (`src/data/surflineSpots.json`, loaded on demand and searched by `lib/surflineSpots.js`), so "manhattan" finds Manhattan Beach Pier rather than Manhattan, NY; Nominatim is only the fallback when Surfline has no match. Surfline's API can't be called from the browser (it rejects foreign `Origin` headers), so the list is refreshed offline with `npm run build-spots`. Open-Meteo Marine returns daily swell (height, period, direction) and hourly sea-surface temperature; the form fetches both whenever date + location change.
 
 **Styling.** Tailwind v4 with custom `neon-*` and `retro-*` utility classes for the retro/neon look. Mobile-first throughout; the main column is capped at `max-w-2xl` so it reads cleanly on tablets and desktop.
 
