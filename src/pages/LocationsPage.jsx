@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useLocations } from '../hooks/useLocations'
 import { useBoards } from '../hooks/useBoards'
 import { geocodeLocation } from '../lib/openmeteo'
+import { searchSurflineSpots, preloadSurflineSpots, centroid } from '../lib/surflineSpots'
 import { FormField } from '../components/ui/FormField'
 import { Button } from '../components/ui/Button'
 import { Modal } from '../components/ui/Modal'
@@ -41,6 +42,9 @@ export default function LocationsPage() {
   const showToast = useToast()
   const { locations, loading, createLocation, updateLocation, deleteLocation } = useLocations()
   const { boards, loading: boardsLoading } = useBoards()
+  // Centre of the user's existing spots — breaks ties in the Surfline search
+  // so nearby spots rank first.
+  const homeCenter = useMemo(() => centroid(locations), [locations])
 
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -58,6 +62,7 @@ export default function LocationsPage() {
   const [geoError, setGeoError] = useState(null)
   const [geoMatch, setGeoMatch] = useState(null)
   const [geoOpen, setGeoOpen] = useState(false)
+  const [geoSource, setGeoSource] = useState('surfline')
   const geoDebounce = useRef(null)
   const geoRequestId = useRef(0)
 
@@ -77,12 +82,26 @@ export default function LocationsPage() {
       const reqId = ++geoRequestId.current
       setGeoLoading(true)
       try {
-        const results = await geocodeLocation(value)
+        // Surfline's spot list first; fall back to general place search only
+        // when it has nothing (secret spots, lakes, places Surfline doesn't list)
+        // or the list itself couldn't be loaded.
+        let results = []
+        let source = 'surfline'
+        try {
+          results = await searchSurflineSpots(value, { near: homeCenter })
+        } catch {
+          results = []
+        }
+        if (results.length === 0) {
+          results = await geocodeLocation(value)
+          source = 'places'
+        }
         if (reqId !== geoRequestId.current) return
+        setGeoSource(source)
         setGeoResults(results)
         setGeoOpen(results.length > 0)
         if (results.length === 0) {
-          setGeoError('No location found. Try a nearby city or more specific name.')
+          setGeoError('No spot found. Try another spelling or a nearby town.')
         }
       } catch {
         if (reqId !== geoRequestId.current) return
@@ -92,11 +111,19 @@ export default function LocationsPage() {
       } finally {
         if (reqId === geoRequestId.current) setGeoLoading(false)
       }
-    }, 350)
+    }, 250)
   }
 
   function selectGeoResult(result) {
-    setForm(prev => ({ ...prev, latitude: result.latitude, longitude: result.longitude }))
+    // Picking a Surfline spot also fills in the name if it's still blank.
+    const fillName = result.source === 'surfline' && !form.name.trim()
+    setForm(prev => ({
+      ...prev,
+      latitude: result.latitude,
+      longitude: result.longitude,
+      name: fillName ? result.name : prev.name,
+    }))
+    if (fillName && errors.name) setErrors(prev => ({ ...prev, name: undefined }))
     setGeoMatch(result)
     setGeoQuery('')
     setGeoResults([])
@@ -109,6 +136,7 @@ export default function LocationsPage() {
     setGeoError(null)
     setGeoMatch(null)
     setGeoOpen(false)
+    setGeoSource('surfline')
     clearTimeout(geoDebounce.current)
   }
 
@@ -118,6 +146,7 @@ export default function LocationsPage() {
     setErrors({})
     setSaveError(null)
     resetGeoState()
+    preloadSurflineSpots().catch(() => {})
     setShowForm(true)
   }
 
@@ -127,6 +156,7 @@ export default function LocationsPage() {
     setErrors({})
     setSaveError(null)
     resetGeoState()
+    preloadSurflineSpots().catch(() => {})
     setShowForm(true)
   }
 
@@ -239,12 +269,12 @@ export default function LocationsPage() {
             />
           </FormField>
 
-          <FormField label="Location Search" hint="Search for the spot to set coordinates">
+          <FormField label="Location Search" hint="Search Surfline's spot list to set coordinates">
             {form.latitude != null && form.longitude != null ? (
               <div className="flex flex-col gap-1 rounded-lg border border-neon-cyan/20 bg-neon-cyan/5 px-3 py-2">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-neon-cyan text-xs font-semibold truncate">
-                    📍 {geoMatch ? geoMatch.displayName : 'Coordinates set'}
+                    📍 {geoMatch ? geoMatch.name : 'Coordinates set'}
                   </span>
                   <button
                     type="button"
@@ -254,6 +284,9 @@ export default function LocationsPage() {
                     clear
                   </button>
                 </div>
+                {geoMatch?.displayName && geoMatch.displayName !== geoMatch.name && (
+                  <span className="text-retro-muted text-[11px] truncate">{geoMatch.displayName}</span>
+                )}
                 <span className="text-retro-muted text-[11px]">
                   {form.latitude.toFixed(4)}°, {form.longitude.toFixed(4)}°
                 </span>
@@ -264,7 +297,7 @@ export default function LocationsPage() {
                   type="text"
                   value={geoQuery}
                   onChange={e => handleGeoSearch(e.target.value)}
-                  placeholder="e.g. Church San Onofre, Rincon Santa Barbara…"
+                  placeholder="e.g. Manhattan Beach, Church, Rincon…"
                   autoComplete="off"
                 />
                 {geoLoading && (
@@ -274,9 +307,12 @@ export default function LocationsPage() {
                 )}
                 {geoOpen && geoResults.length > 0 && (
                   <div className="absolute z-20 left-0 right-0 top-full mt-1 rounded-lg border border-retro-border bg-retro-surface shadow-lg max-h-60 overflow-y-auto">
+                    <div className="px-3 py-1.5 text-[10px] uppercase tracking-wide text-retro-muted/70 border-b border-retro-border">
+                      {geoSource === 'surfline' ? 'Surfline spots' : 'No Surfline match — showing places'}
+                    </div>
                     {geoResults.map((r, i) => (
                       <button
-                        key={i}
+                        key={r.id ?? i}
                         type="button"
                         onMouseDown={e => e.preventDefault()}
                         onClick={() => selectGeoResult(r)}
